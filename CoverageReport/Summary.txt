@@ -1,0 +1,23 @@
+Summary
+  Generated on: 12/20/2025 - 03:10:48
+  Coverage date: 12/20/2025 - 03:10:22
+  Parser: Cobertura
+  Assemblies: 1
+  Classes: 1
+  Files: 1
+  Line coverage: 100%
+  Covered lines: 26
+  Uncovered lines: 0
+  Coverable lines: 26
+  Total lines: 96
+  Branch coverage: 100% (8 of 8)
+  Covered branches: 8
+  Total branches: 8
+  Method coverage: 100% (4 of 4)
+  Full method coverage: 100% (4 of 4)
+  Covered methods: 4
+  Fully covered methods: 4
+  Total methods: 4
+
+TryPattern          100%
+  TryPattern.Try    100%
