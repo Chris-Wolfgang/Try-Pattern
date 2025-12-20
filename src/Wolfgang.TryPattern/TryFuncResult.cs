@@ -31,11 +31,7 @@ public record TryFuncResult<T>
     )
     {
         Succeeded = succeeded;
-#if NET5_0_OR_GREATER
         Value = value;
-#else
-        Value = value;
-#endif
         Exception = exception;
     }
 
