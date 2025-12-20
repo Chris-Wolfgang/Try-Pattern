@@ -54,7 +54,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            var result = Try.Function(() => 42);
+            _ = Try.Function(() => 42);
         }
     }
 
@@ -63,7 +63,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            var result = Try.Function<int>(() => throw new InvalidOperationException());
+            _ = Try.Function<int>(() => throw new InvalidOperationException());
         }
     }
 
@@ -72,7 +72,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            var result = await Try.FunctionAsync(async () =>
+            _ = await Try.FunctionAsync(async () =>
             {
                 await Task.CompletedTask;
                 return 42;
@@ -85,7 +85,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            var result = await Try.FunctionAsync<int>(async () =>
+            _ = await Try.FunctionAsync<int>(async () =>
             {
                 await Task.CompletedTask;
                 throw new InvalidOperationException();
