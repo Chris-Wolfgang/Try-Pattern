@@ -1,4 +1,4 @@
-namespace TryPattern.Tests;
+namespace Wolfgang.TryPattern.Tests;
 
 public class TryActionAsyncTests
 {
@@ -12,38 +12,53 @@ public class TryActionAsyncTests
         await Assert.ThrowsAsync<ArgumentNullException>(() => Try.ActionAsync(nullAction!));
     }
 
+
+
     [Fact]
     public async Task ActionAsync_WithSuccessfulAction_ExecutesAction()
     {
         // Arrange
         var executed = false;
-        Func<Task> action = async () =>
+        var action = async () =>
         {
             await Task.Delay(10);
             executed = true;
         };
 
         // Act
-        await Try.ActionAsync(action);
+        var result = await Try.ActionAsync(action);
 
         // Assert
         Assert.True(executed);
+        Assert.True(result.Succeeded);
+        Assert.False(result.Failed);
+        Assert.Null(result.Exception);
+
     }
+
+    
 
     [Fact]
     public async Task ActionAsync_WithExceptionThrowingAction_SwallowsException()
     {
         // Arrange
-        Func<Task> action = async () =>
+        var action = async () =>
         {
             await Task.Delay(10);
             throw new InvalidOperationException("Test exception");
         };
 
-        // Act & Assert - Should not throw
-        var exception = await Record.ExceptionAsync(() => Try.ActionAsync(action));
-        Assert.Null(exception);
+        // Act
+        var result = await Try.ActionAsync(action);
+
+        // Assert
+        Assert.False(result.Succeeded);
+        Assert.True(result.Failed);
+        Assert.NotNull(result.Exception);
     }
+
+
+
 
     [Fact]
     public async Task ActionAsync_WithSynchronousException_SwallowsException()
@@ -51,29 +66,36 @@ public class TryActionAsyncTests
         // Arrange
         Func<Task> action = () => throw new InvalidOperationException("Synchronous exception");
 
-        // Act & Assert - Should not throw
-        var exception = await Record.ExceptionAsync(() => Try.ActionAsync(action));
-        Assert.Null(exception);
+        // Act
+        var result = await Try.ActionAsync(action);
+
+        // Assert
+        Assert.False(result.Succeeded);
+        Assert.True(result.Failed);
+        Assert.NotNull(result.Exception);
     }
+
+
 
     [Fact]
     public async Task ActionAsync_WithMultipleAsyncExceptions_SwallowsAllExceptions()
     {
         // Arrange
         var callCount = 0;
-        Func<Task> action1 = async () =>
+
+        var action1 = async () =>
         {
             await Task.Delay(10);
             callCount++;
             throw new ArgumentException();
         };
-        Func<Task> action2 = async () =>
+        var action2 = async () =>
         {
             await Task.Delay(10);
             callCount++;
             throw new InvalidOperationException();
         };
-        Func<Task> action3 = async () =>
+        var action3 = async () =>
         {
             await Task.Delay(10);
             callCount++;
@@ -84,8 +106,6 @@ public class TryActionAsyncTests
         await Try.ActionAsync(action1);
         await Try.ActionAsync(action2);
         await Try.ActionAsync(action3);
-
-        // Assert
-        Assert.Equal(3, callCount);
+        Assert.Equal(3 ,callCount);
     }
 }

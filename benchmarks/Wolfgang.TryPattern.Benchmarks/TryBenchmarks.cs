@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 
-namespace TryPattern.Benchmarks;
+namespace Wolfgang.TryPattern.Benchmarks;
 
 [SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
