@@ -39,10 +39,8 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TryPattern\Wolfgang.TryPattern.csproj" />
     <ProjectReference Include="..\..\src\Wolfgang.TryPattern\Wolfgang.TryPattern.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
