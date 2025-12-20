@@ -27,7 +27,6 @@ public record TryActionResult
     }
 
 
-
     /// Used when action succeeded
     public TryActionResult()
     : this(true, null)
