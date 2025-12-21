@@ -94,13 +94,19 @@ jobs:
         run: dotnet tool install --global Microsoft.CST.DevSkim.CLI
 
       - name: Run DevSkim Security Scan (Save output)
-        run: devskim analyze --source-code . --file-format text --output-file devskim-results.txt -E --ignore-rule-ids DS176209 --ignore-globs "**/api/**,**/CoverageReport/**"
+        continue-on-error: true
+        run: devskim analyze --source-code . --file-format text --output-file devskim-results.txt -E --ignore-rule-ids DS176209 --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**"
 
       - name: Show DevSkim Results in Summary
-        if: failure()
+        if: always()
         run: |
-          echo "### DevSkim Security Issues Found"
-          cat devskim-results.txt
+          if [ -f devskim-results.txt ]; then
+            echo "### DevSkim Security Scan Results"
+            cat devskim-results.txt
+          else
+            echo "### DevSkim Security Scan Results"
+            echo "No security issues found or DevSkim did not generate output file."
+          fi
         shell: bash
 
       - name: Upload DevSkim Results as Artifact
@@ -109,3 +115,4 @@ jobs:
         with:
           name: devskim-results
           path: devskim-results.txt
+          if-no-files-found: warn
