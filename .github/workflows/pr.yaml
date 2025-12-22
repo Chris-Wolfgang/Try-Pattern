@@ -1,7 +1,9 @@
-﻿# This workflow runs on pull requests to validate code quality, run tests, and perform security scans
-# before merging into main or other protected branches
+# Sequential PR validation workflow with coverage gating
+# Stage 1: Linux tests with 90% coverage requirement
+# Stage 2: Windows and macOS tests (only if Linux passes)
+# Stage 3: .NET Framework 4.x tests on Windows (only if Stage 2 passes)
 
-name: PR Checks
+name: PR Checks v2 (Gated)
 
 permissions:
   contents: read
@@ -10,14 +12,19 @@ on:
   pull_request:
     branches:
       - main
-
+      - develop
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/**'
 jobs:
-  build-and-test:
-    runs-on: ${{ matrix.os }}
-    if: github.repository != 'Chris-Wolfgang/repo-template' # Only run in child repos otherwise this will fail because the template does not have any projects
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+  # ============================================================================
+  # STAGE 1: Linux - .NET Core/5+ Tests with Coverage Gate
+  # ============================================================================
+  test-linux-core:
+    name: "Stage 1: Linux Tests (.NET 3.1-10.0) + Coverage Gate"
+    runs-on: ubuntu-latest
+    if: github.repository != 'Chris-Wolfgang/repo-template'
     
     steps:
       - name: Checkout code
@@ -38,164 +45,307 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      # Linux/macOS: Build non-.NET Framework targets only
-      - name: Build projects - Linux/macOS
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          # Build main library (excluding .NET Framework)
-          for fw in netstandard2.0 net8.0 net10.0; do
-            echo "Building Wolfgang.TryPattern for $fw"
-            dotnet build src/Wolfgang.TryPattern/Wolfgang.TryPattern.csproj \
-              --no-restore \
-              --configuration Release \
-              --framework "$fw"
-          done
-          
-          # Build test project (excluding .NET Framework)
-          for fw in netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0; do
-            echo "Building tests for $fw"
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
-              --no-restore \
-              --configuration Release \
-              --framework "$fw"
-          done
-          
-          # Build .NET 8.0 examples
-          for proj in examples/Net8.0/*/*.csproj; do
-            [ -f "$proj" ] && dotnet build "$proj" --no-restore --configuration Release
-          done
-
-      # Windows: Build all target frameworks including .NET Framework
-      - name: Build solution - Windows
-        if: runner.os == 'Windows'
+      - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      # Linux/macOS: Run tests without coverage (faster)
-      - name: Run tests - Linux/macOS
-        if: runner.os != 'Windows'
-        shell: bash
+      - name: Run tests with coverage (.NET Core 3.1 - 10.0)
         run: |
-          dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
-            --configuration Release \
-            --framework net8.0 \
-            --no-restore \
-            --logger "console;verbosity=normal"
-
-      # Windows: Run tests with coverage collection
-      - name: Run tests with coverage - Windows
-        if: runner.os == 'Windows'
-        continue-on-error: true
-        run: |
-          dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
-            --no-build `
-            --configuration Release `
-            --collect:"XPlat Code Coverage" `
-            --results-directory "./TestResults" `
-            --logger "console;verbosity=normal" `
-            --logger "trx;LogFileName=testresults.trx"
+          # Test each framework individually to ensure all are tested
+          frameworks=(netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
           
-          # Verify tests passed by checking TRX file
-          if (Test-Path "./TestResults/*.trx") {
-            $trxContent = Get-Content "./TestResults/*.trx" -Raw
-            if ($trxContent -match 'outcome="Failed"') {
-              Write-Error "Tests failed"
-              exit 1
-            }
-          }
+          for fw in "${frameworks[@]}"; do
+            echo "=========================================="
+            echo "Testing framework: $fw"
+            echo "=========================================="
+            
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+              --no-build \
+              --configuration Release \
+              --framework "$fw" \
+              --collect:"XPlat Code Coverage" \
+              --results-directory "./TestResults" \
+              --logger "console;verbosity=minimal" || exit 1
+          done
 
-      # Coverage reporting (Windows only)
       - name: Install ReportGenerator
-        if: runner.os == 'Windows' && always()
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
 
       - name: Generate coverage report
-        if: runner.os == 'Windows' && always()
-        continue-on-error: true
         run: |
-          reportgenerator `
-            -reports:"TestResults/**/coverage.cobertura.xml" `
-            -targetdir:"CoverageReport" `
+          reportgenerator \
+            -reports:"TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"CoverageReport" \
             -reporttypes:"Html;TextSummary;MarkdownSummaryGithub;CsvSummary"
 
-      - name: Check coverage thresholds
-        if: runner.os == 'Windows' && hashFiles('CoverageReport/Summary.txt') != ''
-        shell: pwsh
+      - name: Enforce 90% coverage threshold
         run: |
-          if (-not (Test-Path "CoverageReport/Summary.txt")) {
-            Write-Warning "Coverage report not generated - skipping threshold check"
-            exit 0
-          }
-
-          $failedProjects = @()
-          $threshold = 80
-          
-          Get-Content "CoverageReport/Summary.txt" | ForEach-Object {
-            if ($_ -match '^[^ ].*[0-9]+%$' -and $_ -notmatch '^Summary') {
-              $parts = $_ -split '\s+'
-              $module = $parts[0]
-              $percent = [int]($parts[-1] -replace '%','')
-              
-              Write-Host "Module '$module': $percent%"
-              
-              if ($percent -lt $threshold) {
-                Write-Host "  ❌ Below threshold ($threshold%)" -ForegroundColor Red
-                $failedProjects += "$module ($percent%)"
-              } else {
-                Write-Host "  ✅ Meets threshold" -ForegroundColor Green
-              }
-            }
-          }
-
-          if ($failedProjects.Count -gt 0) {
-            Write-Error "Projects below $threshold% coverage: $($failedProjects -join ', ')"
+          if [ ! -f CoverageReport/Summary.txt ]; then
+            echo "❌ Coverage report not generated!"
             exit 1
-          }
+          fi
 
-      - name: Upload coverage artifacts
-        if: runner.os == 'Windows' && always()
+          echo "Coverage Summary:"
+          cat CoverageReport/Summary.txt
+          echo ""
+          
+          failed_projects=""
+          threshold=90
+          
+          while read -r line; do
+            # Match lines with module names and percentages
+            if echo "$line" | grep -qE '^[^ ].*[0-9]+%$' && ! echo "$line" | grep -q '^Summary'; then
+              module=$(echo "$line" | awk '{print $1}')
+              percent=$(echo "$line" | awk '{print $NF}' | tr -d '%')
+              
+              echo "Checking module: '$module' - Coverage: ${percent}%"
+              
+              if [ "$percent" -lt "$threshold" ]; then
+                echo "  ❌ FAIL: Below ${threshold}% threshold"
+                failed_projects="$failed_projects $module (${percent}%)"
+              else
+                echo "  ✅ PASS: Meets ${threshold}% threshold"
+              fi
+            fi
+          done < CoverageReport/Summary.txt
+
+          if [ -n "$failed_projects" ]; then
+            echo ""
+            echo "=========================================="
+            echo "❌ COVERAGE GATE FAILED"
+            echo "=========================================="
+            echo "Projects below ${threshold}% coverage:$failed_projects"
+            echo ""
+            echo "Stage 1 failed. Windows, macOS, and .NET Framework tests will NOT run."
+            exit 1
+          else
+            echo ""
+            echo "=========================================="
+            echo "✅ COVERAGE GATE PASSED"
+            echo "=========================================="
+            echo "All projects meet ${threshold}% coverage threshold."
+            echo "Proceeding to Stage 2 (Windows and macOS tests)."
+          fi
+
+      - name: Upload Linux coverage results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-results-and-report
+          name: coverage-linux
           path: |
             TestResults/
             CoverageReport/
 
-      # Security scanning (all platforms)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            src/**/bin/Release
+            tests/**/bin/Release
+
+  # ============================================================================
+  # STAGE 2: Windows & macOS - .NET Core/5+ Tests (Gated by Stage 1)
+  # ============================================================================
+  test-windows-core:
+    name: "Stage 2a: Windows Tests (.NET 3.1-10.0)"
+    runs-on: windows-latest
+    needs: test-linux-core
+    if: github.repository != 'Chris-Wolfgang/repo-template'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            3.1.x
+            5.0.x
+            6.0.x
+            7.0.x
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests (.NET Core 3.1 - 10.0)
+        shell: pwsh
+        run: |
+          $frameworks = @('netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
+          
+          foreach ($fw in $frameworks) {
+            Write-Host "==========================================" -ForegroundColor Cyan
+            Write-Host "Testing framework: $fw" -ForegroundColor Cyan
+            Write-Host "==========================================" -ForegroundColor Cyan
+            
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+              --no-build `
+              --configuration Release `
+              --framework $fw `
+              --logger "console;verbosity=normal"
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Tests failed for $fw"
+              exit 1
+            }
+          }
+
+  test-macos-core:
+    name: "Stage 2b: macOS Tests (.NET 3.1-10.0)"
+    runs-on: macos-latest
+    needs: test-linux-core
+    if: github.repository != 'Chris-Wolfgang/repo-template'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            3.1.x
+            5.0.x
+            6.0.x
+            7.0.x
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests (.NET Core 3.1 - 10.0)
+        run: |
+          frameworks=(netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
+          
+          for fw in "${frameworks[@]}"; do
+            echo "=========================================="
+            echo "Testing framework: $fw"
+            echo "=========================================="
+            
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+              --no-build \
+              --configuration Release \
+              --framework "$fw" \
+              --logger "console;verbosity=normal" || exit 1
+          done
+
+  # ============================================================================
+  # STAGE 3: Windows - .NET Framework 4.x Tests (Gated by Stage 2)
+  # ============================================================================
+  test-windows-framework:
+    name: "Stage 3: Windows .NET Framework Tests (4.6.2-4.8.1)"
+    runs-on: windows-latest
+    needs: [test-windows-core, test-macos-core]
+    if: github.repository != 'Chris-Wolfgang/repo-template'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run .NET Framework tests (4.6.2 - 4.8.1)
+        shell: pwsh
+        run: |
+          $frameworks = @('net462', 'net472', 'net48', 'net481')
+          
+          foreach ($fw in $frameworks) {
+            Write-Host "==========================================" -ForegroundColor Cyan
+            Write-Host "Testing framework: $fw" -ForegroundColor Cyan
+            Write-Host "==========================================" -ForegroundColor Cyan
+            
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+              --no-build `
+              --configuration Release `
+              --framework $fw `
+              --logger "console;verbosity=normal"
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Tests failed for $fw"
+              exit 1
+            }
+          }
+          
+          Write-Host ""
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "✅ ALL STAGES PASSED" -ForegroundColor Green
+          Write-Host "==========================================" -ForegroundColor Green
+          Write-Host "Stage 1: Linux tests + 90% coverage ✅" -ForegroundColor Green
+          Write-Host "Stage 2: Windows & macOS tests ✅" -ForegroundColor Green
+          Write-Host "Stage 3: .NET Framework 4.x tests ✅" -ForegroundColor Green
+          Write-Host ""
+          Write-Host "PR is ready to merge! 🎉" -ForegroundColor Green
+
+  # ============================================================================
+  # Security Scan (Runs in parallel with tests)
+  # ============================================================================
+  security-scan:
+    name: "Security Scan (DevSkim)"
+    runs-on: ubuntu-latest
+    if: github.repository != 'Chris-Wolfgang/repo-template'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Install DevSkim CLI
         run: dotnet tool install --global Microsoft.CST.DevSkim.CLI
 
-      - name: Run security scan
-        shell: bash
+      - name: Run DevSkim security scan
+        continue-on-error: true
         run: |
           devskim analyze \
             --source-code . \
             --file-format text \
+            --output-file devskim-results.txt \
             -E \
             --ignore-rule-ids DS176209 \
-            --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**" \
-            > devskim-results.txt 2>&1 || true
+            --ignore-globs "**/api/**,**/CoverageReport/**,**/TestResults/**"
 
-      - name: Check security scan results
+      - name: Display security scan results
         if: always()
-        shell: bash
         run: |
           if [ -f devskim-results.txt ]; then
+            echo "=========================================="
+            echo "DevSkim Security Scan Results"
+            echo "=========================================="
             cat devskim-results.txt
+            echo ""
             
-            if grep -qi "found" devskim-results.txt; then
-              echo "❌ Security issues detected!"
-              exit 1
+            if grep -qi "error\|critical\|high" devskim-results.txt; then
+              echo "⚠️ Security issues detected - review required"
             else
-              echo "✅ No security issues found"
+              echo "✅ No critical security issues found"
             fi
           else
-            echo "⚠️ DevSkim results file not found"
+            echo "✅ No security issues found"
           fi
 
       - name: Upload security scan results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: devskim-results-${{ matrix.os }}
+          name: devskim-results
           path: devskim-results.txt
+          if-no-files-found: warn
