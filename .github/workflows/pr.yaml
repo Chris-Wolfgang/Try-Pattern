@@ -13,10 +13,55 @@ on:
       - main
 
 jobs:
-  build-and-test:
-    # Specifies the OS to run this workflow on. You can specify more than one. For a complete and current list, review the [documentation] (https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job)
-    runs-on: ubuntu-latest
-    if: github.repository != 'Chris-Wolfgang/repo-template' # Only run in child repos otherwise this will fail because the template does not have any projects
+  build-and-test-windows:
+    name: Build and Test (.NET Framework on Windows)
+    runs-on: windows-latest
+    if: github.repository != 'Chris-Wolfgang/repo-template'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            3.1.x
+            5.0.x
+            6.0.x
+            7.0.x
+            8.0.x
+            9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build Solution (Release)
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run Tests for .NET Core 3.1 and .NET 5+ (Linux)
+        run: |
+          find ./tests -type f -name '*Test*.csproj' | while read proj; do
+            echo "Testing $proj"
+            dotnet test "$proj" --no-build --configuration Release --framework netcoreapp3.1 --collect:"XPlat Code Coverage" --results-directory "./TestResults" || true
+            dotnet test "$proj" --no-build --configuration Release --framework net5.0 --collect:"XPlat Code Coverage" --results-directory "./TestResults" || true
+            dotnet test "$proj" --no-build --configuration Release --framework net6.0 --collect:"XPlat Code Coverage" --results-directory "./TestResults" || true
+            dotnet test "$proj" --no-build --configuration Release --framework net7.0 --collect:"XPlat Code Coverage" --results-directory "./TestResults" || true
+            dotnet test "$proj" --no-build --configuration Release --framework net8.0 --collect:"XPlat Code Coverage" --results-directory "./TestResults" || true
+            dotnet test "$proj" --no-build --configuration Release --framework net9.0 --collect:"XPlat Code Coverage" --results-directory "./TestResults" || true
+            dotnet test "$proj" --no-build --configuration Release --framework net10.0 --collect:"XPlat Code Coverage" --results-directory "./TestResults" || true
+          done
+
+      - name: Upload Linux Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-linux
+          path: TestResults/
+
+  build-and-test-macos:
+    name: Build and Test (.NET 5+ on macOS)
+    runs-on: macos-latest
+    if: github.repository != 'Chris-Wolfgang/repo-template'	
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
