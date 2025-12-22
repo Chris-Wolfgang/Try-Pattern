@@ -73,7 +73,7 @@ public class TryFuncResultTests
 
 
     [Fact]
-    public void Constructor_for_string_WithFailedOnly_SetsPropertiesCorrectly()
+    public void Constructor_for_DateTime_WithFailedOnly_SetsPropertiesCorrectly()
     {
         // Arrange
         var exception = new Exception("Test exception");
@@ -164,7 +164,7 @@ public class TryFuncResultTests
     [Theory]
     [InlineData(null)]
     [InlineData("Hello World")]
-    public void Constructor_when_passed_Nullable_int_sets_properties_correctly(string? value)
+    public void Constructor_when_passed_Nullable_string_sets_properties_correctly(string? value)
     {
         // Arrange
 
