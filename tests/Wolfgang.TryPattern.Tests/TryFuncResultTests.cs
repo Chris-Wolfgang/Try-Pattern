@@ -73,7 +73,7 @@ public class TryFuncResultTests
 
 
     [Fact]
-    public void Constructor_for_string_WithFailedOnly_SetsPropertiesCorrectly()
+    public void Constructor_for_DateTime_WithFailedOnly_SetsPropertiesCorrectly()
     {
         // Arrange
         var exception = new Exception("Test exception");
