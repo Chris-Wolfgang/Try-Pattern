@@ -11,56 +11,56 @@ namespace Wolfgang.TryPattern;
 public record TryFuncResult<T>
 {
 
-    /// <summary>
-    /// Initializes a new instance of the TryFuncResult class with the specified success status, value  and
-    /// exception information.
-    /// </summary>
-    /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/> if the operation was
-    /// successful; otherwise, <see langword="false"/>.</param>
-    /// <param name="value">The value produced by the operation if it succeeded; otherwise, the default value for the type.</param>
-    /// <param name="exception">The exception that was thrown during the operation if it failed; otherwise, <see langword="null"/>.</param>
-    public TryFuncResult
-    (
-        bool succeeded,
+	/// <summary>
+	/// Initializes a new instance of the TryFuncResult class with the specified success status, value  and
+	/// exception information.
+	/// </summary>
+	/// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/> if the operation was
+	/// successful; otherwise, <see langword="false"/>.</param>
+	/// <param name="value">The value produced by the operation if it succeeded; otherwise, the default value for the type.</param>
+	/// <param name="exception">The exception that was thrown during the operation if it failed; otherwise, <see langword="null"/>.</param>
+	public TryFuncResult
+	(
+		bool succeeded,
 #if NET5_0_OR_GREATER
-        T? value,
+		T? value,
 #else
-        T value,
+		T value,
 #endif
-        Exception? exception
-    )
-    {
-        Succeeded = succeeded;
-        Value = value;
-        Exception = exception;
-    }
+		Exception? exception
+	)
+	{
+		Succeeded = succeeded;
+		Value = value;
+		Exception = exception;
+	}
 
 
 
-    /// Used when function succeeded
-    public TryFuncResult
-    (
+	/// Used when function succeeded
+	public TryFuncResult
+	(
 #if NET5_0_OR_GREATER
-        T? value
+		T? value
 #else
-        T value
+		T value
 #endif
-    )
-        : this(true, value, null)
-    {
-    }
+	)
+		: this(true, value, null)
+	{
+	}
 
 
 
-    /// Used when function failed
-    public TryFuncResult
-    (
-        Exception? exception
-    )
-    : this(false, default, exception)
-    {
+	/// Used when function failed
+	public TryFuncResult
+	(
+		Exception? exception
+	)
+		: this(false, default, exception)
+	{
 
-    }
+	}
 
 
 
