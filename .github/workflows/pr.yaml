@@ -58,7 +58,7 @@ jobs:
       - name: Run tests with coverage (.NET Core 3.1 - 10.0)
         run: |
           # Test each framework individually to ensure all are tested
-          frameworks=(net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
+          frameworks=(netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
           
           for fw in "${frameworks[@]}"; do
             echo "=========================================="
@@ -204,7 +204,7 @@ jobs:
           }
 
   test-macos-core:
-    name: "Stage 2b: macOS Tests (.NET 3.1-10.0)"
+    name: "Stage 2b: macOS Tests (.NET 5.0-10.0)"
     runs-on: macos-latest
     needs: test-linux-core
     if: github.repository != 'Chris-Wolfgang/repo-template'
