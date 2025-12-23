@@ -27,7 +27,9 @@ public record TryActionResult
     }
 
 
-    /// Used when action succeeded
+    /// <summary>
+    /// Initializes a new instance of the TryActionResult class for a successful operation.
+    /// </summary>
     public TryActionResult()
     : this(true, null)
     {
@@ -35,7 +37,10 @@ public record TryActionResult
 
 
 
-    /// Used when action failed
+    /// <summary>
+    /// Initializes a new instance of the TryActionResult class for a failed operation.
+    /// </summary>
+    /// <param name="exception">The exception that caused the operation to fail.</param>
     public TryActionResult
     (
         Exception exception

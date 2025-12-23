@@ -37,7 +37,10 @@ public record TryFuncResult<T>
 
 
 
-	/// Used when function succeeded
+	/// <summary>
+	/// Initializes a new instance of the TryFuncResult class for a successful operation.
+	/// </summary>
+	/// <param name="value">The value produced by the successful operation.</param>
 	public TryFuncResult
 	(
 #if NET5_0_OR_GREATER
@@ -52,7 +55,10 @@ public record TryFuncResult<T>
 
 
 
-	/// Used when function failed
+	/// <summary>
+	/// Initializes a new instance of the TryFuncResult class for a failed operation.
+	/// </summary>
+	/// <param name="exception">The exception that caused the operation to fail.</param>
 	public TryFuncResult
 	(
 		Exception? exception
