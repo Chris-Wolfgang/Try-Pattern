@@ -362,3 +362,18 @@ jobs:
           name: devskim-results
           path: devskim-results.txt
           if-no-files-found: warn
+
+  # ============================================================================
+  # Deploy to GitHub Pages
+  # ============================================================================
+  
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'  # Deploy only from the main branch
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
