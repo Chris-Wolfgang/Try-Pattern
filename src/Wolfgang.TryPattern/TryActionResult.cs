@@ -56,7 +56,7 @@ public record TryActionResult
     /// <summary>
     /// Gets a value indicating whether the operation did not succeed.
     /// </summary>
-    public bool Failed  => !Succeeded;
+    public bool Failed => !Succeeded;
 
 
 
