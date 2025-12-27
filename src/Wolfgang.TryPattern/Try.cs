@@ -49,7 +49,7 @@ public static class Try
             await action().ConfigureAwait(false);
             return new TryActionResult(true, null);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return new TryActionResult(false, ex);
         }
