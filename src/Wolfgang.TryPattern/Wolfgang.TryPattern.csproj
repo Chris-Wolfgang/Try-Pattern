@@ -13,7 +13,7 @@
     <Title>$(AssemblyName)</Title>
     <Authors>Chris Wolfgang</Authors>
     <Description>A lightweight .NET library demonstrating the Try pattern for safe, exception-free operations across multiple target frameworks.</Description>
-    <Copyright>Copyright 2025 Chris Wolfgang </Copyright>
+    <Copyright>Copyright 2025 Chris Wolfgang</Copyright>
     <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <AssemblyVersion>1.0.0</AssemblyVersion>
