@@ -1,4 +1,4 @@
 using BenchmarkDotNet.Running;
-using TryPattern.Benchmarks;
+using Wolfgang.TryPattern.Benchmarks;
 
 BenchmarkRunner.Run<TryBenchmarks>();

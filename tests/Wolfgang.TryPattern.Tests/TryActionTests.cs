@@ -1,4 +1,4 @@
-namespace TryPattern.Tests;
+namespace Wolfgang.TryPattern.Tests;
 
 public class TryActionTests
 {
@@ -12,6 +12,8 @@ public class TryActionTests
         Assert.Throws<ArgumentNullException>(() => Try.Action(nullAction!));
     }
 
+
+
     [Fact]
     public void Action_WithSuccessfulAction_ExecutesAction()
     {
@@ -20,11 +22,16 @@ public class TryActionTests
         Action action = () => executed = true;
 
         // Act
-        Try.Action(action);
+        var result = Try.Action(action);
 
         // Assert
         Assert.True(executed);
+        Assert.True(result.Succeeded);
+        Assert.False(result.Failed);
+        Assert.Null(result.Exception);
     }
+
+
 
     [Fact]
     public void Action_WithExceptionThrowingAction_SwallowsException()
@@ -32,27 +39,33 @@ public class TryActionTests
         // Arrange
         Action action = () => throw new InvalidOperationException("Test exception");
 
-        // Act & Assert - Should not throw
-        var exception = Record.Exception(() => Try.Action(action));
-        Assert.Null(exception);
+        // Act
+        var result = Try.Action(action);
+
+        // Assert
+        Assert.False(result.Succeeded);
+        Assert.True(result.Failed);
+        Assert.NotNull(result.Exception);
     }
+
+
 
     [Fact]
     public void Action_WithMultipleExceptions_SwallowsAllExceptions()
     {
         // Arrange
         var callCount = 0;
-        Action action1 = () =>
+        var action1 = () =>
         {
             callCount++;
             throw new ArgumentException();
         };
-        Action action2 = () =>
+        var action2 = () =>
         {
             callCount++;
             throw new InvalidOperationException();
         };
-        Action action3 = () =>
+        var action3 = () =>
         {
             callCount++;
             throw new NullReferenceException();
