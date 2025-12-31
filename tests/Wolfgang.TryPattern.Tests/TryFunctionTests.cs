@@ -19,15 +19,15 @@ public class TryFunctionTests
     {
         // Arrange
         const int expectedValue = 42;
-        var function = () => expectedValue;
+        static int Function() => expectedValue;
 
         // Act
-        var result = Try.Function(function);
+        var result = Try.Function(Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.Empty(result.ErrorMessage!);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -38,15 +38,15 @@ public class TryFunctionTests
     {
         // Arrange
         var expectedValue = 42;
-        var function = () => expectedValue;
+        int Function() => expectedValue;
 
         // Act
-        var result = Try.Function(function);
+        var result = Try.Function((Func<int>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.Empty(result.ErrorMessage!);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -57,15 +57,15 @@ public class TryFunctionTests
     {
         // Arrange
         const string expectedValue = "Hello, World!";
-        var function = () => expectedValue;
+        static string Function() => expectedValue;
 
         // Act
-        var result = Try.Function(function);
+        var result = Try.Function((Func<string>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.Empty(result.ErrorMessage!);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -76,15 +76,15 @@ public class TryFunctionTests
     {
         // Arrange
         const string expectedValue = "Hello, World!";
-        var function = () => expectedValue;
+        static string Function() => expectedValue;
 
         // Act
-        var result = Try.Function(function);
+        var result = Try.Function((Func<string>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.Empty(result.ErrorMessage!);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -95,35 +95,16 @@ public class TryFunctionTests
     {
         // Arrange
         var expectedValue = new object();
-        var function = () => expectedValue;
+        object Function() => expectedValue;
 
         // Act
-        var result = Try.Function(function);
+        var result = Try.Function((Func<object>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.Empty(result.ErrorMessage!);
         Assert.Equal(expectedValue, result.Value);
-    }
-
-
-
-    [Fact]
-    public void FunctionInt_WithExceptionThrowingFunction_ReturnsDefault()
-    {
-        // Arrange
-        Func<int> function = () => throw new InvalidOperationException("Test exception");
-
-        // Act
-        var result = Try.Function(function);
-
-        // Assert
-        Assert.False(result.Succeeded);
-        Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
-        Assert.Equal("Test exception", result.Exception.Message);
-        Assert.Equal(0, result.Value);
     }
 
 
@@ -132,30 +113,31 @@ public class TryFunctionTests
     public void FunctionNullableInt_WithExceptionThrowingFunction_ReturnsDefault()
     {
         // Arrange
-        Func<int?> function = () => throw new InvalidOperationException("Test exception");
+        static int? Function() => throw new InvalidOperationException("Test exception");
 
         // Act
-        var result = Try.Function(function);
+        var result = Try.Function((Func<int?>)Function);
 
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
-        Assert.Equal("Test exception", result.Exception.Message);
-        Assert.Null(result.Value);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.Equal("Test exception", result.ErrorMessage);
+        var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
+        Assert.Equal("Cannot access the Value of a failed Result.", ex.Message);
     }
 
 
 
     [Fact]
-    public void Function_WithComplexObject_ReturnsResult()
+    public void Function_reference_type_returns_Result_wiTh_correct_properties()
     {
         // Arrange
         var expectedObject = new { Name = "Test", Value = 100 };
-        Func<object> function = () => expectedObject;
+        object Function() => expectedObject;
 
         // Act
-        var result = Try.Function(function);
+        var result = Try.Function(Function);
 
         // Assert
         Assert.Equal(expectedObject, result.Value);
@@ -174,7 +156,7 @@ public class TryFunctionTests
             () =>
                 {
                     callCount++;
-                    throw new Exception();
+                    throw new Exception("Test error");
                 }
             );
 
@@ -184,9 +166,15 @@ public class TryFunctionTests
         var result3 = Try.Function(successFunction);
 
         // Assert
+        Assert.True(result1.Succeeded);
         Assert.Equal(1, result1.Value);
-        Assert.Equal(0, result2.Value); // Default int value
+
+        Assert.True(result2.Failed);
+        Assert.Equal("Test error", result2.ErrorMessage); // Default int value
+
+        Assert.True(result3.Succeeded);
         Assert.Equal(3, result3.Value);
+
         Assert.Equal(3, callCount);
     }
 }

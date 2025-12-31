@@ -19,16 +19,17 @@ public class TryActionTests
     {
         // Arrange
         var executed = false;
-        Action action = () => executed = true;
+        void Action() => executed = true;
 
         // Act
-        var result = Try.Action(action);
+        var result = Try.Action(Action);
 
         // Assert
         Assert.True(executed);
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.Empty(result.ErrorMessage);
     }
 
 
@@ -37,15 +38,16 @@ public class TryActionTests
     public void Action_WithExceptionThrowingAction_SwallowsException()
     {
         // Arrange
-        Action action = () => throw new InvalidOperationException("Test exception");
+        static void Action() => throw new InvalidOperationException("Test exception");
 
         // Act
-        var result = Try.Action(action);
+        var result = Try.Action(Action);
 
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.NotEmpty(result.ErrorMessage);
     }
 
 
@@ -55,26 +57,29 @@ public class TryActionTests
     {
         // Arrange
         var callCount = 0;
-        var action1 = () =>
+
+        void Action1()
         {
             callCount++;
             throw new ArgumentException();
-        };
-        var action2 = () =>
+        }
+
+        void Action2()
         {
             callCount++;
             throw new InvalidOperationException();
-        };
-        var action3 = () =>
+        }
+
+        void Action3()
         {
             callCount++;
             throw new NullReferenceException();
-        };
+        }
 
         // Act
-        Try.Action(action1);
-        Try.Action(action2);
-        Try.Action(action3);
+        Try.Action(Action1);
+        Try.Action(Action2);
+        Try.Action(Action3);
 
         // Assert
         Assert.Equal(3, callCount);

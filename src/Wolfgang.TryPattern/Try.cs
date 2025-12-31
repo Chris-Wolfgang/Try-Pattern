@@ -12,7 +12,7 @@ public static class Try
     /// Executes an action and swallows any exceptions that occur.
     /// </summary>
     /// <param name="action">The action to execute.</param>
-    public static TryActionResult Action(Action action)
+    public static Result Action(Action action)
     {
         if (action == null)
         {
@@ -22,11 +22,11 @@ public static class Try
         try
         {
             action();
-            return new TryActionResult(true, null);
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new TryActionResult(false, ex);
+            return Result.Failure(ex.Message);
         }
     }
 
@@ -37,7 +37,7 @@ public static class Try
     /// </summary>
     /// <param name="action">The asynchronous action to execute.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task<TryActionResult> ActionAsync(Func<Task> action)
+    public static async Task<Result> ActionAsync(Action action)
     {
         if (action == null)
         {
@@ -46,12 +46,12 @@ public static class Try
 
         try
         {
-            await action().ConfigureAwait(false);
-            return new TryActionResult(true, null);
+            await Task.Run(action).ConfigureAwait(false);
+            return Result.Success();
         }
         catch (Exception ex)
         {
-            return new TryActionResult(false, ex);
+            return Result.Failure(ex.Message);
         }
     }
 
@@ -64,10 +64,7 @@ public static class Try
     /// <param name="function">The function to execute.</param>
     /// <returns>The result of the function, or default(T) if an exception occurs.</returns>
 #if NET5_0_OR_GREATER
-        public static TryFuncResult<T?> Function<T>(Func<T> function)
-#else
-    public static TryFuncResult<T> Function<T>(Func<T> function)
-#endif
+    public static Result<T?> Function<T>(Func<T> function)
     {
         if (function == null)
         {
@@ -76,15 +73,31 @@ public static class Try
 
         try
         {
-            var result = function();
-            return new TryFuncResult<T>(result);
+            return Result<T?>.Success(function());
         }
         catch (Exception ex)
         {
-            return new TryFuncResult<T>(false, default, ex);
+            return Result<T?>.Failure(ex.Message);
         }
     }
+#else
+    public static Result<T> Function<T>(Func<T>? function)
+    {
+        if (function == null)
+        {
+            throw new ArgumentNullException(nameof(function));
+        }
 
+        try
+        {
+            return Result<T>.Success(function());
+        }
+        catch (Exception ex)
+        {
+            return Result<T>.Failure(ex.Message);
+        }
+    }
+#endif
 
 
     /// <summary>
@@ -94,27 +107,42 @@ public static class Try
     /// <param name="function">The asynchronous function to execute.</param>
     /// <returns>A task representing the asynchronous operation that returns the result of the function, or default(T) if an exception occurs.</returns>
 #if NET5_0_OR_GREATER
-        public static async Task<TryFuncResult<T?>> FunctionAsync<T>(Func<Task<T>> function)
-#else
-    public static async Task<TryFuncResult<T>> FunctionAsync<T>(Func<Task<T>> function)
-#endif
+    public static async Task<Result<T?>> FunctionAsync<T>(Func<Task<T>> function)
     {
         if (function == null)
         {
             throw new ArgumentNullException(nameof(function));
         }
-
-
+        
         try
         {
             var result = await function().ConfigureAwait(false);
-            return new TryFuncResult<T>(result);
+            return Result<T?>.Success(result);
         }
         catch (Exception ex)
         {
-            return new TryFuncResult<T>(false, default, ex);
+            return Result<T?>.Failure(ex.Message);
         }
     }
+#else
+    public static async Task<Result<T>> FunctionAsync<T>(Func<Task<T>> function)
+    {
+        if (function == null)
+        {
+            throw new ArgumentNullException(nameof(function));
+        }
+        
+        try
+        {
+            var result = await function().ConfigureAwait(false);
+            return Result<T>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<T>.Failure(ex.Message);
+        }
+    }
+#endif
 }
 
 

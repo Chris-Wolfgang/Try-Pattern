@@ -3,7 +3,7 @@ namespace Wolfgang.TryPattern.Tests;
 public class TryFunctionAsyncTests
 {
     [Fact]
-    public async Task FunctionAsync_WithNullFunction_ThrowsArgumentNullException()
+    public async Task FunctionAsync_when_passed_null_throws_ArgumentNullException()
     {
         // Arrange
         Func<Task<int>>? nullFunction = null;
@@ -15,242 +15,148 @@ public class TryFunctionAsyncTests
 
 
     [Fact]
-    public async Task FunctionAsyncInt_WithSuccessfulFunction_ReturnsResult()
+    public async Task FunctionAsync_int_when_successful_returns_successful_Result()
     {
         // Arrange
         const int expectedValue = 42;
-        Func<Task<int>> function = async () =>
+
+        static async Task<int> Function()
         {
-            await Task.Delay(10);
+            await Task.Yield();
             return expectedValue;
-        };
+        }
 
         // Act
-        var result = await Try.FunctionAsync(function);
+        var result = await Try.FunctionAsync((Func<Task<int>>)Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.Empty(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
 
 
     [Fact]
-    public async Task FunctionAsyncNullableInt_WithSuccessfulFunction_ReturnsResult()
+    public async Task FunctionAsync_nullable_int_when_successful_returns_successful_Result()
     {
         // Arrange
         int? expectedValue = 42;
-        Func<Task<int?>> function = async () =>
-        {
-            await Task.Delay(10);
-            return expectedValue;
-        };
 
+        async Task<int?> Function()
+        {
+            await Task.Yield();
+            return expectedValue;
+        }
+        
         // Act
-        var result = await Try.FunctionAsync(function);
+        var result = await Try.FunctionAsync((Func<Task<int?>>)Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.Empty(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
 
 
     [Fact]
-    public async Task FunctionAsyncString_WithStringFunction_ReturnsResult()
+    public async Task FunctionAsync_string_when_successful_returns_successful_Result()
     {
         // Arrange
         const string expectedValue = "Hello, Async World!";
-        Func<Task<string>> function = async () =>
+
+        static async Task<string> Function()
         {
-            await Task.Delay(10);
+            await Task.Yield();
             return expectedValue;
-        };
+        }
 
         // Act
-        var result = await Try.FunctionAsync(function);
+        var result = await Try.FunctionAsync((Func<Task<string>>)Function);
 
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.Empty(result.ErrorMessage!);
         Assert.Equal(expectedValue, result.Value);
     }
 
 
 
     [Fact]
-    public async Task FunctionAsyncStringNullable_WithStringFunction_ReturnsResult()
+    public async Task FunctionAsync_int_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
     {
         // Arrange
-        var expectedValue = "Hello, Async World!";
-        Func<Task<string?>> function = async () =>
+        static async Task<int> Function()
         {
-            await Task.Delay(10);
-            return expectedValue;
-        };
-
-        // Act
-        var result = await Try.FunctionAsync(function);
-
-        // Assert
-        Assert.True(result.Succeeded);
-        Assert.False(result.Failed);
-        Assert.Null(result.Exception);
-        Assert.Equal(expectedValue, result.Value);
-    }
-
-
-
-    [Fact]
-    public async Task FunctionAsyncInt_WithExceptionThrowingFunction_ReturnsDefault()
-    {
-        // Arrange
-        Func<Task<int>> function = async () =>
-        {
-            await Task.Delay(10);
+            await Task.Yield();
             throw new InvalidOperationException("Test exception");
-        };
+        }
 
         // Act
-        var result = await Try.FunctionAsync(function);
+        var result = await Try.FunctionAsync((Func<Task<int>>)Function);
 
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
-        Assert.Equal(0, result.Value);
+        Assert.Equal("Test exception",result.ErrorMessage);
+        var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
+        Assert.Equal("Cannot access the Value of a failed Result.", ex.Message);
     }
 
 
 
     [Fact]
-    public async Task FunctionAsyncIntNullable_WithExceptionThrowingFunction_ReturnsDefault()
+    public async Task FunctionAsync_nullable_int_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
     {
         // Arrange
-        Func<Task<int?>> function = async () =>
+        static async Task<int?> Function()
         {
-            await Task.Delay(10);
+            await Task.Yield();
             throw new InvalidOperationException("Test exception");
-        };
+        }
 
         // Act
-        var result = await Try.FunctionAsync(function);
+        var result = await Try.FunctionAsync((Func<Task<int?>>)Function);
 
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
-        Assert.Null(result.Value);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.NotEmpty(result.ErrorMessage);
+        var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
+        Assert.Equal("Cannot access the Value of a failed Result.", ex.Message);
     }
 
 
 
     [Fact]
-    public async Task FunctionAsync_WithExceptionThrowingStringFunction_ReturnsNull()
+    public async Task FunctionAsync_string_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
     {
         // Arrange
-        Func<Task<string>> function = async () =>
+        static async Task<string> Function()
         {
-            await Task.Delay(10);
+            await Task.Yield();
             throw new InvalidOperationException("Test exception");
-        };
+        }
 
         // Act
-        var result = await Try.FunctionAsync(function);
+        var result = await Try.FunctionAsync((Func<Task<string>>)Function);
 
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
-        Assert.Null(result.Value);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.NotEmpty(result.ErrorMessage);
+        var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
+        Assert.Equal("Cannot access the Value of a failed Result.", ex.Message);
     }
 
 
 
-    [Fact]
-    public async Task FunctionAsyncInt_WithSynchronousException_ReturnsDefault()
-    {
-        // Arrange
-        Func<Task<int>> function = () => throw new InvalidOperationException("Synchronous exception");
-
-        // Act
-        var result = await Try.FunctionAsync(function);
-
-        // Assert
-        Assert.Equal(0, result.Value);
-    }
-
-
-
-    [Fact]
-    public async Task FunctionAsyncIntNullable_WithSynchronousException_ReturnsDefault()
-    {
-        // Arrange
-        Func<Task<int?>> function = () => throw new InvalidOperationException("Synchronous exception");
-
-        // Act
-        var result = await Try.FunctionAsync(function);
-
-        // Assert
-        Assert.Null(result.Value);
-    }
-
-
-
-    [Fact]
-    public async Task FunctionAsync_WithComplexObject_ReturnsResult()
-    {
-        // Arrange
-        var expectedObject = new { Name = "Test", Value = 100 };
-        Func<Task<object>> function = async () =>
-        {
-            await Task.Delay(10);
-            return expectedObject;
-        };
-
-        // Act
-        var result = await Try.FunctionAsync(function);
-
-        // Assert
-        Assert.True(result.Succeeded);
-        Assert.False(result.Failed);
-        Assert.Null(result.Exception);
-        Assert.Equal(expectedObject, result.Value);
-    }
-
-
-
-    [Fact]
-    public async Task FunctionAsync_WithMultipleCalls_HandlesEachIndependently()
-    {
-        // Arrange
-        var callCount = 0;
-        Func<Task<int>> successFunction = async () =>
-        {
-            await Task.Delay(10);
-            return ++callCount;
-        };
-        Func<Task<int>> failFunction = async () =>
-        {
-            await Task.Delay(10);
-            callCount++;
-            throw new Exception();
-        };
-
-        // Act
-        var result1 = await Try.FunctionAsync(successFunction);
-        var result2 = await Try.FunctionAsync(failFunction);
-        var result3 = await Try.FunctionAsync(successFunction);
-
-        // Assert
-        Assert.Equal(1, result1.Value);
-        Assert.Equal(0, result2.Value); // Default int value
-        Assert.Equal(3, result3.Value);
-        Assert.Equal(3, callCount);
-    }
 }

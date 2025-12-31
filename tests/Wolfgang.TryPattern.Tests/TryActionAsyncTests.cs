@@ -6,7 +6,7 @@ public class TryActionAsyncTests
     public async Task ActionAsync_WithNullAction_ThrowsArgumentNullException()
     {
         // Arrange
-        Func<Task>? nullAction = null;
+        Action? nullAction = null;
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => Try.ActionAsync(nullAction!));
@@ -19,20 +19,21 @@ public class TryActionAsyncTests
     {
         // Arrange
         var executed = false;
-        var action = async () =>
+
+        void Action()
         {
-            await Task.Delay(10);
             executed = true;
-        };
+        }
 
         // Act
-        var result = await Try.ActionAsync(action);
+        var result = await Try.ActionAsync(Action);
 
         // Assert
         Assert.True(executed);
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null(result.Exception);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.Empty(result.ErrorMessage);
 
     }
 
@@ -42,19 +43,19 @@ public class TryActionAsyncTests
     public async Task ActionAsync_WithExceptionThrowingAction_SwallowsException()
     {
         // Arrange
-        var action = async () =>
+        static void Action ()
         {
-            await Task.Delay(10);
             throw new InvalidOperationException("Test exception");
-        };
+        }
 
         // Act
-        var result = await Try.ActionAsync(action);
+        var result = await Try.ActionAsync(Action);
 
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.NotEmpty(result.ErrorMessage);
     }
 
 
@@ -64,15 +65,16 @@ public class TryActionAsyncTests
     public async Task ActionAsync_WithSynchronousException_SwallowsException()
     {
         // Arrange
-        Func<Task> action = () => throw new InvalidOperationException("Synchronous exception");
+        static void Action() => throw new InvalidOperationException("Synchronous exception");
 
         // Act
-        var result = await Try.ActionAsync(action);
+        var result = await Try.ActionAsync(Action);
 
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.Exception);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.NotEmpty(result.ErrorMessage);
     }
 
 
@@ -83,29 +85,28 @@ public class TryActionAsyncTests
         // Arrange
         var callCount = 0;
 
-        var action1 = async () =>
+        void Action1()
         {
-            await Task.Delay(10);
             callCount++;
             throw new ArgumentException();
-        };
-        var action2 = async () =>
+        }
+
+        void Action2()
         {
-            await Task.Delay(10);
             callCount++;
             throw new InvalidOperationException();
-        };
-        var action3 = async () =>
+        }
+
+        void Action3()
         {
-            await Task.Delay(10);
             callCount++;
             throw new NullReferenceException();
-        };
+        }
 
         // Act
-        await Try.ActionAsync(action1);
-        await Try.ActionAsync(action2);
-        await Try.ActionAsync(action3);
+        await Try.ActionAsync(Action1);
+        await Try.ActionAsync(Action2);
+        await Try.ActionAsync(Action3);
         Assert.Equal(3 ,callCount);
     }
 }
