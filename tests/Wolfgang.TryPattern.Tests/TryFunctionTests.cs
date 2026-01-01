@@ -3,26 +3,26 @@ namespace Wolfgang.TryPattern.Tests;
 public class TryFunctionTests
 {
     [Fact]
-    public void Function_WithNullFunction_ThrowsArgumentNullException()
+    public void Run_Func_WithNullFunction_ThrowsArgumentNullException()
     {
         // Arrange
         Func<int>? nullFunction = null;
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => Try.Function(nullFunction!));
+        Assert.Throws<ArgumentNullException>(() => Try.Run(nullFunction!));
     }
 
 
 
     [Fact]
-    public void Function_WithSuccessfulFunctionOfInt_ReturnsResult()
+    public void Run_Func_WithSuccessfulFunctionOfInt_ReturnsResult()
     {
         // Arrange
         const int expectedValue = 42;
         static int Function() => expectedValue;
 
         // Act
-        var result = Try.Function(Function);
+        var result = Try.Run(Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -34,14 +34,14 @@ public class TryFunctionTests
 
 
     [Fact]
-    public void Function_WithSuccessfulFunctionOfNullableInt_ReturnsResult()
+    public void Run_Func_WithSuccessfulFunctionOfNullableInt_ReturnsResult()
     {
         // Arrange
         var expectedValue = 42;
         int Function() => expectedValue;
 
         // Act
-        var result = Try.Function((Func<int>?)Function);
+        var result = Try.Run((Func<int>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -53,14 +53,14 @@ public class TryFunctionTests
 
 
     [Fact]
-    public void Function_WithStringFunction_ReturnsResult()
+    public void Run_Func_WithStringFunction_ReturnsResult()
     {
         // Arrange
         const string expectedValue = "Hello, World!";
         static string Function() => expectedValue;
 
         // Act
-        var result = Try.Function((Func<string>?)Function);
+        var result = Try.Run((Func<string>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -72,14 +72,14 @@ public class TryFunctionTests
 
 
     [Fact]
-    public void Function_WithNullableStringFunction_ReturnsResult()
+    public void Run_Func_WithNullableStringFunction_ReturnsResult()
     {
         // Arrange
         const string expectedValue = "Hello, World!";
         static string Function() => expectedValue;
 
         // Act
-        var result = Try.Function((Func<string>?)Function);
+        var result = Try.Run((Func<string>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -91,14 +91,14 @@ public class TryFunctionTests
 
 
     [Fact]
-    public void Function_WithObjectFunction_ReturnsResult()
+    public void Run_Func_WithObjectFunction_ReturnsResult()
     {
         // Arrange
         var expectedValue = new object();
         object Function() => expectedValue;
 
         // Act
-        var result = Try.Function((Func<object>?)Function);
+        var result = Try.Run((Func<object>?)Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -116,7 +116,7 @@ public class TryFunctionTests
         static int? Function() => throw new InvalidOperationException("Test exception");
 
         // Act
-        var result = Try.Function((Func<int?>)Function);
+        var result = Try.Run((Func<int?>)Function);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -130,14 +130,14 @@ public class TryFunctionTests
 
 
     [Fact]
-    public void Function_reference_type_returns_Result_wiTh_correct_properties()
+    public void Run_Func_reference_type_returns_Result_wiTh_correct_properties()
     {
         // Arrange
         var expectedObject = new { Name = "Test", Value = 100 };
         object Function() => expectedObject;
 
         // Act
-        var result = Try.Function(Function);
+        var result = Try.Run(Function);
 
         // Assert
         Assert.Equal(expectedObject, result.Value);
@@ -146,7 +146,7 @@ public class TryFunctionTests
 
 
     [Fact]
-    public void Function_WithMultipleCalls_HandlesEachIndependently()
+    public void Run_Func_WithMultipleCalls_HandlesEachIndependently()
     {
         // Arrange
         var callCount = 0;
@@ -161,9 +161,9 @@ public class TryFunctionTests
             );
 
         // Act
-        var result1 = Try.Function(successFunction);
-        var result2 = Try.Function(failFunction);
-        var result3 = Try.Function(successFunction);
+        var result1 = Try.Run(successFunction);
+        var result2 = Try.Run(failFunction);
+        var result3 = Try.Run(successFunction);
 
         // Assert
         Assert.True(result1.Succeeded);

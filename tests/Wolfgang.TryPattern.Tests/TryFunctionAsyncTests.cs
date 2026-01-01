@@ -3,19 +3,19 @@ namespace Wolfgang.TryPattern.Tests;
 public class TryFunctionAsyncTests
 {
     [Fact]
-    public async Task FunctionAsync_when_passed_null_throws_ArgumentNullException()
+    public async Task RunAsync_Func_when_passed_null_throws_ArgumentNullException()
     {
         // Arrange
         Func<Task<int>>? nullFunction = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.FunctionAsync(nullFunction!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullFunction!));
     }
 
 
 
     [Fact]
-    public async Task FunctionAsync_int_when_successful_returns_successful_Result()
+    public async Task RunAsync_Func_int_when_successful_returns_successful_Result()
     {
         // Arrange
         const int expectedValue = 42;
@@ -27,7 +27,7 @@ public class TryFunctionAsyncTests
         }
 
         // Act
-        var result = await Try.FunctionAsync((Func<Task<int>>)Function);
+        var result = await Try.RunAsync((Func<Task<int>>)Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -40,7 +40,7 @@ public class TryFunctionAsyncTests
 
 
     [Fact]
-    public async Task FunctionAsync_nullable_int_when_successful_returns_successful_Result()
+    public async Task RunAsync_Func_nullable_int_when_successful_returns_successful_Result()
     {
         // Arrange
         int? expectedValue = 42;
@@ -52,7 +52,7 @@ public class TryFunctionAsyncTests
         }
         
         // Act
-        var result = await Try.FunctionAsync((Func<Task<int?>>)Function);
+        var result = await Try.RunAsync((Func<Task<int?>>)Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -65,7 +65,7 @@ public class TryFunctionAsyncTests
 
 
     [Fact]
-    public async Task FunctionAsync_string_when_successful_returns_successful_Result()
+    public async Task RunAsync_Func_string_when_successful_returns_successful_Result()
     {
         // Arrange
         const string expectedValue = "Hello, Async World!";
@@ -77,7 +77,7 @@ public class TryFunctionAsyncTests
         }
 
         // Act
-        var result = await Try.FunctionAsync((Func<Task<string>>)Function);
+        var result = await Try.RunAsync((Func<Task<string>>)Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -89,7 +89,7 @@ public class TryFunctionAsyncTests
 
 
     [Fact]
-    public async Task FunctionAsync_int_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
+    public async Task RunAsync_Func_int_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
     {
         // Arrange
         static async Task<int> Function()
@@ -99,7 +99,7 @@ public class TryFunctionAsyncTests
         }
 
         // Act
-        var result = await Try.FunctionAsync((Func<Task<int>>)Function);
+        var result = await Try.RunAsync((Func<Task<int>>)Function);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -112,7 +112,7 @@ public class TryFunctionAsyncTests
 
 
     [Fact]
-    public async Task FunctionAsync_nullable_int_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
+    public async Task RunAsync_Func_nullable_int_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
     {
         // Arrange
         static async Task<int?> Function()
@@ -122,7 +122,7 @@ public class TryFunctionAsyncTests
         }
 
         // Act
-        var result = await Try.FunctionAsync((Func<Task<int?>>)Function);
+        var result = await Try.RunAsync((Func<Task<int?>>)Function);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -136,7 +136,7 @@ public class TryFunctionAsyncTests
 
 
     [Fact]
-    public async Task FunctionAsync_string_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
+    public async Task RunAsync_Func_string_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
     {
         // Arrange
         static async Task<string> Function()
@@ -146,7 +146,7 @@ public class TryFunctionAsyncTests
         }
 
         // Act
-        var result = await Try.FunctionAsync((Func<Task<string>>)Function);
+        var result = await Try.RunAsync((Func<Task<string>>)Function);
 
         // Assert
         Assert.False(result.Succeeded);

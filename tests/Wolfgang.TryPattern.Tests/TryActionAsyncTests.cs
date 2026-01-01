@@ -3,19 +3,19 @@ namespace Wolfgang.TryPattern.Tests;
 public class TryActionAsyncTests
 {
     [Fact]
-    public async Task ActionAsync_WithNullAction_ThrowsArgumentNullException()
+    public async Task RunAsync_Action_WithNullAction_ThrowsArgumentNullException()
     {
         // Arrange
         Action? nullAction = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.ActionAsync(nullAction!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullAction!));
     }
 
 
 
     [Fact]
-    public async Task ActionAsync_WithSuccessfulAction_ExecutesAction()
+    public async Task RunAsync_Action_WithSuccessfulAction_ExecutesAction()
     {
         // Arrange
         var executed = false;
@@ -26,7 +26,7 @@ public class TryActionAsyncTests
         }
 
         // Act
-        var result = await Try.ActionAsync(Action);
+        var result = await Try.RunAsync(Action);
 
         // Assert
         Assert.True(executed);
@@ -40,7 +40,7 @@ public class TryActionAsyncTests
     
 
     [Fact]
-    public async Task ActionAsync_WithExceptionThrowingAction_SwallowsException()
+    public async Task RunAsync_Action_WithExceptionThrowingAction_SwallowsException()
     {
         // Arrange
         static void Action ()
@@ -49,7 +49,7 @@ public class TryActionAsyncTests
         }
 
         // Act
-        var result = await Try.ActionAsync(Action);
+        var result = await Try.RunAsync(Action);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -62,13 +62,13 @@ public class TryActionAsyncTests
 
 
     [Fact]
-    public async Task ActionAsync_WithSynchronousException_SwallowsException()
+    public async Task RunAsync_Action_WithSynchronousException_SwallowsException()
     {
         // Arrange
         static void Action() => throw new InvalidOperationException("Synchronous exception");
 
         // Act
-        var result = await Try.ActionAsync(Action);
+        var result = await Try.RunAsync(Action);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -80,7 +80,7 @@ public class TryActionAsyncTests
 
 
     [Fact]
-    public async Task ActionAsync_WithMultipleAsyncExceptions_SwallowsAllExceptions()
+    public async Task RunAsync_Action__WithMultipleAsyncExceptions_SwallowsAllExceptions()
     {
         // Arrange
         var callCount = 0;
@@ -104,9 +104,9 @@ public class TryActionAsyncTests
         }
 
         // Act
-        await Try.ActionAsync(Action1);
-        await Try.ActionAsync(Action2);
-        await Try.ActionAsync(Action3);
+        await Try.RunAsync(Action1);
+        await Try.RunAsync(Action2);
+        await Try.RunAsync(Action3);
         Assert.Equal(3 ,callCount);
     }
 }

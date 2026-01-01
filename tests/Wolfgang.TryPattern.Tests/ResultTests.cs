@@ -94,7 +94,7 @@ public class ResultTests
     {
         // Act & Assert
         var ex = Assert.Throws<ArgumentException>(() => Result.Failure(message));
-        Assert.Equal("message", ex.ParamName);
+        Assert.Equal("errorMessage", ex.ParamName);
 
     }
 
