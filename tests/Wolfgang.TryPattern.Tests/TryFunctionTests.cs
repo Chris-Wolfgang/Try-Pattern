@@ -130,7 +130,7 @@ public class TryFunctionTests
 
 
     [Fact]
-    public void Run_Func_reference_type_returns_Result_wiTh_correct_properties()
+    public void Run_Func_reference_type_returns_Result_with_correct_properties()
     {
         // Arrange
         var expectedObject = new { Name = "Test", Value = 100 };
