@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>VB.DotNet8.Example</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="..\sample.txt" Link="sample.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Wolfgang.TryPattern\Wolfgang.TryPattern.csproj" />
+	</ItemGroup>
+
+	
+</Project>

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net462</TargetFramework> 
+
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\sample.txt" Link="sample.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup />
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Wolfgang.TryPattern\Wolfgang.TryPattern.csproj" />
+  </ItemGroup>
+</Project>
