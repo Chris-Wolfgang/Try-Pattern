@@ -107,6 +107,6 @@ public class TryActionAsyncTests
         await Try.RunAsync(Action1);
         await Try.RunAsync(Action2);
         await Try.RunAsync(Action3);
-        Assert.Equal(3 ,callCount);
+        Assert.Equal(3, callCount);
     }
 }
