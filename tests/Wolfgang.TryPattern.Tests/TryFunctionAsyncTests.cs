@@ -104,7 +104,7 @@ public class TryFunctionAsyncTests
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.Equal("Test exception",result.ErrorMessage);
+        Assert.Equal("Test exception", result.ErrorMessage);
         var ex = Assert.Throws<InvalidOperationException>(() => result.Value);
         Assert.Equal("Cannot access the Value of a failed Result.", ex.Message);
     }
