@@ -1,5 +1,3 @@
-namespace CSharp.DotNet462.Example
-
 open System
 open System.IO
 open Wolfgang.TryPattern

@@ -1,16 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Wolfgang.TryPattern;
 
 namespace CSharp.DotNet462.Example
 {
-    internal class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
 
@@ -50,7 +46,7 @@ namespace CSharp.DotNet462.Example
         }
 
 
-        static int GetWordCount(string content)
+        private static int GetWordCount(string content)
         {
             return content
                 .Split(new[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)

@@ -1,5 +1,3 @@
-using Xunit.Sdk;
-
 namespace Wolfgang.TryPattern.Tests;
 
 public class ResultTests
