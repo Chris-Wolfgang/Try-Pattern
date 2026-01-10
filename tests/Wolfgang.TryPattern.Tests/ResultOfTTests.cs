@@ -3,7 +3,7 @@
 
 namespace Wolfgang.TryPattern.Tests;
 
-public class ResultTTests
+public class ResultOfTTests
 {
 
 

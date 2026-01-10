@@ -2,12 +2,7 @@ namespace Wolfgang.TryPattern.Tests;
 
 public class ResultTests
 {
-    private class TestResult : Result
-    {
-        public TestResult(bool succeeded, string? errorMessage) : base(succeeded, errorMessage)
-        {
-        }
-    }
+    private class TestResult(bool succeeded, string? errorMessage) : Result(succeeded, errorMessage);
 
 
 
@@ -91,7 +86,7 @@ public class ResultTests
     public void Failure_when_passed_invalid_message_throws_ArgumentException(string? message)
     {
         // Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() => Result.Failure(message));
+        var ex = Assert.Throws<ArgumentException>(() => Result.Failure(message!));
         Assert.Equal("errorMessage", ex.ParamName);
 
     }
