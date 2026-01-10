@@ -149,10 +149,10 @@ public class Result
 
 
 /// <summary>
-/// The result of executing an <seealso cref="Func&lt;T&gt;"/>. Contains properties indicating whether the operation
-/// <see cref="Result&lt;T&gt;.Succeeded"/> or <see cref="Result.Failed"/>. If the operation failed the
-/// <see cref="Result&lt;T&gt;.ErrorMessage"/> property will contain message as to why. If the operation succeeded the
-/// <see cref="Result&lt;T&gt;.Value"/> property will contain the return value from the function.
+/// The result of executing an <seealso cref="Func{T}"/>. Contains properties indicating whether the operation
+/// <see cref="Result{T}.Succeeded"/> or <see cref="Result.Failed"/>. If the operation failed the
+/// <see cref="Result{T}.ErrorMessage"/> property will contain message as to why. If the operation succeeded the
+/// <see cref="Result{T}.Value"/> property will contain the return value from the function.
 /// </summary>
 public class Result<T> : Result
 {
@@ -166,16 +166,16 @@ public class Result<T> : Result
 
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Result&lt;T&gt;"/> class with the specified success status,
+    /// Initializes a new instance of the <see cref="Result{T}"/> class with the specified success status,
     /// exception information, and return value.
     /// </summary>
     /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/>
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
     /// <param name="errorMessage">Error errorMessage associated with the result.</param>
-    /// <param name="value">The return value of the function if it succeeded, otherwise the default value for &lt;T&gt;</param>
+    /// <param name="value">The return value of the function if it succeeded, otherwise the default value for {T}</param>
     /// <remarks>
     /// If the operation was successful, errorMessage must be an empty string and value should be the return value from the function.
-    /// If the operation failed errorMessage must not be null or empty and the value should be default&lt;T&gt;
+    /// If the operation failed errorMessage must not be null or empty and the value should be default{T}
     /// </remarks>
 #if NET5_0_OR_GREATER
     private Result(bool succeeded, string? errorMessage, T value) : base(succeeded, errorMessage) => _value = value;

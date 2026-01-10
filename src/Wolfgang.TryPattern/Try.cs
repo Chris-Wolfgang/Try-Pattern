@@ -98,7 +98,7 @@ public static class Try
     /// <typeparam name="T">The return type of the function.</typeparam>
     /// <param name="function">The function to execute.</param>
     /// <returns>
-    /// A <see cref="Result"/> indicating if the function was successful or not and the result of
+    /// A <see cref="Result{T}"/> indicating if the function was successful or not and the result of
     /// the function if it was. 
     /// </returns>
 #if NET5_0_OR_GREATER
@@ -144,7 +144,7 @@ public static class Try
     /// <typeparam name="T">The return type of the function.</typeparam>
     /// <param name="function">The function to execute.</param>
     /// <returns>
-    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation
+    /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation
     /// </returns>
 #if NET5_0_OR_GREATER
     public static async Task<Result<T?>> RunAsync<T>(Func<Task<T>> function)
@@ -186,6 +186,7 @@ public static class Try
 
 
 
+#if NET5_0_OR_GREATER
     /// <summary>
     /// Executes the specified function, catching any exception that may occur.
     /// </summary>
@@ -193,9 +194,8 @@ public static class Try
     /// <param name="function">The function to execute.</param>
     /// <param name="token">The CancellationToken to monitor.</param>
     /// <returns>
-    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation
+    /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation
     /// </returns>
-#if NET5_0_OR_GREATER
     public static async Task<Result<T?>> RunAsync<T>(Func<Task<T>> function, CancellationToken token)
     {
         if (function == null)
