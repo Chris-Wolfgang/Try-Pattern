@@ -65,6 +65,15 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.DotNet8.Example", "e
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.DotNet462.Example", "examples\FSharp.DotNet462.Example\FSharp.DotNet462.Example.fsproj", "{FC33E249-7D53-45C4-93FA-AB641898D7B1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{933DE134-F533-4471-804C-9CD878428F43}"
+	ProjectSection(SolutionItems) = preProject
+		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		CONTRIBUTING.md = CONTRIBUTING.md
+		LICENSE = LICENSE
+		README.md = README.md
+		SETUP.md = SETUP.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
