@@ -26,6 +26,8 @@ jobs:
     name: "Stage 1: Linux Tests (.NET 3.1-10.0) + Coverage Gate"
     runs-on: ubuntu-latest
     if: github.repository != 'Chris-Wolfgang/repo-template'
+    env:
+      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
     
     steps:
       - name: Checkout code
@@ -208,6 +210,8 @@ jobs:
     runs-on: macos-latest
     needs: test-linux-core
     if: github.repository != 'Chris-Wolfgang/repo-template'
+    env:
+      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
     
     steps:
       - name: Checkout code
