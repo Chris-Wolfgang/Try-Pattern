@@ -101,12 +101,14 @@ public class OrderProcessingService
 		using var content = new StringContent(payload, Encoding.UTF8, "application/json");
 		using var response = await httpClient.PostAsync(endpoint, content).ConfigureAwait(false);
 
-		if (response.IsSuccessStatusCode)
+
+		if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
 		{
-			return Result.Success();
+			var reason = string.IsNullOrWhiteSpace(response.ReasonPhrase) ? "Client Error" : response.ReasonPhrase;
+			return Result.Failure($"Failed to create order: {(int)response.StatusCode} ({reason}).");
 		}
 
-		return Result.Failure($"Failed to create order. Status code: {response.StatusCode}");
+		return Result.Failure($"Failed to create order: {(int)response.StatusCode} ({response.StatusCode}).");
 	}
 
 
