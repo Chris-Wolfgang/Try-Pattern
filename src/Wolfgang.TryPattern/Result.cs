@@ -198,7 +198,7 @@ public class Result<T> : Result
 #else
     public static new Result<T> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
-            ? throw new ArgumentException("ErrorMessage cannot be empty", nameof(errorMessage))
+            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
             : new Result<T>(false, errorMessage, default(T));
 #endif
 
