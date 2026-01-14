@@ -150,7 +150,7 @@ they are searching for does not exist. As such, don't throw an exception when th
 However, failing to connect to a database or a webservice are both
 situations where exceptions are appropriate as these are not common occurrences and indicate something unexpected happened.
 
-Reading a config file or some required other application file that should always be presents 
+Reading a config file or some required other application file that should always be present 
 is another good example of when to use exceptions for control flow. However, 
 a application that reads from a user specified file can expect that the file may not exist 
 and so in that case throwing an exception is proably not the best approach. 
