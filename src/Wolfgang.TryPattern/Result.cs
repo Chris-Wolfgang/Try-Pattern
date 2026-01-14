@@ -150,8 +150,8 @@ public class Result
 
 /// <summary>
 /// The result of executing an <seealso cref="Func{T}"/>. Contains properties indicating whether the operation
-/// <see cref="Result{T}.Succeeded"/> or <see cref="Result.Failed"/>. If the operation failed the
-/// <see cref="Result{T}.ErrorMessage"/> property will contain message as to why. If the operation succeeded the
+/// <see cref="Result.Succeeded"/> or <see cref="Result.Failed"/>. If the operation failed the
+/// <see cref="Result.ErrorMessage"/> property will contain message as to why. If the operation succeeded the
 /// <see cref="Result{T}.Value"/> property will contain the return value from the function.
 /// </summary>
 public class Result<T> : Result
@@ -178,7 +178,7 @@ public class Result<T> : Result
     /// If the operation failed errorMessage must not be null or empty and the value should be default{T}
     /// </remarks>
 #if NET5_0_OR_GREATER
-    private Result(bool succeeded, string? errorMessage, T value) : base(succeeded, errorMessage) => _value = value;
+    private Result(bool succeeded, string? errorMessage, T? value) : base(succeeded, errorMessage) => _value = value;
 #else
     private Result(bool succeeded, string? errorMessage, T value) : base(succeeded, errorMessage) => _value = value;
 #endif
@@ -194,12 +194,12 @@ public class Result<T> : Result
     public static new Result<T?> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
-            : new Result<T?>(false, errorMessage, default(T));
+            : new Result<T?>(false, errorMessage, default!);
 #else
     public static new Result<T> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
-            : new Result<T>(false, errorMessage, default(T));
+            : new Result<T>(false, errorMessage, default!);
 #endif
 
 
