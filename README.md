@@ -153,4 +153,4 @@ situations where exceptions are appropriate as these are not common occurrences 
 Reading a config file or some required other application file that should always be present 
 is another good example of when to use exceptions for control flow. However, 
 a application that reads from a user specified file can expect that the file may not exist 
-and so in that case throwing an exception is proably not the best approach. 
+and so in that case throwing an exception is probably not the best approach. 
