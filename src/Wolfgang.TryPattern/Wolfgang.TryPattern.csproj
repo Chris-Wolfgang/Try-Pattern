@@ -12,7 +12,7 @@
 	  <Version>0.1.0-rc1</Version>
 	  <Title>$(AssemblyName)</Title>
 	  <Authors>Chris Wolfgang</Authors>
-	  <Description></Description>
+	  <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
 	  <Copyright>Copyright 2025 Chris Wolfgang </Copyright>
 	  <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
