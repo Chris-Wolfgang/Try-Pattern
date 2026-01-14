@@ -7,7 +7,7 @@ public class ResultTests
 
 
     [Fact]
-    public void Ctor_when_passed_true_and_empty_string_does_not_throw_Exception()
+    public void Ctor_When_Passed_True_And_Empty_String_Does_Not_Throw_Exception()
     {
         var sut = new TestResult(true, string.Empty);
     }
@@ -18,7 +18,7 @@ public class ResultTests
     [InlineData(null)]
     [InlineData(" ")]
     [InlineData("Test error")]
-    public void Ctor_when_passed_true_and_non_empty_string_throw_InvalidOperationException(string? message)
+    public void Ctor_When_Passed_True_And_Non_Empty_String_Throw_InvalidOperationException(string? message)
     {
         var ex = Assert.Throws<ArgumentException>(() => new TestResult(true, message));
         Assert.Equal("errorMessage", ex.ParamName);
@@ -27,7 +27,7 @@ public class ResultTests
 
 
     [Fact]
-    public void Ctor_when_passed_false_and_message_does_not_throw_Exception()
+    public void Ctor_When_Passed_False_And_Message_Does_Not_Throw_Exception()
     {
         var sut = new TestResult(false, "Test error");
     }
@@ -38,7 +38,7 @@ public class ResultTests
     [InlineData(null)]
     [InlineData(" ")]
     [InlineData("")]
-    public void Ctor_when_passed_false_and_no_message_throw_InvalidOperationException(string? message)
+    public void Ctor_When_Passed_False_And_No_Message_Throw_InvalidOperationException(string? message)
     {
         var ex = Assert.Throws<ArgumentException>(() => new TestResult(false, message));
         Assert.Equal("errorMessage", ex.ParamName);
@@ -83,7 +83,7 @@ public class ResultTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
-    public void Failure_when_passed_invalid_message_throws_ArgumentException(string? message)
+    public void Failure_When_Passed_Invalid_Message_Throws_ArgumentException(string? message)
     {
         // Act & Assert
         var ex = Assert.Throws<ArgumentException>(() => Result.Failure(message!));
@@ -94,7 +94,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AllSucceeded_when_passed_null_throws_ArgumentNullException()
+    public void AllSucceeded_When_Passed_Null_Throws_ArgumentNullException()
     {
         var ex = Assert.Throws<ArgumentNullException>(() => Result.AllSucceeded(null!));
         Assert.Equal("results", ex.ParamName);
@@ -103,7 +103,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AllSucceeded_when_passed_nothing_returns_true()
+    public void AllSucceeded_When_Passed_Nothing_Returns_True()
     {
         Assert.True(Result.AllSucceeded());
     }
@@ -111,7 +111,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AllSucceeded_when_passed_empty_list_returns_true()
+    public void AllSucceeded_When_Passed_Empty_List_Returns_True()
     {
         Assert.True(Result.AllSucceeded(Array.Empty<Result>()));
     }
@@ -119,7 +119,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AllSucceeded_when_all_results_succeeded_returns_true()
+    public void AllSucceeded_When_All_Results_Succeeded_Returns_True()
     {
         var result1 = Result.Success();
         var result2 = Result.Success();
@@ -131,7 +131,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AllSucceeded_when_at_least_one_result_failed_returns_false()
+    public void AllSucceeded_When_At_Least_One_Result_Failed_Returns_False()
     {
         var result1 = Result.Success();
         var result2 = Result.Failure("Test");
@@ -144,7 +144,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AnyFailed_when_passed_null_throws_ArgumentNullException()
+    public void AnyFailed_When_Passed_Null_Throws_ArgumentNullException()
     {
         var ex = Assert.Throws<ArgumentNullException>(() => Result.AnyFailed(null!));
         Assert.Equal("results", ex.ParamName);
@@ -153,7 +153,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AnyFailed_when_nothing_returns_false()
+    public void AnyFailed_When_Nothing_Returns_False()
     {
         Assert.False(Result.AnyFailed());
     }
@@ -161,7 +161,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AnyFailed_when_passed_empty_list_returns_false()
+    public void AnyFailed_When_Passed_Empty_List_Returns_False()
     {
         Assert.False(Result.AnyFailed(Array.Empty<Result>()));
     }
@@ -169,7 +169,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AnyFailed_when_all_results_succeeded_returns_false()
+    public void AnyFailed_When_All_Results_Succeeded_Returns_False()
     {
         var result1 = Result.Success();
         var result2 = Result.Success();
@@ -181,7 +181,7 @@ public class ResultTests
 
 
     [Fact]
-    public void AnyFailed_when_at_least_one_result_failed_returns_true()
+    public void AnyFailed_When_At_Least_One_Result_Failed_Returns_True()
     {
         var result1 = Result.Success();
         var result2 = Result.Failure("Test error");
@@ -193,7 +193,7 @@ public class ResultTests
 
 
     [Fact]
-    public void Flatten_when_passed_null_throws_ArgumentNullException()
+    public void Flatten_When_Passed_Null_Throws_ArgumentNullException()
     {
         var ex = Assert.Throws<ArgumentNullException>(() => Result.Flatten(null!));
         Assert.Equal("results", ex.ParamName);
@@ -202,7 +202,7 @@ public class ResultTests
 
 
     [Fact]
-    public void Flatten_when_passed_nothing_returns_new_successful_Result()
+    public void Flatten_When_Passed_Nothing_Returns_New_Successful_Result()
     {
         var result = Result.Flatten();
 
@@ -215,7 +215,7 @@ public class ResultTests
 
 
     [Fact]
-    public void Flatten_when_passed_empty_list_returns_new_successful_Result()
+    public void Flatten_When_Passed_Empty_List_Returns_New_Successful_Result()
     {
         var result = Result.Flatten(Array.Empty<Result>());
 
@@ -228,7 +228,7 @@ public class ResultTests
 
 
     [Fact]
-    public void Flatten_when_all_results_succeeded_returns_new_successful_Result()
+    public void Flatten_When_All_Results_Succeeded_Returns_New_Successful_Result()
     {
         var result1 = Result.Success();
         var result2 = Result.Success();
@@ -245,7 +245,7 @@ public class ResultTests
 
 
     [Fact]
-    public void Flatten_when_at_least_one_result_failed_returns_first_failed_Result()
+    public void Flatten_When_At_Least_One_Result_Failed_Returns_First_Failed_Result()
     {
         var result1 = Result.Success();
         var result2 = Result.Failure("test error");
