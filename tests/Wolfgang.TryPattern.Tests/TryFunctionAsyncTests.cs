@@ -20,7 +20,7 @@ public class TryFunctionAsyncTests
         // Arrange
         const int expectedValue = 42;
 
-        static async Task<int> Function()
+        async Task<int> Function()
         {
             await Task.Yield();
             return expectedValue;
@@ -70,7 +70,7 @@ public class TryFunctionAsyncTests
         // Arrange
         const string expectedValue = "Hello, Async World!";
 
-        static async Task<string> Function()
+        async Task<string> Function()
         {
             await Task.Yield();
             return expectedValue;
