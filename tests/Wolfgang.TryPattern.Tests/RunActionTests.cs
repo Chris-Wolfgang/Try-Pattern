@@ -1,6 +1,6 @@
 namespace Wolfgang.TryPattern.Tests;
 
-public class TryActionTests
+public class RunActionTests
 {
     [Fact]
     public void Run_Action_when_passed_null_throws_ArgumentNullException()

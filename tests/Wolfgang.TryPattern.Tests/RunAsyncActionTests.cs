@@ -1,6 +1,6 @@
 namespace Wolfgang.TryPattern.Tests;
 
-public class TryActionAsyncTests
+public class RunAsyncActionTests
 {
     [Fact]
     public async Task RunAsync_Action_when_passed_null_throws_ArgumentNullException()
@@ -106,6 +106,8 @@ public class TryActionAsyncTests
         await Try.RunAsync(Action1);
         await Try.RunAsync(Action2);
         await Try.RunAsync(Action3);
+
+        // Assert
         Assert.Equal(3, callCount);
     }
 }
