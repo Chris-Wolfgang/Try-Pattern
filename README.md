@@ -148,7 +148,7 @@ In the case where a user searches for specific data, it is very common that the 
 they are searching for does not exist. As such, don't throw an exception when this happens but rather return a value that indicates not found.
 
 However, failing to connect to a database or a webservice are both
-situationswhere exceptions are appropriate as these are not common occurrences and indicate something unexpected happened.
+situations where exceptions are appropriate as these are not common occurrences and indicate something unexpected happened.
 
 Reading a config file or some required other application file that should always be presents 
 is another good example of when to use exceptions for control flow. However, 
