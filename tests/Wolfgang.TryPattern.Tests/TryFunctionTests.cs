@@ -19,7 +19,7 @@ public class TryFunctionTests
     {
         // Arrange
         const int expectedValue = 42;
-        static int Function() => expectedValue;
+        int Function() => expectedValue;
 
         // Act
         var result = Try.Run(Function);
@@ -57,7 +57,7 @@ public class TryFunctionTests
     {
         // Arrange
         const string expectedValue = "Hello, World!";
-        static string Function() => expectedValue;
+        string Function() => expectedValue;
 
         // Act
         var result = Try.Run((Func<string>?)Function);
@@ -76,7 +76,7 @@ public class TryFunctionTests
     {
         // Arrange
         const string expectedValue = "Hello, World!";
-        static string Function() => expectedValue;
+        string Function() => expectedValue;
 
         // Act
         var result = Try.Run((Func<string>?)Function);
