@@ -3,7 +3,7 @@ namespace Wolfgang.TryPattern.Tests;
 public class TryActionAsyncTests
 {
     [Fact]
-    public async Task RunAsync_Action_WithNullAction_ThrowsArgumentNullException()
+    public async Task RunAsync_Action_when_passed_null_throws_ArgumentNullException()
     {
         // Arrange
         Action? nullAction = null;
@@ -15,7 +15,7 @@ public class TryActionAsyncTests
 
 
     [Fact]
-    public async Task RunAsync_Action_WithSuccessfulAction_ExecutesAction()
+    public async Task RunAsync_Action_executes_specified_action()
     {
         // Arrange
         var executed = false;
@@ -40,7 +40,7 @@ public class TryActionAsyncTests
     
 
     [Fact]
-    public async Task RunAsync_Action_WithExceptionThrowingAction_SwallowsException()
+    public async Task RunAsync_Action_when_action_throws_exception_swallows_the_exception()
     {
         // Arrange
         static void Action ()
@@ -59,10 +59,9 @@ public class TryActionAsyncTests
     }
 
 
-
-
+    
     [Fact]
-    public async Task RunAsync_Action_WithSynchronousException_SwallowsException()
+    public async Task RunAsync_Action_when_passed_synchronous_action_that_throws_exception_swallows_the_exception()
     {
         // Arrange
         static void Action() => throw new InvalidOperationException("Synchronous exception");
@@ -80,7 +79,7 @@ public class TryActionAsyncTests
 
 
     [Fact]
-    public async Task RunAsync_Action__WithMultipleAsyncExceptions_SwallowsAllExceptions()
+    public async Task RunAsync_Action_when_called_multiple_times_with_action_that_throws_exception_swallows_all_exceptions()
     {
         // Arrange
         var callCount = 0;
