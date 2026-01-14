@@ -3,7 +3,7 @@ namespace Wolfgang.TryPattern.Tests;
 public class TryFunctionAsyncTests
 {
     [Fact]
-    public async Task RunAsync_Func_when_passed_null_throws_ArgumentNullException()
+    public async Task RunAsync_Func_WithNullFunction_ThrowsArgumentNullException()
     {
         // Arrange
         Func<Task<int>>? nullFunction = null;
