@@ -26,6 +26,8 @@ jobs:
     name: "Stage 1: Linux Tests (.NET 3.1-10.0) + Coverage Gate"
     runs-on: ubuntu-latest
     if: github.repository != 'Chris-Wolfgang/repo-template'
+    env:
+      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
     
     steps:
       - name: Checkout code
@@ -204,10 +206,12 @@ jobs:
           }
 
   test-macos-core:
-    name: "Stage 2b: macOS Tests (.NET 5.0-10.0)"
+    name: "Stage 2b: macOS Tests (.NET 6.0-10.0)"
     runs-on: macos-latest
     needs: test-linux-core
     if: github.repository != 'Chris-Wolfgang/repo-template'
+    env:
+      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
     
     steps:
       - name: Checkout code
@@ -217,8 +221,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            3.1.x
-            5.0.x
             6.0.x
             7.0.x
             8.0.x
@@ -231,9 +233,10 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests (.NET Core 3.1 - 10.0)
+      - name: Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
         run: |
-          frameworks=(netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
+          # Skip .NET Core 3.1 and .NET 5.0 - no ARM64 support on macOS
+          frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
           
           for fw in "${frameworks[@]}"; do
             echo "=========================================="
@@ -247,11 +250,27 @@ jobs:
               --logger "console;verbosity=normal" || exit 1
           done
 
-      - name: Echo message for .NET Core 3.1
-        if: startsWith(runner.os, 'macOS') && always()
+      - name: Display macOS architecture info
+        if: always()
         run: |
-          echo "ℹ️  Note: Skipping .NET Core 3.1 on macOS (no ARM64 support)"
-          echo "   .NET Core 3.1 is tested on Linux and Windows"
+          echo ""
+          echo "=========================================="
+          echo "ℹ️  macOS Testing Notes"
+          echo "=========================================="
+          echo "Architecture: $(uname -m)"
+          echo ""
+          echo "Skipped frameworks (no ARM64 support):"
+          echo "  - .NET Core 3.1 ❌"
+          echo "  - .NET 5.0 ❌"
+          echo ""
+          echo "Tested frameworks (ARM64 compatible):"
+          echo "  - .NET 6.0 ✅"
+          echo "  - .NET 7.0 ✅"
+          echo "  - .NET 8.0 ✅"
+          echo "  - .NET 9.0 ✅"
+          echo "  - .NET 10.0 ✅"
+          echo ""
+          echo ".NET Core 3.1 and 5.0 are tested on Linux and Windows"
 
   # ============================================================================
   # STAGE 3: Windows - .NET Framework 4.x Tests (Gated by Stage 2)
