@@ -23,7 +23,7 @@ jobs:
   # STAGE 1: Linux - . NET Core/5+ Tests with Coverage Gate
   # ============================================================================
   test-linux-core:
-    name: "Stage 1: Linux Tests (. NET 3.1-10. 0) + Coverage Gate"
+    name: "Stage 1: Linux Tests (.NET 8-9) + Coverage Gate"
     runs-on: ubuntu-latest
     if: github.repository != 'Chris-Wolfgang/repo-template'
     env:
@@ -33,48 +33,43 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Fix for .NET Core 3.1 on Ubuntu 22.04+ - install libssl1.1
-      - name: Install OpenSSL 1.1 for .NET Core 3.1
-        run: |
-          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
-          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+      # No longer needed - not testing .NET Core 3.1
+      # - name: Install OpenSSL 1.1 for .NET Core 3.1
+      #   run: |
+      #     wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+      #     sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            3.1.x
-            5.0.x
-            6.0.x
-            7.0.x
             8.0.x
             9.0.x
-            10.0.x
 
       - name: Restore dependencies (exclude .NET Framework)
         run: |
-          echo "Restoring . NET Core/5+ projects only (excluding .NET Framework)..."
+          echo "Restoring .NET 8-9 projects only (excluding .NET Framework)..."
           # Use MSBuild property to filter target frameworks
-          dotnet restore /p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"
+          dotnet restore /p:TargetFrameworks=\"net8.0\;net9.0\"
 
       - name: Build solution (exclude .NET Framework)
         run: |
-          echo "Building .NET Core/5+ projects only (excluding .NET Framework)..."
-          # Build only . NET Core and .NET 5+ framework targets
+          echo "Building .NET 8-9 projects only (excluding .NET Framework)..."
+          # Build only .NET 8 and 9 framework targets
           dotnet build --no-restore --configuration Release \
-            /p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"
+            /p:TargetFrameworks=\"net8.0\;net9.0\"
 
-      - name: Run tests with coverage (. NET Core 3.1 - 10.0)
+      - name: Run tests with coverage (.NET 8.0-9.0)
         run: |
           # Test each framework individually to ensure all are tested
-          frameworks=(netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
+          frameworks=(net8.0 net9.0)
           
           for fw in "${frameworks[@]}"; do
             echo "=========================================="
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -163,7 +158,7 @@ jobs:
   # STAGE 2: Windows & macOS - .NET Core/5+ Tests (Gated by Stage 1)
   # ============================================================================
   test-windows-core:
-    name: "Stage 2a: Windows Tests (.NET 3.1-10.0)"
+    name: "Stage 2a: Windows Tests (.NET 8-9)"
     runs-on: windows-latest
     needs: test-linux-core
     if: github.repository != 'Chris-Wolfgang/repo-template'
@@ -176,13 +171,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            3.1.x
-            5.0.x
-            6.0.x
-            7.0.x
             8.0.x
             9.0.x
-            10.0.x
 
       - name: Restore dependencies
         run: dotnet restore
@@ -190,17 +180,17 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests (. NET Core 3.1 - 10.0)
+      - name: Run tests (.NET 8-9)
         shell: pwsh
         run: |
-          $frameworks = @('netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
+          $frameworks = @('net8.0', 'net9.0')
           
           foreach ($fw in $frameworks) {
             Write-Host "==========================================" -ForegroundColor Cyan
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
@@ -213,10 +203,10 @@ jobs:
           }
 
   test-macos-core: 
-    name: "Stage 2b: macOS Tests (.NET 6.0-10.0)"
+    name: "Stage 2b: macOS Tests (.NET 8-9)"
     runs-on: macos-latest
     needs: test-linux-core
-    if: github. repository != 'Chris-Wolfgang/repo-template'
+    if: github.repository != 'Chris-Wolfgang/repo-template'
     env:
       MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*. fsproj'
     
@@ -228,11 +218,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            6.0.x
-            7.0.x
             8.0.x
             9.0.x
-            10.0.x
 
       - name: Restore dependencies
         run: dotnet restore
@@ -240,17 +227,16 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
+      - name: Run tests (.NET 8-9 only - ARM64 compatible)
         run: |
-          # Skip .NET Core 3.1 and . NET 5.0 - no ARM64 support on macOS
-          frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
+          frameworks=(net8.0 net9.0)
           
           for fw in "${frameworks[@]}"; do
             echo "=========================================="
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests. csproj \
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -266,18 +252,11 @@ jobs:
           echo "=========================================="
           echo "Architecture: $(uname -m)"
           echo ""
-          echo "Skipped frameworks (no ARM64 support):"
-          echo "  - .NET Core 3.1 ❌"
-          echo "  - .NET 5.0 ❌"
-          echo ""
           echo "Tested frameworks (ARM64 compatible):"
-          echo "  - .NET 6.0 ✅"
-          echo "  - .NET 7.0 ✅"
-          echo "  - . NET 8.0 ✅"
+          echo "  - .NET 8.0 ✅"
           echo "  - .NET 9.0 ✅"
-          echo "  - .NET 10.0 ✅"
           echo ""
-          echo ". NET Core 3.1 and 5.0 are tested on Linux and Windows"
+          echo ".NET 8 and 9 are tested on all platforms"
 
   # ============================================================================
   # STAGE 3: Windows - .NET Framework 4.x Tests (Gated by Stage 2)
@@ -314,7 +293,7 @@ jobs:
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests. csproj `
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
