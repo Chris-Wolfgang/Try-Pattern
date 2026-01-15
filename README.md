@@ -112,7 +112,7 @@ public class OrderProcessingService
 	}
 
 
-	Result<Order> GetOrder(string orderId)
+	async Task<Result<Order>> GetOrder(string orderId)
 	{
 		
 		if (string.IsNullOrWhiteSpace(orderId))
