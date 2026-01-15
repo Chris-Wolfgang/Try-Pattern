@@ -1,7 +1,7 @@
 # Sequential PR validation workflow with coverage gating
 # Stage 1: Linux tests with 90% coverage requirement
 # Stage 2: Windows and macOS tests (only if Linux passes)
-# Stage 3: . NET Framework 4.x tests on Windows (only if Stage 2 passes)
+# Stage 3: .NET Framework 4.x tests on Windows (only if Stage 2 passes)
 
 name: PR Checks v2 (Gated)
 
@@ -14,7 +14,7 @@ on:
       - main
       - develop
     paths-ignore:
-      - '**.md'
+      - '**. md'
       - 'docs/**'
       - '. github/workflows/**'
 
@@ -22,12 +22,10 @@ jobs:
   # ============================================================================
   # STAGE 1: Linux - . NET Core/5+ Tests with Coverage Gate
   # ============================================================================
-  test-linux-core:
+  test-linux-core: 
     name: "Stage 1: Linux Tests (. NET 3.1-10. 0) + Coverage Gate"
-    runs-on: ubuntu-latest
+    runs-on:  ubuntu-latest
     if: github.repository != 'Chris-Wolfgang/repo-template'
-    env:
-      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*. csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
     
     steps:
       - name: Checkout code
@@ -51,18 +49,48 @@ jobs:
             9.0.x
             10.0.x
 
-      - name: Restore dependencies (exclude .NET Framework)
+      - name:  Restore and build (exclude . NET Framework 4.x projects)
         run: |
-          echo "Restoring . NET Core/5+ projects only (excluding .NET Framework)..."
-          # Use MSBuild property to filter target frameworks
-          dotnet restore /p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"
-
-      - name: Build solution (exclude .NET Framework)
-        run: |
-          echo "Building .NET Core/5+ projects only (excluding .NET Framework)..."
-          # Build only . NET Core and .NET 5+ framework targets
-          dotnet build --no-restore --configuration Release \
-            /p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"
+          echo "Finding all projects in solution..."
+          
+          # Get list of all projects from solution file
+          if [ -f "*. sln" ]; then
+            sln_file=$(ls *.sln | head -n 1)
+            echo "Using solution file: $sln_file"
+          fi
+          
+          # Find all . csproj, .vbproj, and .fsproj files
+          # Exclude those with 'dotnet4' or 'DotNet4' in the path (case-insensitive)
+          projects=$(find . -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) | grep -iv "dotnet4")
+          
+          if [ -z "$projects" ]; then
+            echo "No projects found!"
+            exit 1
+          fi
+          
+          echo "=========================================="
+          echo "Projects to build (excluding . NET Framework 4.x):"
+          echo "=========================================="
+          echo "$projects"
+          echo ""
+          
+          # Restore each project
+          echo "Restoring projects..."
+          for proj in $projects; do
+            echo "Restoring:  $proj"
+            dotnet restore "$proj" || exit 1
+          done
+          
+          echo ""
+          echo "Building projects..."
+          # Build each project
+          for proj in $projects; do
+            echo "Building: $proj"
+            dotnet build "$proj" --no-restore --configuration Release || exit 1
+          done
+          
+          echo ""
+          echo "✅ All compatible projects built successfully"
 
       - name: Run tests with coverage (. NET Core 3.1 - 10.0)
         run: |
@@ -74,7 +102,7 @@ jobs:
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet test tests/TryPattern. Tests/TryPattern.Tests. csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -146,7 +174,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name:  coverage-linux
+          name: coverage-linux
           path: |
             TestResults/
             CoverageReport/
@@ -166,11 +194,11 @@ jobs:
     name: "Stage 2a: Windows Tests (.NET 3.1-10.0)"
     runs-on: windows-latest
     needs: test-linux-core
-    if: github.repository != 'Chris-Wolfgang/repo-template'
+    if:  github.repository != 'Chris-Wolfgang/repo-template'
     
     steps:
-      - name:  Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses:  actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -197,10 +225,10 @@ jobs:
           
           foreach ($fw in $frameworks) {
             Write-Host "==========================================" -ForegroundColor Cyan
-            Write-Host "Testing framework: $fw" -ForegroundColor Cyan
+            Write-Host "Testing framework:  $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet test tests/TryPattern. Tests/TryPattern.Tests. csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
@@ -217,8 +245,6 @@ jobs:
     runs-on: macos-latest
     needs: test-linux-core
     if: github. repository != 'Chris-Wolfgang/repo-template'
-    env:
-      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*. fsproj'
     
     steps:
       - name:  Checkout code
@@ -234,13 +260,44 @@ jobs:
             9.0.x
             10.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore and build (exclude .NET Framework 4.x projects)
+        run: |
+          echo "Finding all projects in solution..."
+          
+          # Find all .csproj, .vbproj, and .fsproj files
+          # Exclude those with 'dotnet4' or 'DotNet4' in the path (case-insensitive)
+          projects=$(find . -type f \( -name "*. csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) | grep -iv "dotnet4")
+          
+          if [ -z "$projects" ]; then
+            echo "No projects found!"
+            exit 1
+          fi
+          
+          echo "=========================================="
+          echo "Projects to build (excluding .NET Framework 4.x):"
+          echo "=========================================="
+          echo "$projects"
+          echo ""
+          
+          # Restore each project
+          echo "Restoring projects..."
+          for proj in $projects; do
+            echo "Restoring: $proj"
+            dotnet restore "$proj" || exit 1
+          done
+          
+          echo ""
+          echo "Building projects..."
+          # Build each project
+          for proj in $projects; do
+            echo "Building: $proj"
+            dotnet build "$proj" --no-restore --configuration Release || exit 1
+          done
+          
+          echo ""
+          echo "✅ All compatible projects built successfully"
 
-      - name: Build solution
-        run: dotnet build --no-restore --configuration Release
-
-      - name: Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
+      - name: Run tests (. NET 6.0 - 10.0 only - ARM64 compatible)
         run: |
           # Skip .NET Core 3.1 and . NET 5.0 - no ARM64 support on macOS
           frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
@@ -250,7 +307,7 @@ jobs:
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests. csproj \
+            dotnet test tests/TryPattern.Tests/TryPattern. Tests.csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -314,7 +371,7 @@ jobs:
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests. csproj `
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
@@ -342,14 +399,14 @@ jobs:
   security-scan:
     name: "Security Scan (DevSkim)"
     runs-on: ubuntu-latest
-    if: github.repository != 'Chris-Wolfgang/repo-template'
+    if:  github.repository != 'Chris-Wolfgang/repo-template'
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses:  actions/checkout@v4
 
       - name: Install DevSkim CLI
-        run: dotnet tool install --global Microsoft.CST.DevSkim. CLI
+        run:  dotnet tool install --global Microsoft.CST.DevSkim. CLI
 
       - name: Run DevSkim security scan
         continue-on-error: true
@@ -365,7 +422,7 @@ jobs:
       - name: Display security scan results
         if: always()
         run: |
-          if [ -f devskim-results.txt ]; then
+          if [ -f devskim-results. txt ]; then
             echo "=========================================="
             echo "DevSkim Security Scan Results"
             echo "=========================================="
