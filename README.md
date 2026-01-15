@@ -88,7 +88,7 @@ public class OrderProcessingService
 		this.endpoint = endpoint;
 	}
 
-	Result CreateOrder(Order order)
+	async Task<Result> CreateOrder(Order order)
 	{
 		
 		if (order == null)
