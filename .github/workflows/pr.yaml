@@ -1,7 +1,7 @@
 # Sequential PR validation workflow with coverage gating
 # Stage 1: Linux tests with 90% coverage requirement
 # Stage 2: Windows and macOS tests (only if Linux passes)
-# Stage 3: .NET Framework 4.x tests on Windows (only if Stage 2 passes)
+# Stage 3: . NET Framework 4.x tests on Windows (only if Stage 2 passes)
 
 name: PR Checks v2 (Gated)
 
@@ -9,25 +9,25 @@ permissions:
   contents: read
   
 on:
-  pull_request:
-    branches:
+  pull_request: 
+    branches: 
       - main
       - develop
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '.github/workflows/**'
+      - '. github/workflows/**'
 
 jobs:
   # ============================================================================
-  # STAGE 1: Linux - .NET Core/5+ Tests with Coverage Gate
+  # STAGE 1: Linux - . NET Core/5+ Tests with Coverage Gate
   # ============================================================================
   test-linux-core:
-    name: "Stage 1: Linux Tests (.NET 3.1-10.0) + Coverage Gate"
+    name: "Stage 1: Linux Tests (. NET 3.1-10. 0) + Coverage Gate"
     runs-on: ubuntu-latest
     if: github.repository != 'Chris-Wolfgang/repo-template'
     env:
-      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
+      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*. csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
     
     steps:
       - name: Checkout code
@@ -51,13 +51,20 @@ jobs:
             9.0.x
             10.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore dependencies (exclude .NET Framework)
+        run: |
+          echo "Restoring . NET Core/5+ projects only (excluding .NET Framework)..."
+          # Use MSBuild property to filter target frameworks
+          dotnet restore /p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"
 
-      - name: Build solution
-        run: dotnet build --no-restore --configuration Release
+      - name: Build solution (exclude .NET Framework)
+        run: |
+          echo "Building .NET Core/5+ projects only (excluding .NET Framework)..."
+          # Build only . NET Core and .NET 5+ framework targets
+          dotnet build --no-restore --configuration Release \
+            /p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"
 
-      - name: Run tests with coverage (.NET Core 3.1 - 10.0)
+      - name: Run tests with coverage (. NET Core 3.1 - 10.0)
         run: |
           # Test each framework individually to ensure all are tested
           frameworks=(netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
@@ -86,9 +93,9 @@ jobs:
             -targetdir:"CoverageReport" \
             -reporttypes:"Html;TextSummary;MarkdownSummaryGithub;CsvSummary"
 
-      - name: Enforce 90% coverage threshold
+      - name:  Enforce 90% coverage threshold
         run: |
-          if [ ! -f CoverageReport/Summary.txt ]; then
+          if [ !  -f CoverageReport/Summary.txt ]; then
             echo "❌ Coverage report not generated!"
             exit 1
           fi
@@ -102,7 +109,7 @@ jobs:
           
           while read -r line; do
             # Match lines with module names and percentages
-            if echo "$line" | grep -qE '^[^ ].*[0-9]+%$' && ! echo "$line" | grep -q '^Summary'; then
+            if echo "$line" | grep -qE '^[^ ].*[0-9]+%$' && !  echo "$line" | grep -q '^Summary'; then
               module=$(echo "$line" | awk '{print $1}')
               percent=$(echo "$line" | awk '{print $NF}' | tr -d '%')
               
@@ -112,19 +119,19 @@ jobs:
                 echo "  ❌ FAIL: Below ${threshold}% threshold"
                 failed_projects="$failed_projects $module (${percent}%)"
               else
-                echo "  ✅ PASS: Meets ${threshold}% threshold"
+                echo "  ✅ PASS:  Meets ${threshold}% threshold"
               fi
             fi
-          done < CoverageReport/Summary.txt
+          done < CoverageReport/Summary. txt
 
           if [ -n "$failed_projects" ]; then
             echo ""
             echo "=========================================="
             echo "❌ COVERAGE GATE FAILED"
             echo "=========================================="
-            echo "Projects below ${threshold}% coverage:$failed_projects"
+            echo "Projects below ${threshold}% coverage: $failed_projects"
             echo ""
-            echo "Stage 1 failed. Windows, macOS, and .NET Framework tests will NOT run."
+            echo "Stage 1 failed.  Windows, macOS, and .NET Framework tests will NOT run."
             exit 1
           else
             echo ""
@@ -139,7 +146,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-linux
+          name:  coverage-linux
           path: |
             TestResults/
             CoverageReport/
@@ -162,7 +169,7 @@ jobs:
     if: github.repository != 'Chris-Wolfgang/repo-template'
     
     steps:
-      - name: Checkout code
+      - name:  Checkout code
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -183,7 +190,7 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests (.NET Core 3.1 - 10.0)
+      - name: Run tests (. NET Core 3.1 - 10.0)
         shell: pwsh
         run: |
           $frameworks = @('netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
@@ -205,16 +212,16 @@ jobs:
             }
           }
 
-  test-macos-core:
+  test-macos-core: 
     name: "Stage 2b: macOS Tests (.NET 6.0-10.0)"
     runs-on: macos-latest
     needs: test-linux-core
-    if: github.repository != 'Chris-Wolfgang/repo-template'
+    if: github. repository != 'Chris-Wolfgang/repo-template'
     env:
-      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*.fsproj'
+      MSBUILDSKIPPROJFILTERS: '**/*DotNet4*.csproj;**/*DotNet4*.vbproj;**/*DotNet4*. fsproj'
     
     steps:
-      - name: Checkout code
+      - name:  Checkout code
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -235,7 +242,7 @@ jobs:
 
       - name: Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
         run: |
-          # Skip .NET Core 3.1 and .NET 5.0 - no ARM64 support on macOS
+          # Skip .NET Core 3.1 and . NET 5.0 - no ARM64 support on macOS
           frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
           
           for fw in "${frameworks[@]}"; do
@@ -243,7 +250,7 @@ jobs:
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests. csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -266,26 +273,26 @@ jobs:
           echo "Tested frameworks (ARM64 compatible):"
           echo "  - .NET 6.0 ✅"
           echo "  - .NET 7.0 ✅"
-          echo "  - .NET 8.0 ✅"
+          echo "  - . NET 8.0 ✅"
           echo "  - .NET 9.0 ✅"
           echo "  - .NET 10.0 ✅"
           echo ""
-          echo ".NET Core 3.1 and 5.0 are tested on Linux and Windows"
+          echo ". NET Core 3.1 and 5.0 are tested on Linux and Windows"
 
   # ============================================================================
   # STAGE 3: Windows - .NET Framework 4.x Tests (Gated by Stage 2)
   # ============================================================================
-  test-windows-framework:
-    name: "Stage 3: Windows .NET Framework Tests (4.6.2-4.8.1)"
+  test-windows-framework: 
+    name: "Stage 3: Windows . NET Framework Tests (4.6.2-4.8.1)"
     runs-on: windows-latest
     needs: [test-windows-core, test-macos-core]
     if: github.repository != 'Chris-Wolfgang/repo-template'
     
-    steps:
+    steps: 
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup . NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
@@ -297,7 +304,7 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run .NET Framework tests (4.6.2 - 4.8.1)
+      - name:  Run . NET Framework tests (4.6.2 - 4.8.1)
         shell: pwsh
         run: |
           $frameworks = @('net462', 'net472', 'net48', 'net481')
@@ -307,7 +314,7 @@ jobs:
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests. csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
@@ -323,11 +330,11 @@ jobs:
           Write-Host "==========================================" -ForegroundColor Green
           Write-Host "✅ ALL STAGES PASSED" -ForegroundColor Green
           Write-Host "==========================================" -ForegroundColor Green
-          Write-Host "Stage 1: Linux tests + 90% coverage ✅" -ForegroundColor Green
+          Write-Host "Stage 1:  Linux tests + 90% coverage ✅" -ForegroundColor Green
           Write-Host "Stage 2: Windows & macOS tests ✅" -ForegroundColor Green
           Write-Host "Stage 3: .NET Framework 4.x tests ✅" -ForegroundColor Green
           Write-Host ""
-          Write-Host "PR is ready to merge! 🎉" -ForegroundColor Green
+          Write-Host "PR is ready to merge!  🎉" -ForegroundColor Green
 
   # ============================================================================
   # Security Scan (Runs in parallel with tests)
@@ -342,13 +349,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install DevSkim CLI
-        run: dotnet tool install --global Microsoft.CST.DevSkim.CLI
+        run: dotnet tool install --global Microsoft.CST.DevSkim. CLI
 
       - name: Run DevSkim security scan
         continue-on-error: true
         run: |
           devskim analyze \
-            --source-code . \
+            --source-code .  \
             --file-format text \
             --output-file devskim-results.txt \
             -E \
