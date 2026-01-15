@@ -92,6 +92,22 @@ jobs:
           echo ""
           echo "✅ All compatible projects built successfully"
 
+      - name: Build test project for each framework
+        run: |
+          # Build test project for each target framework explicitly
+          frameworks=(netcoreapp3.1 net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
+          
+          for fw in "${frameworks[@]}"; do
+            echo "Building test project for framework: $fw"
+            dotnet build tests/TryPattern.Tests/TryPattern.Tests.csproj \
+              --no-restore \
+              --configuration Release \
+              --framework "$fw" || exit 1
+          done
+          
+          echo ""
+          echo "✅ Test project built for all target frameworks"
+
       - name: Run tests with coverage (.NET Core 3.1 - 10.0)
         run: |
           # Test each framework individually to ensure all are tested
@@ -218,6 +234,27 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
+      - name: Build test project for each framework
+        shell: pwsh
+        run: |
+          $frameworks = @('netcoreapp3.1', 'net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
+          
+          foreach ($fw in $frameworks) {
+            Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
+            dotnet build tests/TryPattern. Tests/TryPattern.Tests. csproj `
+              --no-restore `
+              --configuration Release `
+              --framework $fw
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Build failed for $fw"
+              exit 1
+            }
+          }
+          
+          Write-Host ""
+          Write-Host "✅ Test project built for all target frameworks" -ForegroundColor Green
+
       - name: Run tests (.NET Core 3.1 - 10.0)
         shell: pwsh
         run: |
@@ -297,6 +334,22 @@ jobs:
           echo ""
           echo "✅ All compatible projects built successfully"
 
+      - name: Build test project for each framework
+        run: |
+          # Build test project for each target framework explicitly
+          frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
+          
+          for fw in "${frameworks[@]}"; do
+            echo "Building test project for framework: $fw"
+            dotnet build tests/TryPattern.Tests/TryPattern.Tests.csproj \
+              --no-restore \
+              --configuration Release \
+              --framework "$fw" || exit 1
+          done
+          
+          echo ""
+          echo "✅ Test project built for all target frameworks"
+
       - name: Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
         run: |
           # Skip .NET Core 3.1 and .NET 5.0 - no ARM64 support on macOS
@@ -360,6 +413,27 @@ jobs:
 
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
+
+      - name: Build test project for each framework
+        shell: pwsh
+        run: |
+          $frameworks = @('net462', 'net472', 'net48', 'net481')
+          
+          foreach ($fw in $frameworks) {
+            Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
+            dotnet build tests/TryPattern.Tests/TryPattern. Tests.csproj `
+              --no-restore `
+              --configuration Release `
+              --framework $fw
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Build failed for $fw"
+              exit 1
+            }
+          }
+          
+          Write-Host ""
+          Write-Host "✅ Test project built for all target frameworks" -ForegroundColor Green
 
       - name: Run .NET Framework tests (4.6.2 - 4.8.1)
         shell: pwsh
