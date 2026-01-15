@@ -5,7 +5,7 @@
 The `Try Pattern` is a design pattern in which code is execute but the caller only cares if the code 
 succeeded or failed and the exact reason for failure is not important. For example, a user may need 
 to update a record in a database via a web page. If the update fails, they only need to know that it 
-failed, not the specific reason for the failer. Connection timeout, login failed, user doesn't have 
+failed, not the specific reason for the failure. Connection timeout, login failed, user doesn't have 
 access, etc., are irrelevant to the user. They just need to know if the update succeeded or failed. 
 
 A variation of this, is calling a method that returns a value (i.e. a function). In this case if the 
