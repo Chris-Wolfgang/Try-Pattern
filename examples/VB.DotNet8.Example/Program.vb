@@ -1,9 +1,10 @@
 Imports System
+Imports System.Diagnostics.CodeAnalysis
 Imports System.IO
 Imports System.Threading.Tasks
 Imports Wolfgang.TryPattern
 
-
+<ExcludeFromCodeCoverage>
 Friend Module Module1
 	Public Sub Main()
 		MainAsync().GetAwaiter().GetResult()

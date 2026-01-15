@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Wolfgang.TryPattern;
 
 namespace CSharp.DotNet462.Example
 {
+    [ExcludeFromCodeCoverage]
     internal static class Program
     {
         private static void Main()

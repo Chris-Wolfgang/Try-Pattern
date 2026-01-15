@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 
 namespace Wolfgang.TryPattern.Benchmarks;
 
+[ExcludeFromCodeCoverage(Justification = "This is for benchmarking the code")]
 [SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class TryBenchmarks

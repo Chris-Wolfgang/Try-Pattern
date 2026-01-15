@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using Wolfgang.TryPattern;
 
 namespace CSharp.DotNet8.Example;
 
+[ExcludeFromCodeCoverage]
 internal static class Program
 {
     private static async Task Main()

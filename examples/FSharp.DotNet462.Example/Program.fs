@@ -1,7 +1,10 @@
 open System
 open System.IO
+open System.Diagnostics.CodeAnalysis
 open Wolfgang.TryPattern
 
+
+[<ExcludeFromCodeCoverage>]
 module Program =
     let private getWordCount (content: string) =
         content.Split([| ' '; '\n'; '\r' |], StringSplitOptions.RemoveEmptyEntries).Length

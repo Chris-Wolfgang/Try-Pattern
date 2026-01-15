@@ -3,8 +3,10 @@ module FSharp.DotNet462.Example
 open System
 open System.IO
 open System.Threading.Tasks
+open System.Diagnostics.CodeAnalysis
 open Wolfgang.TryPattern
 
+[<ExcludeFromCodeCoverage>]
 let private getWordCount (content: string) =
     content
         .Split([| ' '; '\n'; '\r' |], StringSplitOptions.RemoveEmptyEntries)
@@ -41,6 +43,7 @@ let private mainAsync (args: string array) =
 
         Console.ResetColor()
     }
+
 
 [<EntryPoint>]
 let main args =

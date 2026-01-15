@@ -1,8 +1,10 @@
 Imports System
 Imports System.IO
+Imports System.Diagnostics.CodeAnalysis
 Imports Wolfgang.TryPattern
 
 
+<ExcludeFromCodeCoverage>
 Friend Module Program
 	Sub Main(args As String())
 		Console.ForegroundColor = ConsoleColor.Cyan
