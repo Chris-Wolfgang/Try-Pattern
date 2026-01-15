@@ -92,7 +92,7 @@ jobs:
           
           for fw in "${frameworks[@]}"; do
             echo "Building test project for framework: $fw"
-            dotnet build tests/TryPattern.Tests/TryPattern.Tests.csproj \
+            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
               --configuration Release \
               --framework "$fw" || exit 1
           done
