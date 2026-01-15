@@ -93,7 +93,6 @@ jobs:
           for fw in "${frameworks[@]}"; do
             echo "Building test project for framework: $fw"
             dotnet build tests/TryPattern.Tests/TryPattern.Tests.csproj \
-              --no-restore \
               --configuration Release \
               --framework "$fw" || exit 1
           done
@@ -233,8 +232,7 @@ jobs:
           
           foreach ($fw in $frameworks) {
             Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
-            dotnet build tests/TryPattern. Tests/TryPattern.Tests. csproj `
-              --no-restore `
+            dotnet build tests/TryPattern.Tests/TryPattern.Tests.csproj `
               --configuration Release `
               --framework $fw
             
@@ -334,7 +332,6 @@ jobs:
           for fw in "${frameworks[@]}"; do
             echo "Building test project for framework: $fw"
             dotnet build tests/TryPattern.Tests/TryPattern.Tests.csproj \
-              --no-restore \
               --configuration Release \
               --framework "$fw" || exit 1
           done
@@ -413,7 +410,6 @@ jobs:
           foreach ($fw in $frameworks) {
             Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
             dotnet build tests/TryPattern.Tests/TryPattern. Tests.csproj `
-              --no-restore `
               --configuration Release `
               --framework $fw
             
