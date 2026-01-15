@@ -52,10 +52,10 @@ jobs:
             10.0.x
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore '/p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"'
 
       - name: Build solution
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build --no-restore --configuration Release '/p:TargetFrameworks="netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0"'
 
       - name: Run tests with coverage (.NET Core 3.1 - 10.0)
         run: |
@@ -67,7 +67,7 @@ jobs:
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -193,7 +193,7 @@ jobs:
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
@@ -243,7 +243,7 @@ jobs:
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -307,7 +307,7 @@ jobs:
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet test tests/TryPattern.Tests/TryPattern.Tests.csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
