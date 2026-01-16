@@ -1,6 +1,6 @@
 namespace Wolfgang.TryPattern.Tests;
 
-public class TryFunctionTests
+public class TryFunctionTests  // TODO Rename class and file
 {
     [Fact]
     public void Run_Func_WithNullFunction_ThrowsArgumentNullException()
@@ -19,7 +19,7 @@ public class TryFunctionTests
     {
         // Arrange
         const int expectedValue = 42;
-        int Function() => expectedValue;
+        static int Function() => expectedValue;
 
         // Act
         var result = Try.Run(Function);
@@ -57,7 +57,7 @@ public class TryFunctionTests
     {
         // Arrange
         const string expectedValue = "Hello, World!";
-        string Function() => expectedValue;
+        static string Function() => expectedValue;
 
         // Act
         var result = Try.Run((Func<string>?)Function);
@@ -76,7 +76,7 @@ public class TryFunctionTests
     {
         // Arrange
         const string expectedValue = "Hello, World!";
-        string Function() => expectedValue;
+        static string Function() => expectedValue;
 
         // Act
         var result = Try.Run((Func<string>?)Function);

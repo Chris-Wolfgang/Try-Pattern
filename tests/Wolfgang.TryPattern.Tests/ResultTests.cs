@@ -1,3 +1,4 @@
+#pragma warning disable IDE0022
 namespace Wolfgang.TryPattern.Tests;
 
 public class ResultTests
@@ -9,7 +10,7 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_true_and_empty_string_does_not_throw_Exception()
     {
-        var sut = new TestResult(true, string.Empty);
+        var unused = new TestResult(true, string.Empty);
     }
 
 
@@ -29,7 +30,7 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_false_and_message_does_not_throw_Exception()
     {
-        var sut = new TestResult(false, "Test error");
+        var unused = new TestResult(false, "Test error");
     }
 
 
