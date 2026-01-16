@@ -415,7 +415,7 @@ jobs:
           
           foreach ($fw in $frameworks) {
             Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern. Tests.csproj `
+            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
               --configuration Release `
               --framework $fw
             
