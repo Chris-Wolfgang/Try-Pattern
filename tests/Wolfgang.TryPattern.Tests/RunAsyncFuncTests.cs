@@ -1,6 +1,6 @@
 namespace Wolfgang.TryPattern.Tests;
 
-public class TryFunctionAsyncTests // TODO Rename class and file
+public class RunAsyncFuncTests // TODO Rename class and file
 {
 	[Fact]
 	public async Task RunAsync_Func_when_passed_null_throws_ArgumentNullException()
@@ -68,14 +68,14 @@ public class TryFunctionAsyncTests // TODO Rename class and file
 		// Arrange
 		const string expectedValue = "Hello, Async World!";
 
-		static async Task<string> Function()
+		static async Task<string?> Function()
 		{
 			await Task.Yield();
 			return expectedValue;
 		}
 
 		// Act
-		var result = await Try.RunAsync((Func<Task<string>>)Function);
+		var result = await Try.RunAsync(Function);
 
 		// Assert
 		Assert.True(result.Succeeded);
@@ -137,14 +137,14 @@ public class TryFunctionAsyncTests // TODO Rename class and file
 	public async Task RunAsync_Func_string_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
 	{
 		// Arrange
-		static async Task<string> Function()
+		static async Task<string?> Function()
 		{
 			await Task.Yield();
 			throw new InvalidOperationException("Test exception");
 		}
 
 		// Act
-		var result = await Try.RunAsync((Func<Task<string>>)Function);
+		var result = await Try.RunAsync(Function);
 
 		// Assert
 		Assert.False(result.Succeeded);
@@ -231,7 +231,7 @@ public class TryFunctionAsyncTests // TODO Rename class and file
 		// Arrange
 		const string expectedValue = "Hello, Async World!";
 
-		static async Task<string> Function()
+		static async Task<string?> Function()
 		{
 			await Task.Yield();
 			return expectedValue;
@@ -241,7 +241,7 @@ public class TryFunctionAsyncTests // TODO Rename class and file
 
 
 		// Act
-		var result = await Try.RunAsync((Func<Task<string>>)Function, cts.Token);
+		var result = await Try.RunAsync(Function, cts.Token);
 
 		// Assert
 		Assert.True(result.Succeeded);
@@ -309,7 +309,7 @@ public class TryFunctionAsyncTests // TODO Rename class and file
 	public async Task RunAsync_Func_CancellationToken_string_when_exception_is_thrown_returns_failed_Result_with_correct_properties()
 	{
 		// Arrange
-		static async Task<string> Function()
+		static async Task<string?> Function()
 		{
 			await Task.Yield();
 			throw new InvalidOperationException("Test exception");
@@ -319,7 +319,7 @@ public class TryFunctionAsyncTests // TODO Rename class and file
 
 
 		// Act
-		var result = await Try.RunAsync((Func<Task<string>>)Function, cts.Token);
+		var result = await Try.RunAsync(Function, cts.Token);
 
 		// Assert
 		Assert.False(result.Succeeded);

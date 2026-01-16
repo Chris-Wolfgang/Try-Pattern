@@ -1,6 +1,6 @@
 namespace Wolfgang.TryPattern.Tests;
 
-public class TryFunctionTests  // TODO Rename class and file
+public class RunFuncTests  // TODO Rename class and file
 {
     [Fact]
     public void Run_Func_WithNullFunction_ThrowsArgumentNullException()
