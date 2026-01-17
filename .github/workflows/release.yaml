@@ -28,6 +28,7 @@ jobs:
             7.0.x
             8.0.x
             9.0.x
+            10.0.x
 
       - name: Restore dependencies
         run: dotnet restore
@@ -67,24 +68,37 @@ jobs:
             7.0.x
             8.0.x
             9.0.x
+            10.0.x
+
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build Solution (Release)
         run: dotnet build --no-restore --configuration Release
 
-      - name: Pack NuGet Package for Each Project in Src (Release)
+      - name: Pack NuGet Packages
         shell: bash
         run: |
-            dotnet pack src/Wolfgang.DbContextBuilder-Core-EF6/Wolfgang.DbContextBuilder-Core-EF6.csproj --no-build --configuration Release --output ./nuget-packages 
-            dotnet pack src/Wolfgang.DbContextBuilder-Core-EF7/Wolfgang.DbContextBuilder-Core-EF7.csproj --no-build --configuration Release --output ./nuget-packages 
-            dotnet pack src/Wolfgang.DbContextBuilder-Core-EF8/Wolfgang.DbContextBuilder-Core-EF8.csproj --no-build --configuration Release --output ./nuget-packages 
-            dotnet pack src/Wolfgang.DbContextBuilder-Core-EF9/Wolfgang.DbContextBuilder-Core-EF9.csproj --no-build --configuration Release --output ./nuget-packages 
-            
+          # Automatically pack all packable projects in src folder
+          for proj in src/**/*.csproj; do
+            if [ -f "$proj" ]; then
+              echo "Packing $proj"
+              dotnet pack "$proj" --no-build --configuration Release --output ./nuget-packages
+            fi
+          done
+
+      - name: Upload NuGet packages as artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: nuget-packages
+          path: ./nuget-packages/*.nupkg
+          retention-days: 30
+
       - name: Publish NuGet Package
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }} # Ensure this secret is set in repository settings
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           for pkg in ./nuget-packages/*.nupkg; do
-            dotnet nuget push "$pkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
+            echo "Publishing $pkg"
+            dotnet nuget push "$pkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
           done
