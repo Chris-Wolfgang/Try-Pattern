@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 
-namespace TryPattern.Benchmarks;
+namespace Wolfgang.TryPattern.Benchmarks;
 
+[ExcludeFromCodeCoverage(Justification = "This is for benchmarking the code")]
 [SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class TryBenchmarks
@@ -14,7 +16,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            Try.Action(() => { });
+            Try.Run(() => { });
         }
     }
 
@@ -23,25 +25,25 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            Try.Action(() => throw new InvalidOperationException());
+            Try.Run(() => throw new InvalidOperationException());
         }
     }
 
     [Benchmark]
-    public async Task ActionAsync_Success()
+    public async Task RunAsync_Action_Success()
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            await Try.ActionAsync(async () => await Task.CompletedTask);
+            await Try.RunAsync(async () => await Task.CompletedTask);
         }
     }
 
     [Benchmark]
-    public async Task ActionAsync_WithException()
+    public async Task RunAsync_Action_WithException()
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            await Try.ActionAsync(async () =>
+            await Try.RunAsync(async () =>
             {
                 await Task.CompletedTask;
                 throw new InvalidOperationException();
@@ -50,29 +52,29 @@ public class TryBenchmarks
     }
 
     [Benchmark]
-    public void Function_Success()
+    public void Run_Func_Success()
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            _ = Try.Function(() => 42);
+            _ = Try.Run(() => 42);
         }
     }
 
     [Benchmark]
-    public void Function_WithException()
+    public void Run_Func_WithException()
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            _ = Try.Function<int>(() => throw new InvalidOperationException());
+            _ = Try.Run<int>(() => throw new InvalidOperationException());
         }
     }
 
     [Benchmark]
-    public async Task FunctionAsync_Success()
+    public async Task RunAsync_Func_Success()
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            _ = await Try.FunctionAsync(async () =>
+            _ = await Try.RunAsync(async () =>
             {
                 await Task.CompletedTask;
                 return 42;
@@ -81,11 +83,11 @@ public class TryBenchmarks
     }
 
     [Benchmark]
-    public async Task FunctionAsync_WithException()
+    public async Task RunAsync_Func_WithException()
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            _ = await Try.FunctionAsync<int>(async () =>
+            _ = await Try.RunAsync<int>(async () =>
             {
                 await Task.CompletedTask;
                 throw new InvalidOperationException();
