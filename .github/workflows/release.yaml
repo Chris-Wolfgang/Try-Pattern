@@ -54,7 +54,7 @@ jobs:
   publish:
     name: Pack and Publish NuGet
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -77,15 +77,19 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Pack NuGet Packages
-        shell: bash
+        shell: pwsh
         run: |
-          # Automatically pack all packable projects in src folder
-          for proj in src/**/*.csproj; do
-            if [ -f "$proj" ]; then
-              echo "Packing $proj"
-              dotnet pack "$proj" --no-build --configuration Release --output ./nuget-packages
-            fi
-          done
+          $packagesPath = Join-Path $PWD 'nuget-packages'
+          New-Item -ItemType Directory -Force -Path $packagesPath | Out-Null
+
+          Get-ChildItem -Path 'src' -Recurse -Filter '*.csproj' | ForEach-Object {
+            Write-Host "Packing $($_.FullName)"
+            dotnet pack $_.FullName --no-build --configuration Release --output $packagesPath
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "dotnet pack failed for $($_.FullName)"
+              exit $LASTEXITCODE
+            }
+          }
 
       - name: Upload NuGet packages as artifacts
         uses: actions/upload-artifact@v4
@@ -95,10 +99,16 @@ jobs:
           retention-days: 30
 
       - name: Publish NuGet Package
+        shell: pwsh
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          for pkg in ./nuget-packages/*.nupkg; do
-            echo "Publishing $pkg"
-            dotnet nuget push "$pkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
-          done
+          $packagesPath = Join-Path $PWD 'nuget-packages'
+          Get-ChildItem -Path $packagesPath -Filter '*.nupkg' | ForEach-Object {
+            Write-Host "Publishing $($_.FullName)"
+            dotnet nuget push $_.FullName --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "dotnet nuget push failed for $($_.FullName)"
+              exit $LASTEXITCODE
+            }
+          }
