@@ -46,7 +46,7 @@ public static class Try
     /// <returns>
     /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation
     /// </returns>
-    public static async Task<Result> RunAsync(Action action, CancellationToken token = default) // TODO
+    public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
     {
         if (action == null)
         {
