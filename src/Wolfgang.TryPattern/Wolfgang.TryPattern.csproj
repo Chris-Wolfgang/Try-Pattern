@@ -9,11 +9,11 @@
 	  </TargetFrameworks>
 	  <LangVersion>14</LangVersion>
 	  <Nullable>enable</Nullable>
-	  <Version>0.1.0-rc1</Version>
+	  <Version>0.1.0</Version>
 	  <Title>$(AssemblyName)</Title>
 	  <Authors>Chris Wolfgang</Authors>
 	  <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
-	  <Copyright>Copyright 2025 Chris Wolfgang </Copyright>
+	  <Copyright>Copyright 2026 Chris Wolfgang </Copyright>
 	  <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <AssemblyVersion>1.0.0</AssemblyVersion>
@@ -29,5 +29,12 @@
 				 ">
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
