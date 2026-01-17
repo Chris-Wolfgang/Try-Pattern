@@ -1,162 +1,197 @@
-# Copilot Coding Agent Instructions
+# GitHub Copilot Instructions for Try-Pattern
 
-## Repository Summary
+## Project Overview
+This is a C# library that implements the Try Pattern - a design pattern where code execution returns success/failure status without exposing detailed exception information to the caller.
 
-This is a **repository template** for creating new .NET repositories. It provides a standardized structure with comprehensive GitHub integration, CI/CD workflows, and development tooling. The template is designed for .NET 8.0 projects using C# and follows Microsoft's recommended project organization patterns.
+## Core Principles
 
-**Repository Type**: Template (not a working project)  
-**Target Platform**: .NET 8.0  
-**Primary Language**: C#  
-**Size**: Small template (~15 configuration files, empty project folders)  
+### 1. Try Pattern Philosophy
+- Use the Try Pattern when callers only care about success/failure, not specific error details
+- Return `Result` for void operations, `Result<T>` for operations that return values
+- Exceptions should be caught internally and converted to failure results
+- Reserve throwing exceptions for programming errors (null arguments, contract violations)
 
-## Build and Validation Instructions
+### 2. Exception Handling Guidelines
+- **DO NOT** throw exceptions for expected failures (file not found, network timeout, etc.)
+- **DO** throw exceptions for programming errors (null arguments, invalid state)
+- Wrap operations that may throw with `Try. Run()` or `Try.RunAsync()`
+- Use `Result.Failure()` for expected error conditions
+- Use `Result.Success()` or `Result<T>.Success(value)` for successful operations
 
-### Prerequisites
-- .NET 8.0.x SDK (always install if not present)
-- ReportGenerator tool (installed via `dotnet tool install -g dotnet-reportgenerator-globaltool`)
-- DevSkim CLI (installed via `dotnet tool install --global Microsoft.CST.DevSkim.CLI`)
+### 3. When to Use Exceptions vs Result
+**Use Result (no exceptions):**
+- User-provided file doesn't exist
+- Network requests fail
+- Database connection issues
+- Validation failures (expected failures)
+- Any scenario where failure is a normal possibility
 
-### Build Process (For Repositories Created from This Template)
-**IMPORTANT**: This template has no buildable projects. These commands apply to repositories created FROM this template.
+**Use Exceptions:**
+- Null arguments to public methods
+- Invalid method parameters
+- Programming contract violations
+- Unexpected internal state
 
-1. **Restore Dependencies** (always run first):
-   ```bash
-   dotnet restore
-   ```
+## Code Style & Conventions
 
-2. **Build Solution**:
-   ```bash
-   dotnet build --no-restore --configuration Release
-   ```
+### Naming Conventions
+- Use PascalCase for public methods and properties
+- Use camelCase for private fields and parameters
+- Use descriptive names that clearly indicate purpose
 
-3. **Run Tests with Coverage**:
-   ```bash
-   # Find and test all test projects
-   find ./tests -type f -name '*Test*.csproj' | while read proj; do
-     dotnet test "$proj" --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory "./TestResults"
-   done
-   ```
-
-4. **Generate Coverage Reports**:
-   ```bash
-   reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"CoverageReport" -reporttypes:"Html;TextSummary;MarkdownSummaryGithub;CsvSummary"
-   ```
-
-5. **Security Scanning**:
-   ```bash
-   devskim analyze --source-code . -f text --output-file devskim-results.txt -E
-   ```
-
-### Critical Build Requirements
-- **Code Coverage**: Minimum 80% line coverage required for all projects
-- **Security Scanning**: DevSkim must pass with no errors
-- **Build Configuration**: Always use Release configuration for CI
-- **Test Pattern**: Test projects must match `*Test*.csproj` pattern in `/tests` folder
-
-### Common Issues and Workarounds
-- **Timeout Issues**: Coverage and security scans can take 5-10 minutes for larger projects
-- **Coverage Threshold Failures**: If below 80%, the build will fail - this is by design
-- **Missing Test Projects**: The workflow expects at least one test project in `/tests` folder
-- **DevSkim False Positives**: Review `devskim-results.txt` for any security findings
-
-## Project Layout and Architecture
-
-### Standard Directory Structure
-```
-root/
-├── MySolution.sln              # Solution file (create in root)
-├── src/                        # Application projects
-│   ├── MyApp/
-│   │   └── MyApp.csproj
-│   └── MyLib/
-│       └── MyLib.csproj
-├── tests/                      # Test projects (required)
-│   ├── MyApp.Tests/
-│   │   └── MyApp.Tests.csproj
-│   └── MyLib.Tests/
-│       └── MyLib.Tests.csproj
-├── benchmarks/                 # Performance benchmarks (optional)
-│   └── MyApp.Benchmarks/
-│       └── MyApp.Benchmarks.csproj
-├── examples/                   # Example projects (optional)
-├── docs/                       # Documentation
-└── .github/                    # GitHub configuration
+### Method Structure
+```csharp
+// For public methods that may fail, return Result or Result<T>
+public async Task<Result<Order>> GetOrderAsync(string orderId)
+{
+    // Validate arguments - throw for programming errors
+    if (string. IsNullOrWhiteSpace(orderId))
+    {
+        throw new ArgumentNullException(nameof(orderId));
+    }
+    
+    // Use Try.RunAsync for operations that may fail
+    var result = await Try.RunAsync(async () => {
+        // Implementation that may throw
+    });
+    
+    return result;
+}
 ```
 
-### Key Configuration Files
-- **`.editorconfig`**: Code style rules (C# file-scoped namespaces, var preferences, analyzer severity)
-- **`.gitignore`**: Comprehensive .NET gitignore (Visual Studio, build artifacts, packages)
-- **`SETUP.md`**: Detailed repository setup instructions (delete after setup)
-- **`CONTRIBUTING.md`**: Empty - populate with contribution guidelines
-- **`CODE_OF_CONDUCT.md`**: Standard Contributor Covenant v2.0
+### Async/Await Patterns
+- Suffix async methods with `Async`
+- Prefer `Task<Result>` or `Task<Result<T>>` return types for async operations
+- Use `await Try.RunAsync()` for async operations that need try pattern
 
-### GitHub Integration
-- **Workflows**: `.github/workflows/pr.yaml` - Comprehensive CI/CD pipeline
-- **Issue Templates**: Bug reports (YAML) and feature requests (Markdown)
-- **PR Template**: Structured pull request template with checklists
-- **CODEOWNERS**: Default owner `@Chris-Wolfgang`, update usernames as needed
-- **Dependabot**: Configured for NuGet packages in all project directories
+### Result Usage
+```csharp
+// Creating success results
+return Result.Success();
+return Result<string>.Success("value");
 
-### Continuous Integration Pipeline (`.github/workflows/pr.yaml`)
-The workflow runs on pull requests to `main` branch and includes:
+// Creating failure results
+return Result.Failure("Error message describing what failed");
+return Result<string>. Failure("Error message");
 
-1. **Environment**: Ubuntu Latest with .NET 8.0.x
-2. **Build Steps**: Checkout → Setup .NET → Restore → Build → Test → Coverage → Security
-3. **Artifacts**: Coverage reports and DevSkim results uploaded
-4. **Branch Protection**: Configured to require this workflow to pass before merging
+// Checking results
+if (result. Succeeded)
+{
+    // Use result.Value for Result<T>
+}
+else
+{
+    // Use result. ErrorMessage
+}
+```
 
-**Security Note**: Workflow includes safeguard `if: github.repository != 'Chris-Wolfgang/repo-template'` to prevent running on the template itself.
+## Testing Guidelines
 
-### Branch Protection Configuration
-When using this template, configure these settings in GitHub (detailed in `SETUP.md`):
-- Require status checks to pass before merging
-- Require branches to be up to date
-- Require pull request reviews (including Copilot reviews)
-- Restrict deletions and block force pushes
-- Require code scanning
+### Unit Test Structure
+- Use xUnit or similar testing framework
+- Test both success and failure paths
+- Verify `Succeeded` property is correct
+- Verify `ErrorMessage` is populated on failure
+- Verify `Value` is correct on success for `Result<T>`
 
-## Key Files and Locations
+### Test Naming
+- Use descriptive test method names:  `MethodName_Scenario_ExpectedBehavior`
+- Example: `ValidateUserInput_EmptyString_ReturnsFailure`
 
-### Root Directory Files
-- `README.md` - Basic template description (update for your project)
-- `LICENSE` - Mozilla Public License 2.0
-- `SETUP.md` - Template setup instructions (delete after setup)
-- `.editorconfig` - Code style configuration
-- `.gitignore` - .NET-specific gitignore
+### Test Example
+```csharp
+[Fact]
+public async Task TryRunAsync_FileNotFound_ReturnsFailureResult()
+{
+    // Arrange
+    var nonExistentFile = "does-not-exist.txt";
+    
+    // Act
+    var result = await Try.RunAsync(() => File.ReadAllTextAsync(nonExistentFile));
+    
+    // Assert
+    Assert.False(result.Succeeded);
+    Assert.NotNull(result.ErrorMessage);
+}
+```
 
-### GitHub Directory (`.github/`)
-- `workflows/pr.yaml` - Main CI/CD pipeline
-- `ISSUE_TEMPLATE/` - Bug report (YAML) and feature request templates
-- `pull_request_template.md` - PR template with checklists
-- `CODEOWNERS` - Code ownership rules
-- `dependabot.yml` - Dependency update configuration
+## Documentation Standards
 
-### Project Directories (Currently Empty in Template)
-- `src/` - Application source code
-- `tests/` - Unit and integration tests
-- `benchmarks/` - Performance benchmarks
-- `examples/` - Example usage projects
-- `docs/` - Documentation (contains placeholder `index.html`)
+### XML Documentation
+- All public types, methods, and properties must have XML documentation
+- Include `<summary>`, `<param>`, `<returns>`, and `<exception>` tags
+- Provide clear examples in `<example>` tags for public API
 
-## Agent Guidelines
+```csharp
+/// <summary>
+/// Executes an asynchronous operation and returns a result indicating success or failure.
+/// </summary>
+/// <typeparam name="T">The type of value returned by the operation.</typeparam>
+/// <param name="func">The asynchronous function to execute.</param>
+/// <returns>A Result<T> containing the value if successful, or an error message if failed.</returns>
+/// <exception cref="ArgumentNullException">Thrown when func is null.</exception>
+public static async Task<Result<T>> RunAsync<T>(Func<Task<T>> func)
+```
 
-### Trust These Instructions
-This information has been validated against the template structure and GitHub workflows. **Only search for additional information if these instructions are incomplete or found to be incorrect.**
+## Benchmarking
+- Add benchmarks for performance-critical operations
+- Use BenchmarkDotNet
+- Place benchmarks in the `benchmarks` directory
+- Document performance characteristics in comments
 
-### When Working with This Template
-1. **Creating New Projects**: Follow the structure outlined in `SETUP.md`
-2. **Adding Dependencies**: Use `dotnet add package` commands
-3. **Code Style**: Follow `.editorconfig` rules (file-scoped namespaces, explicit typing)
-4. **Testing**: Ensure test projects follow `*Test*.csproj` naming convention
-5. **Coverage**: Aim for >80% code coverage to pass CI
-6. **Security**: Review DevSkim findings and address security concerns
+## Dependencies
+- Minimize external dependencies
+- Target multiple . NET versions if possible
+- Keep the library lightweight and focused
 
-### Validation Steps
-Before submitting changes:
-1. Run `dotnet restore && dotnet build --configuration Release`
-2. Run tests with coverage collection
-3. Verify coverage meets 80% threshold
-4. Run DevSkim security scan
-5. Ensure all GitHub Actions checks pass
+## Code Review Checklist
+When generating code for this repository, ensure:
+- [ ] Public methods return `Result` or `Result<T>` for operations that may fail
+- [ ] Exceptions are only thrown for programming errors
+- [ ] All public APIs have XML documentation
+- [ ] Async methods use `ConfigureAwait(false)`
+- [ ] Unit tests cover success and failure paths
+- [ ] Code follows C# coding conventions
+- [ ] Null checks are performed on public method parameters
 
-This template provides a solid foundation for .NET projects with enterprise-grade CI/CD, security scanning, and development best practices built-in.
+## Common Patterns
+
+### Pattern:  File I/O Operations
+```csharp
+var result = await Try.RunAsync(() => File.ReadAllTextAsync(filePath));
+if (result.Succeeded)
+{
+    ProcessContent(result.Value);
+}
+```
+
+### Pattern: HTTP Operations
+```csharp
+public async Task<Result<TResponse>> GetAsync<TResponse>(string url)
+{
+    using var response = await httpClient.GetAsync(url).ConfigureAwait(false);
+    
+    if (response.IsSuccessStatusCode)
+    {
+        var content = await response.Content. ReadAsStringAsync().ConfigureAwait(false);
+        var data = JsonSerializer.Deserialize<TResponse>(content);
+        return Result<TResponse>.Success(data);
+    }
+    
+    return Result<TResponse>. Failure($"Request failed:  {response.StatusCode}");
+}
+```
+
+### Pattern: Validation
+```csharp
+public Result Validate(string input)
+{
+    if (string.IsNullOrWhiteSpace(input))
+        return Result.Failure("Input cannot be empty");
+        
+    if (input.Length < 5)
+        return Result. Failure("Input must be at least 5 characters");
+        
+    return Result. Success();
+}
+```
