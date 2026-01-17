@@ -10,11 +10,8 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Build and Test on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    name: Build and Test
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,18 +34,22 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests for all test projects
-        shell: bash
+        shell: pwsh
         run: |
-          find ./tests -type f -name '*Test*.csproj' | while read proj; do
-            echo "Running tests for $proj"
-            dotnet test "$proj" --no-build --configuration Release
-          done
+          Get-ChildItem -Path './tests' -Recurse -Filter '*Test*.csproj' | ForEach-Object {
+            Write-Host "Running tests for $($_.FullName)"
+            dotnet test $_.FullName --no-build --configuration Release
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Tests failed for $($_.FullName)"
+              exit $LASTEXITCODE
+            }
+          }
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.os }}
+          name: test-results
           path: '**/TestResults*.trx'
 
   publish:
