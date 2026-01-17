@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.Benchma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern", "src\Wolfgang.TryPattern\Wolfgang.TryPattern.csproj", "{3FB74DD2-4B26-0557-3592-895CBAB98A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.Tests", "tests\Wolfgang.TryPattern.Tests\Wolfgang.TryPattern.Tests.csproj", "{4F845621-E0AF-82E7-36F6-4656DB52ED78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.Tests.Unit", "tests\Wolfgang.TryPattern.Tests\Wolfgang.TryPattern.Tests.Unit.csproj", "{4F845621-E0AF-82E7-36F6-4656DB52ED78}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{E2B4145B-6A0B-4011-9F72-08D7B0223858}"
 	ProjectSection(SolutionItems) = preProject
