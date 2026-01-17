@@ -1,3 +1,8 @@
+#if !NET6_0_OR_GREATER
+using System;
+using System.Threading.Tasks;
+#endif
+
 namespace TryPattern.Tests;
 
 public class TryActionAsyncTests
