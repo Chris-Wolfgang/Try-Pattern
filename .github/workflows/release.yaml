@@ -100,5 +100,5 @@ jobs:
         run: |
           for pkg in ./nuget-packages/*.nupkg; do
             echo "Publishing $pkg"
-            dotnet nuget push "$pkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "$pkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json
           done
