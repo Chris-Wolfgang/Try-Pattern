@@ -88,7 +88,7 @@ public class OrderProcessingService
 		this.endpoint = endpoint;
 	}
 
-	public Task<Result> CreateOrderAsync(Order order)
+	public async Task<Result> CreateOrderAsync(Order order)
 	{
 		
 		if (order == null)
@@ -118,7 +118,7 @@ public class OrderProcessingService
 	}
 
 
-	public Task<Result<Order>> GetOrderAsync(string orderId)
+	public async Task<Result<Order>> GetOrderAsync(string orderId)
 	{
 		
 		if (string.IsNullOrWhiteSpace(orderId))
