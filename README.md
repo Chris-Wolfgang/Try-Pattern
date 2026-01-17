@@ -107,7 +107,13 @@ public class OrderProcessingService
 			var reason = string.IsNullOrWhiteSpace(response.ReasonPhrase) ? "Client Error" : response.ReasonPhrase;
 			return Result.Failure($"Failed to create order: {(int)response.StatusCode} ({reason}).");
 		}
+		else if ((int)response.StatusCode >= 500 && (int)response.StatusCode < 600)
+		{
+			var reason = string.IsNullOrWhiteSpace(response.ReasonPhrase) ? "Server Error" : response.ReasonPhrase;
+			return Result.Failure($"Failed to create order: {(int)response.StatusCode} ({reason}).");
+		}
 
+		// Fallback for unexpected status codes (e.g., informational or redirection responses)
 		return Result.Failure($"Failed to create order: {(int)response.StatusCode} ({response.StatusCode}).");
 	}
 
