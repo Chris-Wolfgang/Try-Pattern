@@ -41,7 +41,7 @@ public class RunFuncTests  // TODO Rename class and file
         int Function() => expectedValue;
 
         // Act
-        var result = Try.Run((Func<int>?)Function);
+        var result = Try.Run(Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -60,7 +60,7 @@ public class RunFuncTests  // TODO Rename class and file
         static string Function() => expectedValue;
 
         // Act
-        var result = Try.Run((Func<string>?)Function);
+        var result = Try.Run(Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -79,7 +79,7 @@ public class RunFuncTests  // TODO Rename class and file
         static string Function() => expectedValue;
 
         // Act
-        var result = Try.Run((Func<string>?)Function);
+        var result = Try.Run(Function);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -98,7 +98,7 @@ public class RunFuncTests  // TODO Rename class and file
         object Function() => expectedValue;
 
         // Act
-        var result = Try.Run((Func<object>?)Function);
+        var result = Try.Run(Function);
 
         // Assert
         Assert.True(result.Succeeded);

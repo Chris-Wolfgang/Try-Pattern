@@ -11,7 +11,7 @@ internal static class Program
         Console.ForegroundColor = ConsoleColor.Cyan;
 
         // Try reading a file async
-        var fileReadResult = await Try.RunAsync(() => File.ReadAllTextAsync(@".\sample.txt"));
+        var fileReadResult = await Try.RunAsync(async () => await File.ReadAllTextAsync(@".\sample.txt"));
 
         // If file read failed, print the error message
         if (fileReadResult.Succeeded)
