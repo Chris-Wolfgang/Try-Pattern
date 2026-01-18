@@ -21,7 +21,6 @@
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <SignAssembly>False</SignAssembly>
-	  <ApplicationIcon>icon.ico</ApplicationIcon>
 	  <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
