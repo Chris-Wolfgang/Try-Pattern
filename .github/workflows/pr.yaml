@@ -98,7 +98,7 @@ jobs:
           
           for fw in "${frameworks[@]}"; do
             echo "Building test project for framework: $fw"
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
               --configuration Release \
               --framework "$fw" || exit 1
           done
@@ -116,7 +116,7 @@ jobs:
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -238,7 +238,7 @@ jobs:
           
           foreach ($fw in $frameworks) {
             Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
               --configuration Release `
               --framework $fw
             
@@ -261,7 +261,7 @@ jobs:
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
@@ -337,7 +337,7 @@ jobs:
           
           for fw in "${frameworks[@]}"; do
             echo "Building test project for framework: $fw"
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
               --configuration Release \
               --framework "$fw" || exit 1
           done
@@ -355,7 +355,7 @@ jobs:
             echo "Testing framework: $fw"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj \
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
               --no-build \
               --configuration Release \
               --framework "$fw" \
@@ -415,7 +415,7 @@ jobs:
           
           foreach ($fw in $frameworks) {
             Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
               --configuration Release `
               --framework $fw
             
@@ -438,7 +438,7 @@ jobs:
             Write-Host "Testing framework: $fw" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.csproj `
+            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
               --no-build `
               --configuration Release `
               --framework $fw `
