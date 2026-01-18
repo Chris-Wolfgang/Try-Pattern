@@ -91,7 +91,7 @@ jobs:
           echo ""
           echo "✅ All compatible projects built successfully"
 
-      - name: Find and build test projects for each framework
+      - name: Run tests with coverage (.NET Core 5.0 - 10.0)
         run: |
           # Find all test projects
           test_projects=$(find ./tests -type f -name "*.csproj")
@@ -107,30 +107,6 @@ jobs:
           echo "$test_projects"
           echo ""
           
-          # Build test projects for each target framework explicitly
-          frameworks=(net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
-          
-          for test_proj in $test_projects; do
-            echo "=========================================="
-            echo "Building test project: $test_proj"
-            echo "=========================================="
-            
-          for fw in "${frameworks[@]}"; do
-              echo "Building for framework: $fw"
-              dotnet build "$test_proj" \
-                --configuration Release \
-                --framework "$fw" || exit 1
-            done
-            echo ""
-          done
-          
-          echo "✅ All test projects built for all target frameworks"
-
-      - name: Run tests with coverage (.NET Core 5.0 - 10.0)
-        run: |
-          # Find all test projects
-          test_projects=$(find ./tests -type f -name "*.csproj")
-          
           # Test each framework individually to ensure all are tested
           frameworks=(net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
           
@@ -143,7 +119,6 @@ jobs:
               echo "Testing framework: $fw"
               
               dotnet test "$test_proj" \
-                --no-build \
                 --configuration Release \
                 --framework "$fw" \
                 --collect:"XPlat Code Coverage" \
@@ -259,7 +234,7 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Find and build test projects for each framework
+      - name: Run tests (.NET Core 5.0 - 10.0)
         shell: pwsh
         run: |
           $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
@@ -279,33 +254,6 @@ jobs:
           
           foreach ($testProj in $testProjects) {
             Write-Host "==========================================" -ForegroundColor Cyan
-            Write-Host "Building test project: $($testProj.FullName)" -ForegroundColor Cyan
-            Write-Host "==========================================" -ForegroundColor Cyan
-            
-            foreach ($fw in $frameworks) {
-              Write-Host "Building for framework: $fw" -ForegroundColor Yellow
-              dotnet build $testProj.FullName `
-                --configuration Release `
-                --framework $fw
-              
-              if ($LASTEXITCODE -ne 0) {
-                Write-Error "Build failed for $fw in $($testProj.Name)"
-                exit 1
-              }
-            }
-            Write-Host ""
-          }
-          
-          Write-Host "✅ All test projects built for all target frameworks" -ForegroundColor Green
-
-      - name: Run tests (.NET Core 5.0 - 10.0)
-        shell: pwsh
-        run: |
-          $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
-          $frameworks = @('net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
-          
-          foreach ($testProj in $testProjects) {
-            Write-Host "==========================================" -ForegroundColor Cyan
             Write-Host "Testing project: $($testProj.FullName)" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
@@ -313,7 +261,6 @@ jobs:
               Write-Host "Testing framework:  $fw" -ForegroundColor Yellow
               
               dotnet test $testProj.FullName `
-                --no-build `
                 --configuration Release `
                 --framework $fw `
                 --logger "console;verbosity=normal"
@@ -383,7 +330,7 @@ jobs:
           echo ""
           echo "✅ All compatible projects built successfully"
 
-      - name: Find and build test projects for each framework
+      - name:  Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
         run: |
           # Find all test projects
           test_projects=$(find ./tests -type f -name "*.csproj")
@@ -399,31 +346,6 @@ jobs:
           echo "$test_projects"
           echo ""
           
-          # Build test projects for each target framework explicitly
-          # Skip .NET 5.0 - no ARM64 support on macOS
-          frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
-          
-          for test_proj in $test_projects; do
-            echo "=========================================="
-            echo "Building test project: $test_proj"
-            echo "=========================================="
-            
-            for fw in "${frameworks[@]}"; do
-              echo "Building for framework: $fw"
-              dotnet build "$test_proj" \
-                --configuration Release \
-                --framework "$fw" || exit 1
-            done
-            echo ""
-          done
-          
-          echo "✅ All test projects built for all target frameworks"
-
-      - name: Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
-        run: |
-          # Find all test projects
-          test_projects=$(find ./tests -type f -name "*.csproj")
-          
           # Skip .NET Core 5.0 and .NET 5.0 - no ARM64 support on macOS
           frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
           
@@ -436,7 +358,6 @@ jobs:
               echo "Testing framework: $fw"
               
               dotnet test "$test_proj" \
-                --no-build \
                 --configuration Release \
                 --framework "$fw" \
                 --logger "console;verbosity=normal" || exit 1
@@ -490,7 +411,7 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Find and build test projects for each framework
+      - name:  Run .NET Framework tests (4.6.2 - 4.8.1)
         shell: pwsh
         run: |
           $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
@@ -510,33 +431,6 @@ jobs:
           
           foreach ($testProj in $testProjects) {
             Write-Host "==========================================" -ForegroundColor Cyan
-            Write-Host "Building test project: $($testProj.FullName)" -ForegroundColor Cyan
-            Write-Host "==========================================" -ForegroundColor Cyan
-            
-            foreach ($fw in $frameworks) {
-              Write-Host "Building for framework: $fw" -ForegroundColor Yellow
-              dotnet build $testProj.FullName `
-                --configuration Release `
-                --framework $fw
-              
-              if ($LASTEXITCODE -ne 0) {
-                Write-Error "Build failed for $fw in $($testProj.Name)"
-                exit 1
-              }
-            }
-            Write-Host ""
-          }
-          
-          Write-Host "✅ All test projects built for all target frameworks" -ForegroundColor Green
-
-      - name: Run .NET Framework tests (4.6.2 - 4.8.1)
-        shell: pwsh
-        run: |
-          $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
-          $frameworks = @('net462', 'net472', 'net48', 'net481')
-          
-          foreach ($testProj in $testProjects) {
-            Write-Host "==========================================" -ForegroundColor Cyan
             Write-Host "Testing project: $($testProj.FullName)" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
@@ -544,7 +438,6 @@ jobs:
               Write-Host "Testing framework: $fw" -ForegroundColor Yellow
               
               dotnet test $testProj.FullName `
-                --no-build `
                 --configuration Release `
                 --framework $fw `
                 --logger "console;verbosity=normal"
