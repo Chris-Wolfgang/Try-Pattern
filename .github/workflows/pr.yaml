@@ -91,38 +91,66 @@ jobs:
           echo ""
           echo "✅ All compatible projects built successfully"
 
-      - name: Build test project for each framework
+      - name: Find and build test projects for each framework
         run: |
-          # Build test project for each target framework explicitly
+          # Find all test projects
+          test_projects=$(find ./tests -type f -name "*.csproj")
+          
+          if [ -z "$test_projects" ]; then
+            echo "❌ No test projects found in ./tests directory!"
+            exit 1
+          fi
+          
+          echo "=========================================="
+          echo "Found test projects:"
+          echo "=========================================="
+          echo "$test_projects"
+          echo ""
+          
+          # Build test projects for each target framework explicitly
           frameworks=(net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
           
+          for test_proj in $test_projects; do
+            echo "=========================================="
+            echo "Building test project: $test_proj"
+            echo "=========================================="
+            
           for fw in "${frameworks[@]}"; do
-            echo "Building test project for framework: $fw"
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
-              --configuration Release \
-              --framework "$fw" || exit 1
+              echo "Building for framework: $fw"
+              dotnet build "$test_proj" \
+                --configuration Release \
+                --framework "$fw" || exit 1
+            done
+            echo ""
           done
           
-          echo ""
-          echo "✅ Test project built for all target frameworks"
+          echo "✅ All test projects built for all target frameworks"
 
       - name: Run tests with coverage (.NET Core 5.0 - 10.0)
         run: |
+          # Find all test projects
+          test_projects=$(find ./tests -type f -name "*.csproj")
+          
           # Test each framework individually to ensure all are tested
           frameworks=(net5.0 net6.0 net7.0 net8.0 net9.0 net10.0)
           
-          for fw in "${frameworks[@]}"; do
+          for test_proj in $test_projects; do
             echo "=========================================="
-            echo "Testing framework: $fw"
+            echo "Testing project: $test_proj"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
-              --no-build \
-              --configuration Release \
-              --framework "$fw" \
-              --collect:"XPlat Code Coverage" \
-              --results-directory "./TestResults" \
-              --logger "console;verbosity=minimal" || exit 1
+            for fw in "${frameworks[@]}"; do
+              echo "Testing framework: $fw"
+              
+              dotnet test "$test_proj" \
+                --no-build \
+                --configuration Release \
+                --framework "$fw" \
+                --collect:"XPlat Code Coverage" \
+                --results-directory "./TestResults" \
+                --logger "console;verbosity=minimal" || exit 1
+            done
+            echo ""
           done
 
       - name: Install ReportGenerator
@@ -231,56 +259,81 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Build test project for each framework
+      - name: Find and build test projects for each framework
         shell: pwsh
         run: |
-          $frameworks = @('net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
+          $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
           
-          foreach ($fw in $frameworks) {
-            Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
-              --configuration Release `
-              --framework $fw
-            
-            if ($LASTEXITCODE -ne 0) {
-              Write-Error "Build failed for $fw"
-              exit 1
-            }
+          if ($testProjects.Count -eq 0) {
+            Write-Error "❌ No test projects found in ./tests directory!"
+            exit 1
           }
           
+          Write-Host "==========================================" -ForegroundColor Cyan
+          Write-Host "Found test projects:" -ForegroundColor Cyan
+          Write-Host "==========================================" -ForegroundColor Cyan
+          $testProjects | ForEach-Object { Write-Host $_.FullName -ForegroundColor White }
           Write-Host ""
-          Write-Host "✅ Test project built for all target frameworks" -ForegroundColor Green
+          
+          $frameworks = @('net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
+          
+          foreach ($testProj in $testProjects) {
+            Write-Host "==========================================" -ForegroundColor Cyan
+            Write-Host "Building test project: $($testProj.FullName)" -ForegroundColor Cyan
+            Write-Host "==========================================" -ForegroundColor Cyan
+            
+            foreach ($fw in $frameworks) {
+              Write-Host "Building for framework: $fw" -ForegroundColor Yellow
+              dotnet build $testProj.FullName `
+                --configuration Release `
+                --framework $fw
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "Build failed for $fw in $($testProj.Name)"
+                exit 1
+              }
+            }
+            Write-Host ""
+          }
+          
+          Write-Host "✅ All test projects built for all target frameworks" -ForegroundColor Green
 
       - name: Run tests (.NET Core 5.0 - 10.0)
         shell: pwsh
         run: |
+          $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
           $frameworks = @('net5.0', 'net6.0', 'net7.0', 'net8.0', 'net9.0', 'net10.0')
           
-          foreach ($fw in $frameworks) {
+          foreach ($testProj in $testProjects) {
             Write-Host "==========================================" -ForegroundColor Cyan
-            Write-Host "Testing framework: $fw" -ForegroundColor Cyan
+            Write-Host "Testing project: $($testProj.FullName)" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
-              --no-build `
-              --configuration Release `
-              --framework $fw `
-              --logger "console;verbosity=normal"
-            
-            if ($LASTEXITCODE -ne 0) {
-              Write-Error "Tests failed for $fw"
-              exit 1
+            foreach ($fw in $frameworks) {
+              Write-Host "Testing framework:  $fw" -ForegroundColor Yellow
+              
+              dotnet test $testProj.FullName `
+                --no-build `
+                --configuration Release `
+                --framework $fw `
+                --logger "console;verbosity=normal"
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "Tests failed for $fw in $($testProj.Name)"
+                exit 1
+              }
             }
+            Write-Host ""
           }
 
-  test-macos-core: 
+  test-macos-core:  
     name: "Stage 2b: macOS Tests (.NET 6.0-10.0)"
     runs-on: macos-latest
     needs: test-linux-core
-    if: github.repository != 'Chris-Wolfgang/repo-template'
+    if: github. repository != 'Chris-Wolfgang/repo-template'
     
     steps:
-      - name: Checkout code
+      - name:  Checkout code
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -330,36 +383,65 @@ jobs:
           echo ""
           echo "✅ All compatible projects built successfully"
 
-      - name: Build test project for each framework
+      - name: Find and build test projects for each framework
         run: |
-          # Build test project for each target framework explicitly
+          # Find all test projects
+          test_projects=$(find ./tests -type f -name "*.csproj")
+          
+          if [ -z "$test_projects" ]; then
+            echo "❌ No test projects found in ./tests directory!"
+            exit 1
+          fi
+          
+          echo "=========================================="
+          echo "Found test projects:"
+          echo "=========================================="
+          echo "$test_projects"
+          echo ""
+          
+          # Build test projects for each target framework explicitly
+          # Skip .NET 5.0 - no ARM64 support on macOS
           frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
           
-          for fw in "${frameworks[@]}"; do
-            echo "Building test project for framework: $fw"
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
-              --configuration Release \
-              --framework "$fw" || exit 1
+          for test_proj in $test_projects; do
+            echo "=========================================="
+            echo "Building test project: $test_proj"
+            echo "=========================================="
+            
+            for fw in "${frameworks[@]}"; do
+              echo "Building for framework: $fw"
+              dotnet build "$test_proj" \
+                --configuration Release \
+                --framework "$fw" || exit 1
+            done
+            echo ""
           done
           
-          echo ""
-          echo "✅ Test project built for all target frameworks"
+          echo "✅ All test projects built for all target frameworks"
 
       - name: Run tests (.NET 6.0 - 10.0 only - ARM64 compatible)
         run: |
+          # Find all test projects
+          test_projects=$(find ./tests -type f -name "*.csproj")
+          
           # Skip .NET Core 5.0 and .NET 5.0 - no ARM64 support on macOS
           frameworks=(net6.0 net7.0 net8.0 net9.0 net10.0)
           
-          for fw in "${frameworks[@]}"; do
+          for test_proj in $test_projects; do
             echo "=========================================="
-            echo "Testing framework: $fw"
+            echo "Testing project: $test_proj"
             echo "=========================================="
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj \
-              --no-build \
-              --configuration Release \
-              --framework "$fw" \
-              --logger "console;verbosity=normal" || exit 1
+            for fw in "${frameworks[@]}"; do
+              echo "Testing framework: $fw"
+              
+              dotnet test "$test_proj" \
+                --no-build \
+                --configuration Release \
+                --framework "$fw" \
+                --logger "console;verbosity=normal" || exit 1
+            done
+            echo ""
           done
 
       - name: Display macOS architecture info
@@ -408,46 +490,71 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Build test project for each framework
+      - name: Find and build test projects for each framework
         shell: pwsh
         run: |
-          $frameworks = @('net462', 'net472', 'net48', 'net481')
+          $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
           
-          foreach ($fw in $frameworks) {
-            Write-Host "Building test project for framework: $fw" -ForegroundColor Yellow
-            dotnet build tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
-              --configuration Release `
-              --framework $fw
-            
-            if ($LASTEXITCODE -ne 0) {
-              Write-Error "Build failed for $fw"
-              exit 1
-            }
+          if ($testProjects.Count -eq 0) {
+            Write-Error "❌ No test projects found in ./tests directory!"
+            exit 1
           }
           
+          Write-Host "==========================================" -ForegroundColor Cyan
+          Write-Host "Found test projects:" -ForegroundColor Cyan
+          Write-Host "==========================================" -ForegroundColor Cyan
+          $testProjects | ForEach-Object { Write-Host $_.FullName -ForegroundColor White }
           Write-Host ""
-          Write-Host "✅ Test project built for all target frameworks" -ForegroundColor Green
+          
+          $frameworks = @('net462', 'net472', 'net48', 'net481')
+          
+          foreach ($testProj in $testProjects) {
+            Write-Host "==========================================" -ForegroundColor Cyan
+            Write-Host "Building test project: $($testProj.FullName)" -ForegroundColor Cyan
+            Write-Host "==========================================" -ForegroundColor Cyan
+            
+            foreach ($fw in $frameworks) {
+              Write-Host "Building for framework: $fw" -ForegroundColor Yellow
+              dotnet build $testProj.FullName `
+                --configuration Release `
+                --framework $fw
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "Build failed for $fw in $($testProj.Name)"
+                exit 1
+              }
+            }
+            Write-Host ""
+          }
+          
+          Write-Host "✅ All test projects built for all target frameworks" -ForegroundColor Green
 
       - name: Run .NET Framework tests (4.6.2 - 4.8.1)
         shell: pwsh
         run: |
+          $testProjects = Get-ChildItem -Path './tests' -Recurse -Filter '*.csproj'
           $frameworks = @('net462', 'net472', 'net48', 'net481')
           
-          foreach ($fw in $frameworks) {
+          foreach ($testProj in $testProjects) {
             Write-Host "==========================================" -ForegroundColor Cyan
-            Write-Host "Testing framework: $fw" -ForegroundColor Cyan
+            Write-Host "Testing project: $($testProj.FullName)" -ForegroundColor Cyan
             Write-Host "==========================================" -ForegroundColor Cyan
             
-            dotnet test tests/Wolfgang.TryPattern.Tests/Wolfgang.TryPattern.Tests.Unit.csproj `
-              --no-build `
-              --configuration Release `
-              --framework $fw `
-              --logger "console;verbosity=normal"
-            
-            if ($LASTEXITCODE -ne 0) {
-              Write-Error "Tests failed for $fw"
-              exit 1
+            foreach ($fw in $frameworks) {
+              Write-Host "Testing framework: $fw" -ForegroundColor Yellow
+              
+              dotnet test $testProj.FullName `
+                --no-build `
+                --configuration Release `
+                --framework $fw `
+                --logger "console;verbosity=normal"
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "Tests failed for $fw in $($testProj.Name)"
+                exit 1
+              }
             }
+            Write-Host ""
           }
           
           Write-Host ""
