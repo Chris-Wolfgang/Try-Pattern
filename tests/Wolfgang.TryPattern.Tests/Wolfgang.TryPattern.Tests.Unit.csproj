@@ -80,6 +80,7 @@
 			   '$(TargetFramework)' == 'net9.0' or
 			   '$(TargetFramework)' == 'net10.0'
 			   ">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
 		<PackageReference Include="xunit.runner.console" Version="2.9.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
