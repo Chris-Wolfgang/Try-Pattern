@@ -27,6 +27,14 @@ or [`Func<T>`](https://learn.microsoft.com/en-us/dotnet/api/system.func-1?view=n
 passed in, handle any exceptions, and returns a [`Result`](src/Wolfgang.TryPattern/Result.cs)
 for actions, or [`Result<T>`](src/Wolfgang.TryPattern/Result.cs) for functions.
 
+## Compatibility
+
+This library supports the following .NET platforms:
+- .NET Framework 4.6.2 and later
+- .NET Standard 2.0
+- .NET 8.0
+- .NET 10.0
+
 ## Usage
 ```csharp
 

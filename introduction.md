@@ -34,6 +34,14 @@ This library extends the Try Pattern to any operation by providing:
 2. **`Result` Type**: Represents the outcome of an operation without a return value
 3. **`Result<T>` Type**: Represents the outcome of an operation that returns a value
 
+### Compatibility
+
+The library supports .NET Framework 4.6.2 through .NET 10.0, including:
+- .NET Framework 4.6.2 and later
+- .NET Standard 2.0
+- .NET 8.0
+- .NET 10.0
+
 ## Quick Example
 
 ```csharp
