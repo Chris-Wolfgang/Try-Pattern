@@ -2,7 +2,7 @@
 
 ## Definition
 
-The `Try Pattern` is a design pattern in which code is execute but the caller only cares if the code 
+The `Try Pattern` is a design pattern in which code is executed but the caller only cares if the code 
 succeeded or failed and the exact reason for failure is not important. For example, a user may need 
 to update a record in a database via a web page. If the update fails, they only need to know that it 
 failed, not the specific reason for the failure. Connection timeout, login failed, user doesn't have 
@@ -113,12 +113,12 @@ public class OrderProcessingService
 			return Result.Failure($"Failed to create order: {(int)response.StatusCode} ({reason}).");
 		}
 
-		// Fallback for unexpected status codes (e.g., informational or redirection responses)
-		return Result.Failure($"Failed to create order: {(int)response.StatusCode} ({response.StatusCode}).");
+		// Success case for 2xx status codes
+		return Result.Success();
 	}
 
 
-	public async Task<Result<Order>> GetOrderAsync(string orderId)
+	public async Task<Result<OrderConfirmation>> GetOrderAsync(string orderId)
 	{
 		
 		if (string.IsNullOrWhiteSpace(orderId))
@@ -158,5 +158,5 @@ situations where exceptions are appropriate as these are not common occurrences 
 
 Reading a config file or some required other application file that should always be present 
 is another good example of when to use exceptions for control flow. However, 
-a application that reads from a user specified file can expect that the file may not exist 
+an application that reads from a user specified file can expect that the file may not exist 
 and so in that case throwing an exception is probably not the best approach. 

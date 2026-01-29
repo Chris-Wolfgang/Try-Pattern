@@ -196,7 +196,7 @@ You can find these examples in the `examples` folder of the repository.
 
 - Read the [Introduction](introduction.md) for a deeper understanding of the Try Pattern
 - Check out the examples in the `examples` folder
-- Review the [README.md](README.md) for more detailed examples
+- Review the [readme.md](readme.md) for more detailed examples
 - Explore the source code in the `src/Wolfgang.TryPattern` folder
 
 ## Need Help?
