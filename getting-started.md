@@ -162,9 +162,11 @@ public async Task<Result> SaveUserAsync(User user)
 The repository includes several example projects demonstrating the Try Pattern in different scenarios:
 
 - **C# .NET 8 Example**: Modern C# with latest features
-- **C# .NET 4.6.2 Example**: Legacy framework support
-- **F# Examples**: Functional programming approach
-- **VB.NET Examples**: Visual Basic support
+- **C# .NET 4.6.2 Example**: .NET Framework support
+- **F# Examples**: Functional programming approach (.NET 4.6.2 and .NET 8)
+- **VB.NET Examples**: Visual Basic support (.NET 4.6.2 and .NET 8)
+
+The library itself supports .NET Framework 4.6.2, .NET Standard 2.0, .NET 8.0, and .NET 10.0.
 
 You can find these examples in the `examples` folder of the repository.
 
