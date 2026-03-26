@@ -21,6 +21,7 @@
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	  <SignAssembly>False</SignAssembly>
+	  <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="
@@ -31,6 +32,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\asset\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
