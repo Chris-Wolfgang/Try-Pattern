@@ -193,14 +193,15 @@ $rulesetConfig = @{
                 # must NOT have path filters (paths/paths-ignore). If a workflow is path-filtered
                 # and doesn't run for a PR, GitHub will treat the required check as missing and
                 # block the merge. All required status checks must run on every PR.
-                # This also applies to the CodeQL workflow (codeql.yml) which provides the code_scanning
-                # rule below - see that section for details on how CodeQL handles graceful skipping.
+                # IMPORTANT: If pr.yaml has paths-ignore filters, PRs that only touch ignored
+                # paths (e.g., *.md, docs/**) will not trigger these checks, blocking merges.
+                # Either remove paths-ignore or ensure the workflow always runs.
                 required_status_checks = @(
                     @{ context = "Stage 1: Linux Tests (.NET 5.0-10.0) + Coverage Gate" },
-                    @{ context = "Stage 2: Windows Tests (.NET 5.0-10.0, Framework 4.6.2-4.8.1)" },
-                    @{ context = "Stage 3: macOS Tests (.NET 6.0-10.0)" },
-                    @{ context = "Security Scan (DevSkim)" },
-                    @{ context = "CodeQL Security Analysis / Security Scan (CodeQL) (csharp) (pull_request)" }
+                    @{ context = "Stage 2a: Windows Tests (.NET 5.0-10.0)" },
+                    @{ context = "Stage 2b: macOS Tests (.NET 6.0-10.0)" },
+                    @{ context = "Stage 3: Windows .NET Framework Tests (4.6.2-4.8.1)" },
+                    @{ context = "Security Scan (DevSkim)" }
                 )
             }
         },
@@ -208,11 +209,9 @@ $rulesetConfig = @{
             type = "code_scanning"
             parameters = @{
                 # NOTE: CodeQL uses the 'code_scanning' ruleset type instead of 'required_status_checks'
-                # because it has built-in intelligence to handle cases where scans don't run
-                # The workflow (.github/workflows/codeql.yml) has no path filters to ensure
-                # GitHub can properly evaluate this rule. The workflow runs on all PRs and gracefully
-                # skips analysis when there's no C# code, preventing false merge blocks while still
-                # enforcing security scanning when needed.
+                # because it has built-in intelligence to handle cases where scans don't run.
+                # If a CodeQL workflow exists (e.g., .github/workflows/codeql.yml), ensure it has
+                # no path filters so GitHub can properly evaluate this rule.
                 code_scanning_tools = @(
                     @{
                         tool = "CodeQL"
@@ -278,10 +277,10 @@ try {
         }
         Write-Host "   ✅ Required status checks (must pass before merging):" -ForegroundColor Gray
         Write-Host "      - Stage 1: Linux Tests (.NET 5.0-10.0) + Coverage Gate" -ForegroundColor DarkGray
-        Write-Host "      - Stage 2: Windows Tests (.NET 5.0-10.0, Framework 4.6.2-4.8.1)" -ForegroundColor DarkGray
-        Write-Host "      - Stage 3: macOS Tests (.NET 6.0-10.0)" -ForegroundColor DarkGray
+        Write-Host "      - Stage 2a: Windows Tests (.NET 5.0-10.0)" -ForegroundColor DarkGray
+        Write-Host "      - Stage 2b: macOS Tests (.NET 6.0-10.0)" -ForegroundColor DarkGray
+        Write-Host "      - Stage 3: Windows .NET Framework Tests (4.6.2-4.8.1)" -ForegroundColor DarkGray
         Write-Host "      - Security Scan (DevSkim)" -ForegroundColor DarkGray
-        Write-Host "      - CodeQL Security Analysis / Security Scan (CodeQL) (csharp) (pull_request)" -ForegroundColor DarkGray
         Write-Host "   ✅ Branches must be up to date before merging" -ForegroundColor Gray
         Write-Host "   ✅ Conversation resolution required before merging" -ForegroundColor Gray
         Write-Host "   ✅ Stale reviews dismissed when new commits are pushed" -ForegroundColor Gray
