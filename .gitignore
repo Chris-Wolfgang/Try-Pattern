@@ -422,3 +422,6 @@ FodyWeavers.xsd
 # Test results and coverage
 TestResults/
 CoverageReport/
+
+# Claude Code local settings
+.claude/
