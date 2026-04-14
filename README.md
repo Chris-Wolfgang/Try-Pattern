@@ -8,7 +8,6 @@ A lightweight .NET library that provides a Try/Result pattern for executing acti
 - **GitHub Repository:** [https://github.com/Chris-Wolfgang/Try-Pattern](https://github.com/Chris-Wolfgang/Try-Pattern)
 - **API Documentation:** [https://chris-wolfgang.github.io/Try-Pattern/](https://chris-wolfgang.github.io/Try-Pattern/)
 - **API Reference:** [https://chris-wolfgang.github.io/Try-Pattern/api/](https://chris-wolfgang.github.io/Try-Pattern/api/)
-- **Formatting Guide:** [docs/README-FORMATTING.md](docs/README-FORMATTING.md)
 - **Contributing Guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
@@ -80,11 +79,19 @@ if (result.Failed)
 
 ### Cancellation support
 
+`Try.RunAsync(Action, CancellationToken)` runs a synchronous action on the thread pool via `Task.Run`. The token cancels the task before it starts; once running, cancellation is cooperative (your code must check the token). `OperationCanceledException` is always rethrown, never captured as a `Result`.
+
 ```csharp
 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-// OperationCanceledException is rethrown, not captured
-var result = await Try.RunAsync(() => LongRunningWork(), cts.Token);
+var result = await Try.RunAsync(() =>
+{
+    foreach (var item in largeDataSet)
+    {
+        cts.Token.ThrowIfCancellationRequested();
+        Process(item);
+    }
+}, cts.Token);
 ```
 
 ---
@@ -95,7 +102,7 @@ var result = await Try.RunAsync(() => LongRunningWork(), cts.Token);
 |---------|-------------|
 | `Try.Run(Action)` | Execute an action, return `Result` |
 | `Try.Run<T>(Func<T>)` | Execute a function, return `Result<T>` with the value |
-| `Try.RunAsync(Action, CancellationToken)` | Async action execution with cancellation support |
+| `Try.RunAsync(Action, CancellationToken)` | Run a synchronous action on the thread pool with cooperative cancellation |
 | `Try.RunAsync<T>(Func<Task<T>>, CancellationToken)` | Async function execution with cancellation support |
 | `Result.Success()` | Create a successful result |
 | `Result.Failure(message)` | Create a failed result with an error message |
