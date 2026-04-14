@@ -141,6 +141,183 @@ if (Result.AnyFailed(r1, r2, r3))
 
 ---
 
+## Real-World Examples
+
+### Database access with Try.Run
+
+Wrap database calls to get a clean `Result` instead of scattered try/catch:
+
+```csharp
+public Result<Customer> GetCustomerById(int id)
+{
+    return Try.Run(() =>
+    {
+        using var connection = new SqlConnection(connectionString);
+        connection.Open();
+        using var command = new SqlCommand("SELECT Id, Name, Email FROM Customers WHERE Id = @Id", connection);
+        command.Parameters.AddWithValue("@Id", id);
+
+        using var reader = command.ExecuteReader();
+        if (!reader.Read())
+            throw new InvalidOperationException($"Customer {id} not found.");
+
+        return new Customer
+        {
+            Id = reader.GetInt32(0),
+            Name = reader.GetString(1),
+            Email = reader.GetString(2)
+        };
+    });
+}
+
+// Usage
+var result = GetCustomerById(42);
+if (result.Succeeded)
+{
+    Console.WriteLine($"Found: {result.Value.Name}");
+}
+else
+{
+    Console.WriteLine($"Lookup failed: {result.ErrorMessage}");
+}
+```
+
+### Async database access
+
+```csharp
+public async Task<Result<List<Order>>> GetRecentOrdersAsync(int customerId)
+{
+    return await Try.RunAsync(async () =>
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        // ... query and return orders
+        return orders;
+    });
+}
+```
+
+### Using Result as a repository return type
+
+`Result` and `Result<T>` work well as return types from repositories and service layers. You don't need `Try.Run()` to create them -- use the static factory methods directly:
+
+```csharp
+public class CustomerRepository
+{
+    public Result<Customer> GetById(int id)
+    {
+        var customer = dbContext.Customers.Find(id);
+
+        return customer is not null
+            ? Result<Customer>.Success(customer)
+            : Result<Customer>.Failure($"Customer with ID {id} not found.");
+    }
+
+    public Result Save(Customer customer)
+    {
+        if (string.IsNullOrWhiteSpace(customer.Name))
+            return Result.Failure("Customer name is required.");
+
+        if (string.IsNullOrWhiteSpace(customer.Email))
+            return Result.Failure("Customer email is required.");
+
+        dbContext.Customers.Update(customer);
+        dbContext.SaveChanges();
+        return Result.Success();
+    }
+
+    public Result Delete(int id)
+    {
+        var customer = dbContext.Customers.Find(id);
+        if (customer is null)
+            return Result.Failure($"Customer with ID {id} not found.");
+
+        dbContext.Customers.Remove(customer);
+        dbContext.SaveChanges();
+        return Result.Success();
+    }
+}
+```
+
+### Using Result in a Web API controller
+
+Return `Result` from your service layer and map it to HTTP responses:
+
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+public class CustomersController : ControllerBase
+{
+    private readonly CustomerRepository _repository;
+
+    public CustomersController(CustomerRepository repository) => _repository = repository;
+
+    [HttpGet("{id}")]
+    public IActionResult GetById(int id)
+    {
+        var result = _repository.GetById(id);
+
+        return result.Succeeded
+            ? Ok(result.Value)
+            : NotFound(new { error = result.ErrorMessage });
+    }
+
+    [HttpPut("{id}")]
+    public IActionResult Update(int id, CustomerDto dto)
+    {
+        var lookup = _repository.GetById(id);
+        if (lookup.Failed)
+            return NotFound(new { error = lookup.ErrorMessage });
+
+        lookup.Value.Name = dto.Name;
+        lookup.Value.Email = dto.Email;
+
+        var saveResult = _repository.Save(lookup.Value);
+
+        return saveResult.Succeeded
+            ? NoContent()
+            : BadRequest(new { error = saveResult.ErrorMessage });
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        var result = _repository.Delete(id);
+
+        return result.Succeeded
+            ? NoContent()
+            : NotFound(new { error = result.ErrorMessage });
+    }
+}
+```
+
+### Chaining operations with validation
+
+```csharp
+public Result<Order> PlaceOrder(OrderRequest request)
+{
+    // Validate
+    var validation = Result.Flatten(
+        ValidateCustomer(request.CustomerId),
+        ValidateItems(request.Items),
+        ValidatePayment(request.PaymentMethod)
+    );
+
+    if (validation.Failed)
+        return Result<Order>.Failure(validation.ErrorMessage);
+
+    // Execute
+    return Try.Run(() =>
+    {
+        var order = orderService.Create(request);
+        emailService.SendConfirmation(order);
+        return order;
+    });
+}
+```
+
+---
+
 ## Target Frameworks
 
 | Framework | Version |
