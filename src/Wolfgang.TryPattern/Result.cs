@@ -18,10 +18,10 @@ public class Result
     /// </summary>
     /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/>
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
-    /// <param name="errorMessage">Error errorMessage associated with the result.</param>
+    /// <param name="errorMessage">Error message associated with the result.</param>
     /// <remarks>
-    /// If the operation was successful, errorMessage must be an empty string. If the operation failed
-    /// errorMessage must not be null or empty
+    /// If the operation was successful, <paramref name="errorMessage"/> must be an empty string. If the operation failed,
+    /// <paramref name="errorMessage"/> must not be null or empty.
     /// </remarks>
     protected Result
     (
@@ -32,10 +32,10 @@ public class Result
         switch (succeeded)
         {
             case true when errorMessage != string.Empty:
-                throw new ArgumentException("A successful result cannot have an error errorMessage.", nameof(errorMessage));
+                throw new ArgumentException("A successful result cannot have an error message.", nameof(errorMessage));
 
             case false when string.IsNullOrWhiteSpace(errorMessage):
-                throw new ArgumentException("A failed result must have an error errorMessage.", nameof(errorMessage));
+                throw new ArgumentException("A failed result must have an error message.", nameof(errorMessage));
 
             default:
                 Succeeded = succeeded;
@@ -59,7 +59,7 @@ public class Result
 
 
     /// <summary>
-    /// Creates a successful <see cref="Result"/>>.
+    /// Creates a successful <see cref="Result"/>.
     /// </summary>
     public static Result Success() => new(true, string.Empty);
 
@@ -124,7 +124,7 @@ public class Result
     /// Returns true if any of the specified <see cref="Result"/>s indicate a failure. 
     /// Otherwise, false.
     /// </summary>
-    /// <param name="results">The array of <see cref="Result"/>> to review</param>
+    /// <param name="results">The array of <see cref="Result"/> to review.</param>
     /// <returns>
     /// <see langword="true"/> if any of the specified <see cref="Result"/>s failed, otherwise <see langword="false"/>.
     /// </returns>
@@ -137,7 +137,7 @@ public class Result
     /// <summary>
     /// Returns true if all the specified <see cref="Result"/>s indicate success. 
     /// </summary>
-    /// <param name="results">The array of <see cref="Result"/>> to review</param>
+    /// <param name="results">The array of <see cref="Result"/> to review.</param>
     /// <returns>
     /// <see langword="true"/> if all the specified <see cref="Result"/>s succeeded, otherwise <see langword="false"/>.
     /// </returns>
@@ -151,7 +151,7 @@ public class Result
 /// <summary>
 /// The result of executing an <seealso cref="Func{T}"/>. Contains properties indicating whether the operation
 /// <see cref="Result.Succeeded"/> or <see cref="Result.Failed"/>. If the operation failed the
-/// <see cref="Result.ErrorMessage"/> property will contain message as to why. If the operation succeeded the
+/// <see cref="Result.ErrorMessage"/> property will contain a message as to why. If the operation succeeded the
 /// <see cref="Result{T}.Value"/> property will contain the return value from the function.
 /// </summary>
 public class Result<T> : Result
@@ -171,11 +171,13 @@ public class Result<T> : Result
     /// </summary>
     /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/>
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
-    /// <param name="errorMessage">Error errorMessage associated with the result.</param>
-    /// <param name="value">The return value of the function if it succeeded, otherwise the default value for {T}</param>
+    /// <param name="errorMessage">Error message associated with the result.</param>
+    /// <param name="value">The return value of the function if it succeeded, otherwise the default value for <typeparamref name="T"/>.</param>
     /// <remarks>
-    /// If the operation was successful, errorMessage must be an empty string and value should be the return value from the function.
-    /// If the operation failed errorMessage must not be null or empty and the value should be default{T}
+    /// If the operation was successful, <paramref name="errorMessage"/> must be an empty string and
+    /// <paramref name="value"/> should be the return value from the function.
+    /// If the operation failed, <paramref name="errorMessage"/> must not be null or empty and
+    /// <paramref name="value"/> should be <c>default(T)</c>.
     /// </remarks>
 #if NET5_0_OR_GREATER
     private Result(bool succeeded, string? errorMessage, T? value) : base(succeeded, errorMessage) => _value = value;

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 #endif
 namespace Wolfgang.TryPattern.Tests;
 
-public class RunAsyncFuncTests // TODO Rename class and file
+public class RunAsyncFuncTests
 {
 	[Fact]
 	public async Task RunAsync_Func_when_passed_null_throws_ArgumentNullException()

@@ -16,7 +16,7 @@ public static class Try
     /// </summary>
     /// <param name="action">The action to execute.</param>
     /// <returns>
-    /// A <see cref="Result"/> that indicates if the action was successful
+    /// A <see cref="Result"/> that indicates if the action was successful.
     /// </returns>
     public static Result Run(Action action)
     {
@@ -44,7 +44,7 @@ public static class Try
     /// <param name="action">The action to execute.</param>
     /// <param name="token">The CancellationToken to monitor.</param>
     /// <returns>
-    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation
+    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation.
     /// </returns>
     public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
     {
@@ -77,7 +77,7 @@ public static class Try
     /// <param name="function">The function to execute.</param>
     /// <returns>
     /// A <see cref="Result{T}"/> indicating if the function was successful or not and the result of
-    /// the function if it was. 
+    /// the function if it was.
     /// </returns>
 #if NET5_0_OR_GREATER
     public static Result<T?> Run<T>(Func<T> function)
@@ -114,6 +114,7 @@ public static class Try
         }
     }
 #endif
+
 
 
     /// <summary>
@@ -170,9 +171,4 @@ public static class Try
         }
     }
 #endif
-
-
-
-
 }
-

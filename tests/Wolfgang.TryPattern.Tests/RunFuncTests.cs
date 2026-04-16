@@ -3,7 +3,7 @@ using System;
 #endif
 namespace Wolfgang.TryPattern.Tests;
 
-public class RunFuncTests  // TODO Rename class and file
+public class RunFuncTests
 {
     [Fact]
     public void Run_Func_WithNullFunction_ThrowsArgumentNullException()
