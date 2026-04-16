@@ -1,0 +1,3 @@
+# DocFX auto-generated metadata files — rebuilt by `docfx metadata`
+*.yml
+!.gitignore

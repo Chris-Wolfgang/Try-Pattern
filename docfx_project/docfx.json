@@ -4,42 +4,43 @@
     {
       "src": [
         {
-          "files": [
-			"src/<path>/<project>.csproj"
-          ],
+          "files": ["src/**/*.csproj"],
           "src": "../"
         }
       ],
-      "dest": "api"
+      "dest": "api",
+      "properties": {
+        "TargetFramework": "net8.0"
+      },
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false
     }
   ],
   "build": {
     "content": [
       {
-		"files": [
-			"**/*.{md,yml}"
-		],
-        "exclude": [
-          "_site/**"
-        ]
+        "files": ["**/*.{md,yml}"],
+        "exclude": ["_site/**"]
       }
     ],
     "resource": [
       {
-        "files": [
-          "images/**"
-        ]
+        "files": ["logo.svg", "images/**"]
       }
     ],
     "output": "_site",
-    "template": [
-      "modern",
-      "default"
-    ],
+    "template": ["default", "modern"],
     "globalMetadata": {
-      "_appName": "",
-      "_appTitle": "<title>",
+      "_appName": "Wolfgang.TryPattern",
+      "_appTitle": "Wolfgang.TryPattern Documentation",
+      "_appLogoPath": "logo.svg",
       "_enableSearch": true,
+      "_appFooter": "Made with DocFX",
+      "_disableSidebar": false,
+      "_disableTocFilter": false,
+      "_enableDarkMode": true,
+      "colorMode": "dark",
+      "_baseUrl": "https://Chris-Wolfgang.github.io/Try-Pattern/",
       "pdf": true
     }
   }
