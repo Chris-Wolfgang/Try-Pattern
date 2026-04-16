@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- .NET SDK 8.0 or later (for development)
+- .NET 10 SDK or later (required to build and test this repository, because the library multi-targets .NET 10.0)
 - Any project targeting .NET Framework 4.6.2+, .NET Standard 2.0, .NET 8.0, or .NET 10.0
 
 ## Installation
@@ -139,5 +139,5 @@ public Result<decimal> CalculateDiscount(Order order)
 
 ## Next Steps
 
-- Browse the [API Reference](../api/Wolfgang.TryPattern.yml) for complete method signatures and XML documentation
+- Browse the [API Reference](../api/index.md) for complete method signatures and XML documentation
 - View the [source code](https://github.com/Chris-Wolfgang/Try-Pattern) on GitHub

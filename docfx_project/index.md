@@ -9,7 +9,7 @@ Welcome to the Wolfgang.TryPattern documentation. This site contains comprehensi
 ## Quick Links
 
 - [Getting Started](docs/getting-started.md) - Installation and basic usage
-- [API Reference](api/Wolfgang.TryPattern.yml) - Complete API documentation
+- [API Reference](api/index.md) - Complete API documentation
 - [GitHub Repository](https://github.com/Chris-Wolfgang/Try-Pattern) - View source code
 
 ## About Wolfgang.TryPattern
@@ -28,7 +28,7 @@ dotnet add package Wolfgang.TryPattern
 
 Step-by-step guides and tutorials to help you use Wolfgang.TryPattern effectively.
 
-### [API Reference](api/Wolfgang.TryPattern.yml)
+### [API Reference](api/index.md)
 
 Complete API documentation automatically generated from source code XML comments.
 
