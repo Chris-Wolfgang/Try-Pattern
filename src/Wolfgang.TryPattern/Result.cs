@@ -21,7 +21,7 @@ public class Result
     /// <param name="errorMessage">Error message associated with the result.</param>
     /// <remarks>
     /// If the operation was successful, <paramref name="errorMessage"/> must be an empty string. If the operation failed,
-    /// <paramref name="errorMessage"/> must not be null or empty.
+    /// <paramref name="errorMessage"/> must not be null, empty, or whitespace.
     /// </remarks>
     protected Result
     (
@@ -176,7 +176,7 @@ public class Result<T> : Result
     /// <remarks>
     /// If the operation was successful, <paramref name="errorMessage"/> must be an empty string and
     /// <paramref name="value"/> should be the return value from the function.
-    /// If the operation failed, <paramref name="errorMessage"/> must not be null or empty and
+    /// If the operation failed, <paramref name="errorMessage"/> must not be null, empty, or whitespace and
     /// <paramref name="value"/> should be <c>default(T)</c>.
     /// </remarks>
 #if NET5_0_OR_GREATER
