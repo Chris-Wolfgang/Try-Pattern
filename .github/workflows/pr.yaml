@@ -241,6 +241,9 @@ jobs:
           echo ""
           echo "✅ Configuration files secured - using versions from main branch"
 
+      # Fix for .NET 5.0 on Ubuntu 22.04+ - install libssl1.1 from the focal-security
+      # repository so APT verifies the package via GPG instead of a plain wget download.
+      - name: Install OpenSSL 1.1 for .NET 5.0
         run: |
           echo "deb https://security.ubuntu.com/ubuntu focal-security main" | sudo tee /etc/apt/sources.list.d/focal-security.list
           sudo apt-get update -q
