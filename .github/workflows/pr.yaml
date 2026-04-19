@@ -4,15 +4,11 @@
 # Stage 3: macOS tests (only if Stage 2 passes)
 #
 # SECURITY NOTE:
-# - Uses pull_request_target to run workflow from the trusted main branch, not from the PR branch
-# - This prevents malicious workflow YAML changes in untrusted PR branches from taking effect
-# - All checkout steps use PR refs (refs/pull/*/head) to check out PR code from the base repo
+# - Uses pull_request (not pull_request_target) to avoid the "pwn request" attack vector
+#   (pull_request_target runs from the trusted main branch with elevated permissions, and checking
+#    out untrusted PR code in that context can allow attackers to exfiltrate secrets or abuse write access)
 # - After checkout, configuration files (.editorconfig, BannedSymbols.txt, etc.) are fetched from
 #   the main branch to prevent malicious PRs from disabling analyzers or bypassing code quality checks
-# - If a PR changes any of these protected configuration files, CI explicitly fails with instructions
-#   for a maintainer to manually review and verify the changes before merging
-# - persist-credentials: false prevents the checkout token from being written to git config for subsequent git commands
-#   (it does NOT, by itself, prevent steps from accessing github.token / GITHUB_TOKEN if you explicitly expose it)
 # - Default GITHUB_TOKEN permissions are restricted to read-only repository contents to limit impact if exposed
 
 name: PR Checks v3 (Gated)
@@ -24,7 +20,7 @@ env:
   CODECOV_MINIMUM: 90
 
 on:
-  pull_request_target:  # Runs from the main branch, not from PR branch
+  pull_request:
     branches:
       - main
 
@@ -44,8 +40,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
-          persist-credentials: false
           fetch-depth: 0
 
       - name: Run gitleaks
@@ -70,9 +64,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
-          persist-credentials: false
       
       - name: Fetch trusted configuration files from main branch
         run: |
@@ -194,9 +185,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
-          persist-credentials: false
       
       - name: Fetch trusted configuration files from main branch
         run: |
@@ -496,9 +484,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
-          persist-credentials: false
       
       - name: Fetch trusted configuration files from main branch
         shell: pwsh
@@ -735,9 +720,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
-          persist-credentials: false
       
       - name: Fetch trusted configuration files from main branch
         run: |
@@ -1044,9 +1026,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
-          persist-credentials: false
       
       - name: Fetch trusted configuration files from main branch
         run: |
