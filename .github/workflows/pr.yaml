@@ -9,6 +9,8 @@
 #    out untrusted PR code in that context can allow attackers to exfiltrate secrets or abuse write access)
 # - After checkout, configuration files (.editorconfig, BannedSymbols.txt, etc.) are fetched from
 #   the main branch to prevent malicious PRs from disabling analyzers or bypassing code quality checks
+# - PRs that change protected configuration files (for example .editorconfig or Directory.Build.*)
+#   intentionally fail validation; those config changes are not evaluated by CI in the untrusted PR context
 # - Default GITHUB_TOKEN permissions are restricted to read-only repository contents to limit impact if exposed
 
 name: PR Checks v3 (Gated)
