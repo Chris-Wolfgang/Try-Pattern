@@ -49,10 +49,8 @@ public class ResultTests
 
 
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void Success_sets_properties_correctly(bool succeeded)
+    [Fact]
+    public void Success_sets_properties_correctly()
     {
         // Act
         var result = Result.Success();
