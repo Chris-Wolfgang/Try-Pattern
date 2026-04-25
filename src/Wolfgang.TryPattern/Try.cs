@@ -39,38 +39,6 @@ public static class Try
 
 
     /// <summary>
-    /// Executes the specified action asynchronously, catching any exception that may occur.
-    /// </summary>
-    /// <param name="action">The action to execute.</param>
-    /// <param name="token">The CancellationToken to monitor.</param>
-    /// <returns>
-    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation.
-    /// </returns>
-    public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
-    {
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action));
-        }
-
-        try
-        {
-            await Task.Run(action, token).ConfigureAwait(false);
-            return Result.Success();
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            return Result.Failure(ex.Message);
-        }
-    }
-
-
-
-    /// <summary>
     /// Executes the specified function, catching any exception that may occur.
     /// </summary>
     /// <typeparam name="T">The return type of the function.</typeparam>
@@ -114,6 +82,38 @@ public static class Try
         }
     }
 #endif
+
+
+
+    /// <summary>
+    /// Executes the specified action asynchronously, catching any exception that may occur.
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <param name="token">The CancellationToken to monitor.</param>
+    /// <returns>
+    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation.
+    /// </returns>
+    public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
+    {
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(action));
+        }
+
+        try
+        {
+            await Task.Run(action, token).ConfigureAwait(false);
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+    }
 
 
 
