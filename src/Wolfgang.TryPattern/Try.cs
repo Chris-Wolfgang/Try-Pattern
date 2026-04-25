@@ -124,7 +124,7 @@ public static class Try
     /// <param name="function">The function to execute.</param>
     /// <param name="token">The CancellationToken to monitor.</param>
     /// <returns>
-    /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation
+    /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation.
     /// </returns>
 #if NET5_0_OR_GREATER
     public static async Task<Result<T?>> RunAsync<T>(Func<Task<T?>> function, CancellationToken token = default)
@@ -155,7 +155,7 @@ public static class Try
         {
             throw new ArgumentNullException(nameof(function));
         }
-        
+
         try
         {
             var result = await function().ConfigureAwait(false);
