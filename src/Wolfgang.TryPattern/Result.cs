@@ -54,14 +54,14 @@ public class Result
     public static Result Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
-            : new Result(false, errorMessage);
+            : new Result(succeeded: false, errorMessage);
 
 
 
     /// <summary>
     /// Creates a successful <see cref="Result"/>.
     /// </summary>
-    public static Result Success() => new(true, string.Empty);
+    public static Result Success() => new(succeeded: true, string.Empty);
 
 
 
@@ -154,6 +154,10 @@ public class Result
 /// <see cref="Result.ErrorMessage"/> property will contain a message as to why. If the operation succeeded the
 /// <see cref="Result{T}.Value"/> property will contain the return value from the function.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Design",
+    "CA1000:Do not declare static members on generic types",
+    Justification = "Result<T>.Failure / Result<T>.Success are factory methods central to the public API; consumers explicitly specify T at the call site by design.")]
 public class Result<T> : Result
 {
 
@@ -196,12 +200,12 @@ public class Result<T> : Result
     public static new Result<T?> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
-            : new Result<T?>(false, errorMessage, default!);
+            : new Result<T?>(succeeded: false, errorMessage, default!);
 #else
     public static new Result<T> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
-            : new Result<T>(false, errorMessage, default!);
+            : new Result<T>(succeeded: false, errorMessage, default!);
 #endif
 
 
@@ -210,9 +214,9 @@ public class Result<T> : Result
     /// Creates a successful <see cref="Result"/> with specified value.
     /// </summary>
 #if NET5_0_OR_GREATER
-    public static Result<T?> Success(T? value) => new(true, string.Empty, value);
+    public static Result<T?> Success(T? value) => new(succeeded: true, string.Empty, value);
 #else
-    public static Result<T> Success(T value) => new(true, string.Empty, value);
+    public static Result<T> Success(T value) => new(succeeded: true, string.Empty, value);
 #endif
 
 

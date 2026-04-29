@@ -18,6 +18,7 @@ public static class Try
     /// <returns>
     /// A <see cref="Result"/> that indicates if the action was successful.
     /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
     public static Result Run(Action action)
     {
         if (action == null)
@@ -47,6 +48,7 @@ public static class Try
     /// A <see cref="Result{T}"/> indicating if the function was successful or not and the result of
     /// the function if it was.
     /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
 #if NET5_0_OR_GREATER
     public static Result<T?> Run<T>(Func<T> function)
     {
@@ -93,6 +95,7 @@ public static class Try
     /// <returns>
     /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation.
     /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
     public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
     {
         if (action == null)
@@ -126,6 +129,7 @@ public static class Try
     /// <returns>
     /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation.
     /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
 #if NET5_0_OR_GREATER
     public static async Task<Result<T?>> RunAsync<T>(Func<Task<T?>> function, CancellationToken token = default)
     {
@@ -133,6 +137,10 @@ public static class Try
         {
             throw new ArgumentNullException(nameof(function));
         }
+
+        // The token parameter is part of the public API for call-site signalling but cannot be
+        // passed into Func<Task<T?>> (no token parameter on the delegate). Discard it explicitly.
+        _ = token;
 
         try
         {
@@ -155,6 +163,10 @@ public static class Try
         {
             throw new ArgumentNullException(nameof(function));
         }
+
+        // The token parameter is part of the public API for call-site signalling but cannot be
+        // passed into Func<Task<T>> (no token parameter on the delegate). Discard it explicitly.
+        _ = token;
 
         try
         {
