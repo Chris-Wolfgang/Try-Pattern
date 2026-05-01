@@ -10,7 +10,7 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_true_and_empty_string_does_not_throw_Exception()
     {
-        var unused = new TestResult(true, string.Empty);
+        var unused = new TestResult(succeeded: true, string.Empty);
     }
 
 
@@ -21,7 +21,7 @@ public class ResultTests
     [InlineData("Test error")]
     public void Ctor_when_passed_true_and_non_empty_string_throw_InvalidOperationException(string? message)
     {
-        var ex = Assert.Throws<ArgumentException>(() => new TestResult(true, message));
+        var ex = Assert.Throws<ArgumentException>(() => new TestResult(succeeded: true, message));
         Assert.Equal("errorMessage", ex.ParamName);
     }
 
@@ -30,7 +30,7 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_false_and_message_does_not_throw_Exception()
     {
-        var unused = new TestResult(false, "Test error");
+        var unused = new TestResult(succeeded: false, "Test error");
     }
 
 
@@ -41,7 +41,7 @@ public class ResultTests
     [InlineData("")]
     public void Ctor_when_passed_false_and_no_message_throw_InvalidOperationException(string? message)
     {
-        var ex = Assert.Throws<ArgumentException>(() => new TestResult(false, message));
+        var ex = Assert.Throws<ArgumentException>(() => new TestResult(succeeded: false, message));
         Assert.Equal("errorMessage", ex.ParamName);
     }
 

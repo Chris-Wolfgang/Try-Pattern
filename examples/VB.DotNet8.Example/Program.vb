@@ -7,7 +7,9 @@ Imports Wolfgang.TryPattern
 <ExcludeFromCodeCoverage>
 Friend Module Module1
 	Public Sub Main()
+#Disable Warning RS0030 ' GetResult() is the standard VB sync entry-point pattern (no async Main support)
 		MainAsync().GetAwaiter().GetResult()
+#Enable Warning RS0030
 	End Sub
 
 	Private Async Function MainAsync() As Task
