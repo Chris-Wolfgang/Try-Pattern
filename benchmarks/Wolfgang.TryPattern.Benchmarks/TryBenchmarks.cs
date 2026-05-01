@@ -34,7 +34,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            await Try.RunAsync(async () => await Task.CompletedTask);
+            await Try.RunAsync(() => { });
         }
     }
 
@@ -43,11 +43,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            await Try.RunAsync(async () =>
-            {
-                await Task.CompletedTask;
-                throw new InvalidOperationException();
-            });
+            await Try.RunAsync(() => throw new InvalidOperationException());
         }
     }
 
