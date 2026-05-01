@@ -125,11 +125,18 @@ public static class Try
     /// </summary>
     /// <typeparam name="T">The return type of the function.</typeparam>
     /// <param name="function">The function to execute.</param>
-    /// <param name="token">The CancellationToken to monitor.</param>
+    /// <param name="token">
+    /// A <see cref="CancellationToken"/> that is checked before <paramref name="function"/> is
+    /// invoked. If cancellation is already requested, an <see cref="OperationCanceledException"/>
+    /// is thrown without invoking <paramref name="function"/>. The token is not threaded into
+    /// <paramref name="function"/> itself; if you need cancellation inside the function, capture
+    /// the token in the lambda's closure.
+    /// </param>
     /// <returns>
     /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="token"/> was already cancelled when this method was called.</exception>
 #if NET5_0_OR_GREATER
     public static async Task<Result<T?>> RunAsync<T>(Func<Task<T?>> function, CancellationToken token = default)
     {
@@ -138,9 +145,10 @@ public static class Try
             throw new ArgumentNullException(nameof(function));
         }
 
-        // The token parameter is part of the public API for call-site signalling but cannot be
-        // passed into Func<Task<T?>> (no token parameter on the delegate). Discard it explicitly.
-        _ = token;
+        // Observe the token before invoking. The delegate signature has no token parameter, so we
+        // cannot flow it through; the best we can do is fail fast if cancellation was already
+        // requested. OperationCanceledException is rethrown by the catch below.
+        token.ThrowIfCancellationRequested();
 
         try
         {
@@ -164,9 +172,10 @@ public static class Try
             throw new ArgumentNullException(nameof(function));
         }
 
-        // The token parameter is part of the public API for call-site signalling but cannot be
-        // passed into Func<Task<T>> (no token parameter on the delegate). Discard it explicitly.
-        _ = token;
+        // Observe the token before invoking. The delegate signature has no token parameter, so we
+        // cannot flow it through; the best we can do is fail fast if cancellation was already
+        // requested. OperationCanceledException is rethrown by the catch below.
+        token.ThrowIfCancellationRequested();
 
         try
         {
