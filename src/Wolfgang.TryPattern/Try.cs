@@ -91,11 +91,17 @@ public static class Try
     /// Executes the specified action asynchronously, catching any exception that may occur.
     /// </summary>
     /// <param name="action">The action to execute.</param>
-    /// <param name="token">The CancellationToken to monitor.</param>
+    /// <param name="token">
+    /// A <see cref="CancellationToken"/> that is passed to <see cref="Task.Run(Action, CancellationToken)"/>.
+    /// If cancellation is observed (either before <paramref name="action"/> starts or while it runs),
+    /// an <see cref="OperationCanceledException"/> is propagated to the caller rather than wrapped
+    /// in a failed <see cref="Result"/>.
+    /// </param>
     /// <returns>
     /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation was observed via <paramref name="token"/>.</exception>
     public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
     {
         if (action == null)
@@ -130,13 +136,20 @@ public static class Try
     /// invoked. If cancellation is already requested, an <see cref="OperationCanceledException"/>
     /// is thrown without invoking <paramref name="function"/>. The token is not threaded into
     /// <paramref name="function"/> itself; if you need cancellation inside the function, capture
-    /// the token in the lambda's closure.
+    /// the token in the lambda's closure. If <paramref name="function"/> observes the token during
+    /// execution (e.g. via <see cref="Task.Delay(int, CancellationToken)"/>) and the resulting
+    /// <see cref="OperationCanceledException"/> escapes, it is also propagated to the caller
+    /// rather than wrapped in a failed <see cref="Result{T}"/>.
     /// </param>
     /// <returns>
     /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="token"/> was already canceled when this method was called.</exception>
+    /// <exception cref="OperationCanceledException">
+    /// <paramref name="token"/> was already canceled when this method was called, or
+    /// <paramref name="function"/> observed cancellation during execution and let an
+    /// <see cref="OperationCanceledException"/> escape.
+    /// </exception>
 #if NET5_0_OR_GREATER
     public static async Task<Result<T?>> RunAsync<T>(Func<Task<T?>> function, CancellationToken token = default)
     {
