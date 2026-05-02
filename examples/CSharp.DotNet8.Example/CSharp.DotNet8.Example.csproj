@@ -5,6 +5,17 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!--
+      Suppress analyzer rules that are noisy or non-applicable in example code.
+      These are firing on the Windows CI runner despite being relaxed in
+      .editorconfig's [examples/**/*.cs] section, so we suppress at the project
+      level for explicit, reliable enforcement.
+    -->
+    <NoWarn>$(NoWarn);
+      MA0004;    <!-- ConfigureAwait - examples are end-user code, ConfigureAwait shouldn't be required -->
+      S6966      <!-- Sync vs async - examples can demonstrate either form -->
+    </NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
