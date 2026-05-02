@@ -136,7 +136,7 @@ public static class Try
     /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
-    /// <exception cref="OperationCanceledException"><paramref name="token"/> was already cancelled when this method was called.</exception>
+    /// <exception cref="OperationCanceledException"><paramref name="token"/> was already canceled when this method was called.</exception>
 #if NET5_0_OR_GREATER
     public static async Task<Result<T?>> RunAsync<T>(Func<Task<T?>> function, CancellationToken token = default)
     {
@@ -147,7 +147,8 @@ public static class Try
 
         // Observe the token before invoking. The delegate signature has no token parameter, so we
         // cannot flow it through; the best we can do is fail fast if cancellation was already
-        // requested. OperationCanceledException is rethrown by the catch below.
+        // requested. ThrowIfCancellationRequested propagates OperationCanceledException directly
+        // to the caller (it runs before the try/catch and is intentionally not wrapped in a Result).
         token.ThrowIfCancellationRequested();
 
         try
@@ -174,7 +175,8 @@ public static class Try
 
         // Observe the token before invoking. The delegate signature has no token parameter, so we
         // cannot flow it through; the best we can do is fail fast if cancellation was already
-        // requested. OperationCanceledException is rethrown by the catch below.
+        // requested. ThrowIfCancellationRequested propagates OperationCanceledException directly
+        // to the caller (it runs before the try/catch and is intentionally not wrapped in a Result).
         token.ThrowIfCancellationRequested();
 
         try
