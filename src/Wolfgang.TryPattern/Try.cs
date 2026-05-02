@@ -93,15 +93,22 @@ public static class Try
     /// <param name="action">The action to execute.</param>
     /// <param name="token">
     /// A <see cref="CancellationToken"/> that is passed to <see cref="Task.Run(Action, CancellationToken)"/>.
-    /// If cancellation is observed (either before <paramref name="action"/> starts or while it runs),
-    /// an <see cref="OperationCanceledException"/> is propagated to the caller rather than wrapped
-    /// in a failed <see cref="Result"/>.
+    /// If cancellation is requested before <paramref name="action"/> begins executing, the task is
+    /// canceled and an <see cref="OperationCanceledException"/> is propagated to the caller rather
+    /// than wrapped in a failed <see cref="Result"/>. Once <paramref name="action"/> has started,
+    /// <see cref="Task.Run(Action, CancellationToken)"/> cannot interrupt it; cancellation during
+    /// execution is only observed if <paramref name="action"/> itself cooperatively checks the
+    /// token (e.g. via <see cref="CancellationToken.ThrowIfCancellationRequested"/>) and throws.
     /// </param>
     /// <returns>
     /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
-    /// <exception cref="OperationCanceledException">Cancellation was observed via <paramref name="token"/>.</exception>
+    /// <exception cref="OperationCanceledException">
+    /// Cancellation was observed via <paramref name="token"/> (either before
+    /// <paramref name="action"/> started, or because <paramref name="action"/> itself observed
+    /// the token and threw).
+    /// </exception>
     public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
     {
         if (action == null)
