@@ -358,4 +358,46 @@ public class RunAsyncFuncTests
 
 		await Assert.ThrowsAsync<TaskCanceledException>(() => task);
 	}
+
+
+
+	[Fact]
+	public async Task RunAsync_Func_when_token_is_already_canceled_throws_OperationCanceledException_without_invoking_function()
+	{
+		// Arrange
+		using var cts = new CancellationTokenSource();
+		cts.Cancel();
+		var wasInvoked = false;
+
+		Task<int> Function()
+		{
+			wasInvoked = true;
+			return Task.FromResult(42);
+		}
+
+		// Act & Assert
+		await Assert.ThrowsAsync<OperationCanceledException>(() => Try.RunAsync((Func<Task<int>>)Function, cts.Token));
+		Assert.False(wasInvoked, "function should not be invoked when the token is already canceled");
+	}
+
+
+
+	[Fact]
+	public async Task RunAsync_Func_nullable_when_token_is_already_canceled_throws_OperationCanceledException_without_invoking_function()
+	{
+		// Arrange
+		using var cts = new CancellationTokenSource();
+		cts.Cancel();
+		var wasInvoked = false;
+
+		Task<int?> Function()
+		{
+			wasInvoked = true;
+			return Task.FromResult<int?>(42);
+		}
+
+		// Act & Assert
+		await Assert.ThrowsAsync<OperationCanceledException>(() => Try.RunAsync((Func<Task<int?>>)Function, cts.Token));
+		Assert.False(wasInvoked, "function should not be invoked when the token is already canceled");
+	}
 }
