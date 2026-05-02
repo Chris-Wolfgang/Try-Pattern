@@ -10,7 +10,8 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_true_and_empty_string_does_not_throw_Exception()
     {
-        var unused = new TestResult(succeeded: true, string.Empty);
+        var ex = Record.Exception(() => new TestResult(succeeded: true, string.Empty));
+        Assert.Null(ex);
     }
 
 
@@ -30,7 +31,8 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_false_and_message_does_not_throw_Exception()
     {
-        var unused = new TestResult(succeeded: false, "Test error");
+        var ex = Record.Exception(() => new TestResult(succeeded: false, "Test error"));
+        Assert.Null(ex);
     }
 
 

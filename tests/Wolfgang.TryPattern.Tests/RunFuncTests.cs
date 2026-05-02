@@ -78,8 +78,7 @@ public class RunFuncTests
     public void Run_Func_WithNullableStringFunction_ReturnsResult()
     {
         // Arrange
-        const string expectedValue = "Hello, World!";
-        static string Function() => expectedValue;
+        static string? Function() => null;
 
         // Act
         var result = Try.Run(Function);
@@ -88,7 +87,7 @@ public class RunFuncTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Empty(result.ErrorMessage!);
-        Assert.Equal(expectedValue, result.Value);
+        Assert.Null(result.Value);
     }
 
 
