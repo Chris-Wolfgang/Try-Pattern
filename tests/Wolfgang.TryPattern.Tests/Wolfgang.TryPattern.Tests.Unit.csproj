@@ -27,7 +27,9 @@
 			S2930;     <!-- Dispose CTS - tests are short-lived; CTS goes out of scope -->
 			S3928;     <!-- ArgumentException paramName - test fixture exceptions are illustrative -->
 			MA0015;    <!-- Same as S3928 from Meziantou -->
-			MA0012     <!-- NullReferenceException is reserved - tests intentionally throw it to verify handling -->
+			MA0012;    <!-- NullReferenceException is reserved - tests intentionally throw it to verify handling -->
+			S2699;     <!-- Test must have assertion - xUnit treats unhandled exceptions as failures, so 'no exception thrown' tests are valid without explicit asserts -->
+			S1481      <!-- Unused local 'unused' - intentional 'does not throw' pattern; rename masks the test's purpose -->
 		</NoWarn>
 	</PropertyGroup>
 
