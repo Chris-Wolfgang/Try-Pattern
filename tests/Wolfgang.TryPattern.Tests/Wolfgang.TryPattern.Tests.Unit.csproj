@@ -10,6 +10,25 @@
 		<IsTestProject>true</IsTestProject>
 		<Copyright>Copyright 2025 Chris Wolfgang</Copyright>
 
+		<!--
+			Suppress analyzer rules that are noisy or non-applicable in test code.
+			These are firing on the Windows CI runner despite being relaxed in
+			.editorconfig's [tests/**/*.cs] section, so we suppress at the project
+			level to make the policy explicit and unambiguous.
+		-->
+		<NoWarn>$(NoWarn);
+			VSTHRD200; <!-- Async naming - tests use descriptive names without 'Async' suffix -->
+			VSTHRD003; <!-- Awaiting Task started outside context - common test pattern -->
+			VSTHRD103; <!-- Sync calls when async exists - tests need both -->
+			AsyncFixer01; <!-- Single-await async methods - test pattern -->
+			MA0004;    <!-- ConfigureAwait - not needed in tests -->
+			S6966;     <!-- Sync vs async - test fixtures use both -->
+			S2190;     <!-- Loop without break - false positive on tests that throw to exit loop -->
+			S2930;     <!-- Dispose CTS - tests are short-lived; CTS goes out of scope -->
+			S3928;     <!-- ArgumentException paramName - test fixture exceptions are illustrative -->
+			MA0015;    <!-- Same as S3928 from Meziantou -->
+			MA0012     <!-- NullReferenceException is reserved - tests intentionally throw it to verify handling -->
+		</NoWarn>
 	</PropertyGroup>
 
 	<!-- Common packages for all frameworks -->
