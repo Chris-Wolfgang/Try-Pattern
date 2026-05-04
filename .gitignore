@@ -423,5 +423,11 @@ FodyWeavers.xsd
 TestResults/
 CoverageReport/
 
-# Claude Code local settings
-.claude/
+# Release workflow temporary directories
+package-smoke-test/
+nuget-packages/
+
+# DocFX generated files
+docfx_project/_site/
+docfx_project/obj/
+
