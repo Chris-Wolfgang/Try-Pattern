@@ -8,12 +8,7 @@
           "src": "../"
         }
       ],
-      "dest": "api",
-      "properties": {
-        "TargetFramework": "net8.0"
-      },
-      "disableGitFeatures": false,
-      "disableDefaultFilter": false
+      "dest": "api"
     }
   ],
   "build": {
@@ -25,21 +20,15 @@
     ],
     "resource": [
       {
-        "files": ["logo.svg", "images/**"]
+        "files": ["images/**"]
       }
     ],
     "output": "_site",
-    "template": ["default", "modern"],
+    "template": ["modern", "default"],
     "globalMetadata": {
       "_appName": "Wolfgang.TryPattern",
       "_appTitle": "Wolfgang.TryPattern Documentation",
-      "_appLogoPath": "logo.svg",
       "_enableSearch": true,
-      "_appFooter": "Made with DocFX",
-      "_disableSidebar": false,
-      "_disableTocFilter": false,
-      "_enableDarkMode": true,
-      "colorMode": "dark",
       "pdf": true
     }
   }
