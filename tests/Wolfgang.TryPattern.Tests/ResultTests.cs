@@ -205,7 +205,7 @@ public class ResultTests
         var ex = Assert.Throws<ArgumentException>(() =>
             Result.Flatten(Result.Success(), null!, Result.Failure("x")));
         Assert.Equal("results", ex.ParamName);
-        Assert.Contains("index 1", ex.Message);
+        Assert.Contains("index 1", ex.Message, StringComparison.Ordinal);
     }
 
 
@@ -216,7 +216,7 @@ public class ResultTests
         var ex = Assert.Throws<ArgumentException>(() =>
             Result.AllSucceeded(Result.Success(), null!));
         Assert.Equal("results", ex.ParamName);
-        Assert.Contains("index 1", ex.Message);
+        Assert.Contains("index 1", ex.Message, StringComparison.Ordinal);
     }
 
 
@@ -227,7 +227,7 @@ public class ResultTests
         var ex = Assert.Throws<ArgumentException>(() =>
             Result.AnyFailed(null!, Result.Success()));
         Assert.Equal("results", ex.ParamName);
-        Assert.Contains("index 0", ex.Message);
+        Assert.Contains("index 0", ex.Message, StringComparison.Ordinal);
     }
 
 
