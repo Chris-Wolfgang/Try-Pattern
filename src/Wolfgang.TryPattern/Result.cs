@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+using System.Text;
 
 namespace Wolfgang.TryPattern;
 
@@ -97,7 +97,7 @@ public class Result
     /// <param name="results">One or more <see cref="Result"/>s to flatten</param>
     /// <returns>
     /// If all the <see cref="Result"/>s were successful the return value is a successful <see cref="Result"/>.
-    /// If one or more failed, the return value is a failed <see cref="Result"/> and the ErrorMessage 
+    /// If one or more failed, the return value is a failed <see cref="Result"/> and the ErrorMessage
     /// property will contain the errors from each failed <see cref="Result"/> separated by a newline character.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
@@ -113,21 +113,50 @@ public class Result
 
         ThrowIfAnyElementIsNull(results);
 
-        var failures = results
-            .Where(r => r.Failed)
-            .Select(r => r.ErrorMessage);
+        // Single-pass scan: find the first failure (if any) and remember its index
+        // so we can short-circuit the common cases (all-success, single-failure)
+        // without allocating a StringBuilder or running LINQ enumerators.
+        var firstFailureIndex = -1;
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                firstFailureIndex = i;
+                break;
+            }
+        }
 
-        var message = string.Join("\n", failures);
+        if (firstFailureIndex == -1)
+        {
+            return Success();
+        }
 
-        return message.Length == 0
-            ? Success()
-            : Failure(message);
+        // Scan forward from the first failure to detect whether there are more.
+        // If only one failure exists, return its message verbatim with no joining.
+        var firstMessage = results[firstFailureIndex].ErrorMessage!;
+        StringBuilder? builder = null;
+        for (var i = firstFailureIndex + 1; i < results.Length; i++)
+        {
+            if (!results[i].Failed)
+            {
+                continue;
+            }
+
+            if (builder == null)
+            {
+                builder = new StringBuilder(firstMessage);
+            }
+
+            builder.Append('\n').Append(results[i].ErrorMessage);
+        }
+
+        return Failure(builder?.ToString() ?? firstMessage);
     }
 
 
 
     /// <summary>
-    /// Returns true if any of the specified <see cref="Result"/>s indicate a failure. 
+    /// Returns true if any of the specified <see cref="Result"/>s indicate a failure.
     /// Otherwise, false.
     /// </summary>
     /// <param name="results">The array of <see cref="Result"/> to review.</param>
@@ -147,13 +176,21 @@ public class Result
 
         ThrowIfAnyElementIsNull(results);
 
-        return results.Any(r => r.Failed);
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
 
     /// <summary>
-    /// Returns true if all the specified <see cref="Result"/>s indicate success. 
+    /// Returns true if all the specified <see cref="Result"/>s indicate success.
     /// </summary>
     /// <param name="results">The array of <see cref="Result"/> to review.</param>
     /// <returns>
@@ -172,7 +209,15 @@ public class Result
 
         ThrowIfAnyElementIsNull(results);
 
-        return results.All(r => r.Succeeded);
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
