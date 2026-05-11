@@ -42,7 +42,7 @@ public class Result
         {
             throw new ArgumentException
             (
-                "errorMessage cannot be empty",
+                "A failed result must have an error message.",
                 nameof(errorMessage)
             );
         }
@@ -59,7 +59,9 @@ public class Result
     /// <param name="errorMessage">The error message indicating the reason for failure.</param>
     /// <exception cref="ArgumentException">errorMessage is null, empty, or whitespace</exception>
     public static Result Failure(string errorMessage) =>
-        new(succeeded: false, errorMessage);
+        string.IsNullOrWhiteSpace(errorMessage)
+            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
+            : new Result(succeeded: false, errorMessage);
 
 
 
@@ -217,10 +219,14 @@ public class Result<T> : Result
     /// <exception cref="ArgumentException">errorMessage is null, empty, or whitespace</exception>
 #if NET5_0_OR_GREATER
     public static new Result<T?> Failure(string errorMessage) =>
-        new(succeeded: false, errorMessage, default!);
+        string.IsNullOrWhiteSpace(errorMessage)
+            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
+            : new Result<T?>(succeeded: false, errorMessage, default!);
 #else
     public static new Result<T> Failure(string errorMessage) =>
-        new(succeeded: false, errorMessage, default!);
+        string.IsNullOrWhiteSpace(errorMessage)
+            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
+            : new Result<T>(succeeded: false, errorMessage, default!);
 #endif
 
 
