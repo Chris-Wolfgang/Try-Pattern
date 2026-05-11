@@ -58,10 +58,18 @@ public class Result
 
 
 
+    private static readonly Result SuccessInstance = new(succeeded: true, string.Empty);
+
+
+
     /// <summary>
     /// Creates a successful <see cref="Result"/>.
     /// </summary>
-    public static Result Success() => new(succeeded: true, string.Empty);
+    /// <remarks>
+    /// Returns a cached singleton instance. <see cref="Result"/> is immutable, so reusing
+    /// the same instance is safe and avoids per-call allocations on hot paths.
+    /// </remarks>
+    public static Result Success() => SuccessInstance;
 
 
 
