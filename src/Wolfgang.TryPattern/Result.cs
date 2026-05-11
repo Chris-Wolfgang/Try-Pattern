@@ -29,19 +29,26 @@ public class Result
         string? errorMessage
     )
     {
-        switch (succeeded)
+        if (succeeded && errorMessage != string.Empty)
         {
-            case true when errorMessage != string.Empty:
-                throw new ArgumentException("A successful result cannot have an error message.", nameof(errorMessage));
-
-            case false when string.IsNullOrWhiteSpace(errorMessage):
-                throw new ArgumentException("A failed result must have an error message.", nameof(errorMessage));
-
-            default:
-                Succeeded = succeeded;
-                ErrorMessage = errorMessage;
-                break;
+            throw new ArgumentException
+            (
+                "A successful result cannot have an error message.",
+                nameof(errorMessage)
+            );
         }
+
+        if (!succeeded && string.IsNullOrWhiteSpace(errorMessage))
+        {
+            throw new ArgumentException
+            (
+                "A failed result must have an error message.",
+                nameof(errorMessage)
+            );
+        }
+
+        Succeeded = succeeded;
+        ErrorMessage = errorMessage;
     }
 
 
@@ -52,9 +59,7 @@ public class Result
     /// <param name="errorMessage">The error message indicating the reason for failure.</param>
     /// <exception cref="ArgumentException">errorMessage is null or empty</exception>
     public static Result Failure(string errorMessage) =>
-        string.IsNullOrWhiteSpace(errorMessage)
-            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
-            : new Result(succeeded: false, errorMessage);
+        new(succeeded: false, errorMessage);
 
 
 
@@ -129,8 +134,15 @@ public class Result
     /// <see langword="true"/> if any of the specified <see cref="Result"/>s failed, otherwise <see langword="false"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AnyFailed(params Result[]? results) =>
-        results?.Any(r => r.Failed) ?? throw new ArgumentNullException(nameof(results));
+    public static bool AnyFailed(params Result[]? results)
+    {
+        if (results == null)
+        {
+            throw new ArgumentNullException(nameof(results));
+        }
+
+        return results.Any(r => r.Failed);
+    }
 
 
 
@@ -142,8 +154,15 @@ public class Result
     /// <see langword="true"/> if all the specified <see cref="Result"/>s succeeded, otherwise <see langword="false"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AllSucceeded(params Result[]? results) =>
-        results?.All(r => r.Succeeded) ?? throw new ArgumentNullException(nameof(results));
+    public static bool AllSucceeded(params Result[]? results)
+    {
+        if (results == null)
+        {
+            throw new ArgumentNullException(nameof(results));
+        }
+
+        return results.All(r => r.Succeeded);
+    }
 }
 
 
