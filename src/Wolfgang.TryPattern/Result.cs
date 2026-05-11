@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Text;
 
 namespace Wolfgang.TryPattern;
 
@@ -65,10 +65,20 @@ public class Result
 
 
 
+    private static readonly Result _successInstance = new(succeeded: true, string.Empty);
+
+
+
     /// <summary>
     /// Creates a successful <see cref="Result"/>.
     /// </summary>
-    public static Result Success() => new(succeeded: true, string.Empty);
+    /// <remarks>
+    /// Returns a cached singleton instance. <see cref="Result"/> is immutable, so reusing
+    /// the same instance is safe and avoids per-call allocations on hot paths. Callers must
+    /// not rely on reference identity to distinguish results: every call to <see cref="Success"/>
+    /// returns the same object, so two successful results will be reference-equal.
+    /// </remarks>
+    public static Result Success() => _successInstance;
 
 
 
@@ -114,15 +124,44 @@ public class Result
             throw new ArgumentNullException(nameof(results));
         }
 
-        var failures = results
-            .Where(r => r.Failed)
-            .Select(r => r.ErrorMessage);
+        // Single-pass scan: find the first failure (if any) and remember its index
+        // so we can short-circuit the common cases (all-success, single-failure)
+        // without allocating a StringBuilder or running LINQ enumerators.
+        var firstFailureIndex = -1;
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                firstFailureIndex = i;
+                break;
+            }
+        }
 
-        var message = string.Join("\n", failures);
+        if (firstFailureIndex == -1)
+        {
+            return Success();
+        }
 
-        return message.Length == 0
-            ? Success()
-            : Failure(message);
+        // Scan forward from the first failure to detect whether there are more.
+        // If only one failure exists, return its message verbatim with no joining.
+        var firstMessage = results[firstFailureIndex].ErrorMessage!;
+        StringBuilder? builder = null;
+        for (var i = firstFailureIndex + 1; i < results.Length; i++)
+        {
+            if (!results[i].Failed)
+            {
+                continue;
+            }
+
+            if (builder == null)
+            {
+                builder = new StringBuilder(firstMessage);
+            }
+
+            builder.Append('\n').Append(results[i].ErrorMessage);
+        }
+
+        return Failure(builder?.ToString() ?? firstMessage);
     }
 
 
@@ -143,7 +182,15 @@ public class Result
             throw new ArgumentNullException(nameof(results));
         }
 
-        return results.Any(r => r.Failed);
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -163,7 +210,15 @@ public class Result
             throw new ArgumentNullException(nameof(results));
         }
 
-        return results.All(r => r.Succeeded);
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
