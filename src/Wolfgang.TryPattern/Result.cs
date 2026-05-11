@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Wolfgang.TryPattern;
@@ -137,7 +138,7 @@ public class Result
     /// <exception cref="ArgumentException">
     /// <paramref name="results"/> contains a null element.
     /// </exception>
-    public static bool AnyFailed(params Result[]? results)
+    public static bool AnyFailed([NotNull] params Result[]? results)
     {
         if (results == null)
         {
@@ -162,7 +163,7 @@ public class Result
     /// <exception cref="ArgumentException">
     /// <paramref name="results"/> contains a null element.
     /// </exception>
-    public static bool AllSucceeded(params Result[]? results)
+    public static bool AllSucceeded([NotNull] params Result[]? results)
     {
         if (results == null)
         {
