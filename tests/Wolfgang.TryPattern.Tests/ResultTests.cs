@@ -1,4 +1,3 @@
-#pragma warning disable IDE0022
 namespace Wolfgang.TryPattern.Tests;
 
 public class ResultTests
@@ -255,6 +254,23 @@ public class ResultTests
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
         Assert.Equal("test error", result.ErrorMessage);
+    }
+
+
+
+    [Fact]
+    public void Flatten_when_multiple_results_failed_returns_Result_with_all_messages()
+    {
+        var result1 = Result.Success();
+        var result2 = Result.Failure("test error 1");
+        var result3 = Result.Failure("test error 2");
+        var result4 = Result.Success();
+
+        var result = Result.Flatten(result1, result2, result3, result4);
+
+        Assert.False(result.Succeeded);
+        Assert.True(result.Failed);
+        Assert.Equal("test error 1\ntest error 2", result.ErrorMessage);
     }
 
 
