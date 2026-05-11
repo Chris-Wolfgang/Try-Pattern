@@ -3,7 +3,7 @@
 // target (net462, netstandard2.0). Declared `internal` so consumers
 // of this assembly never see them, and so they don't collide with the
 // runtime-provided types on newer TFMs.
-#if !NET5_0_OR_GREATER
+#if !NET5_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
 
 using System;
 
