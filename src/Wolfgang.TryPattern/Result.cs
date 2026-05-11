@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Text;
 
 namespace Wolfgang.TryPattern;
 
@@ -107,15 +107,44 @@ public class Result
             throw new ArgumentNullException(nameof(results));
         }
 
-        var failures = results
-            .Where(r => r.Failed)
-            .Select(r => r.ErrorMessage);
+        // Single-pass scan: find the first failure (if any) and remember its index
+        // so we can short-circuit the common cases (all-success, single-failure)
+        // without allocating a StringBuilder or running LINQ enumerators.
+        var firstFailureIndex = -1;
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                firstFailureIndex = i;
+                break;
+            }
+        }
 
-        var message = string.Join("\n", failures);
+        if (firstFailureIndex == -1)
+        {
+            return Success();
+        }
 
-        return message.Length == 0
-            ? Success()
-            : Failure(message);
+        // Scan forward from the first failure to detect whether there are more.
+        // If only one failure exists, return its message verbatim with no joining.
+        var firstMessage = results[firstFailureIndex].ErrorMessage!;
+        StringBuilder? builder = null;
+        for (var i = firstFailureIndex + 1; i < results.Length; i++)
+        {
+            if (!results[i].Failed)
+            {
+                continue;
+            }
+
+            if (builder == null)
+            {
+                builder = new StringBuilder(firstMessage);
+            }
+
+            builder.Append('\n').Append(results[i].ErrorMessage);
+        }
+
+        return Failure(builder?.ToString() ?? firstMessage);
     }
 
 
@@ -129,8 +158,23 @@ public class Result
     /// <see langword="true"/> if any of the specified <see cref="Result"/>s failed, otherwise <see langword="false"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AnyFailed(params Result[]? results) =>
-        results?.Any(r => r.Failed) ?? throw new ArgumentNullException(nameof(results));
+    public static bool AnyFailed(params Result[]? results)
+    {
+        if (results == null)
+        {
+            throw new ArgumentNullException(nameof(results));
+        }
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 
 
@@ -142,8 +186,23 @@ public class Result
     /// <see langword="true"/> if all the specified <see cref="Result"/>s succeeded, otherwise <see langword="false"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AllSucceeded(params Result[]? results) =>
-        results?.All(r => r.Succeeded) ?? throw new ArgumentNullException(nameof(results));
+    public static bool AllSucceeded(params Result[]? results)
+    {
+        if (results == null)
+        {
+            throw new ArgumentNullException(nameof(results));
+        }
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i].Failed)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 
