@@ -200,6 +200,39 @@ public class ResultTests
 
 
     [Fact]
+    public void Flatten_when_array_contains_null_element_throws_ArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Result.Flatten(Result.Success(), null!, Result.Failure("x")));
+        Assert.Equal("results", ex.ParamName);
+        Assert.Contains("index 1", ex.Message);
+    }
+
+
+
+    [Fact]
+    public void AllSucceeded_when_array_contains_null_element_throws_ArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Result.AllSucceeded(Result.Success(), null!));
+        Assert.Equal("results", ex.ParamName);
+        Assert.Contains("index 1", ex.Message);
+    }
+
+
+
+    [Fact]
+    public void AnyFailed_when_array_contains_null_element_throws_ArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Result.AnyFailed(null!, Result.Success()));
+        Assert.Equal("results", ex.ParamName);
+        Assert.Contains("index 0", ex.Message);
+    }
+
+
+
+    [Fact]
     public void Flatten_when_passed_nothing_returns_new_successful_Result()
     {
         var result = Result.Flatten();

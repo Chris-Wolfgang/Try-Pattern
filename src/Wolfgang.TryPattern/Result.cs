@@ -99,13 +99,18 @@ public class Result
     /// If one or more failed, the return value is a failed <see cref="Result"/> and the ErrorMessage 
     /// property will contain the errors from each failed <see cref="Result"/> separated by a newline character.
     /// </returns>
-    /// <exception cref="ArgumentNullException">results is null</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="results"/> contains a null element.
+    /// </exception>
     public static Result Flatten(params Result[] results)
     {
         if (results == null)
         {
             throw new ArgumentNullException(nameof(results));
         }
+
+        ThrowIfAnyElementIsNull(results);
 
         var failures = results
             .Where(r => r.Failed)
@@ -128,9 +133,21 @@ public class Result
     /// <returns>
     /// <see langword="true"/> if any of the specified <see cref="Result"/>s failed, otherwise <see langword="false"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AnyFailed(params Result[]? results) =>
-        results?.Any(r => r.Failed) ?? throw new ArgumentNullException(nameof(results));
+    /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="results"/> contains a null element.
+    /// </exception>
+    public static bool AnyFailed(params Result[]? results)
+    {
+        if (results == null)
+        {
+            throw new ArgumentNullException(nameof(results));
+        }
+
+        ThrowIfAnyElementIsNull(results);
+
+        return results.Any(r => r.Failed);
+    }
 
 
 
@@ -141,9 +158,44 @@ public class Result
     /// <returns>
     /// <see langword="true"/> if all the specified <see cref="Result"/>s succeeded, otherwise <see langword="false"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AllSucceeded(params Result[]? results) =>
-        results?.All(r => r.Succeeded) ?? throw new ArgumentNullException(nameof(results));
+    /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="results"/> contains a null element.
+    /// </exception>
+    public static bool AllSucceeded(params Result[]? results)
+    {
+        if (results == null)
+        {
+            throw new ArgumentNullException(nameof(results));
+        }
+
+        ThrowIfAnyElementIsNull(results);
+
+        return results.All(r => r.Succeeded);
+    }
+
+
+
+    /// <summary>
+    /// Validates that the supplied <see cref="Result"/> array contains no null elements.
+    /// Throws <see cref="ArgumentException"/> on the first null element encountered.
+    /// </summary>
+    /// <param name="results">The array to validate. Caller must ensure the array reference itself is non-null.</param>
+    /// <exception cref="ArgumentException">An element of <paramref name="results"/> is null.</exception>
+    private static void ThrowIfAnyElementIsNull(Result[] results)
+    {
+        for (var i = 0; i < results.Length; i++)
+        {
+            if (results[i] == null)
+            {
+                throw new ArgumentException
+                (
+                    $"Element at index {i} is null. The results array must not contain null elements.",
+                    nameof(results)
+                );
+            }
+        }
+    }
 }
 
 
