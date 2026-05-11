@@ -62,6 +62,22 @@ public class ResultTests
 
 
     [Fact]
+    public void Success_returns_the_same_cached_instance_on_every_call()
+    {
+        // Locks in the singleton optimization: Result is immutable, so
+        // Success() intentionally returns a shared instance to avoid
+        // per-call allocations. If this assertion ever needs to be
+        // relaxed, it is a deliberate behavioral change that consumers
+        // relying on reference identity should be notified about.
+        var first = Result.Success();
+        var second = Result.Success();
+
+        Assert.Same(first, second);
+    }
+
+
+
+    [Fact]
     public void Failure_sets_properties_correctly()
     {
         const string message = "Test Error";
