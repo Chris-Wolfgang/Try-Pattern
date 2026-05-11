@@ -188,11 +188,7 @@ public class Result
         {
             if (results[i] == null)
             {
-                throw new ArgumentException
-                (
-                    $"Element at index {i} is null. The results array must not contain null elements.",
-                    nameof(results)
-                );
+                throw new ArgumentException($"Element at index {i} is null. The results array must not contain null elements.", nameof(results));
             }
         }
     }
