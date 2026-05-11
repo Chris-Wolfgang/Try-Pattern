@@ -104,7 +104,7 @@ public class Result
     /// <exception cref="ArgumentException">
     /// <paramref name="results"/> contains a null element.
     /// </exception>
-    public static Result Flatten(params Result[] results)
+    public static Result Flatten([NotNull] params Result[]? results)
     {
         if (results == null)
         {
