@@ -58,7 +58,7 @@ public class Result
 
 
 
-    private static readonly Result SuccessInstance = new(succeeded: true, string.Empty);
+    private static readonly Result _successInstance = new(succeeded: true, string.Empty);
 
 
 
@@ -67,9 +67,11 @@ public class Result
     /// </summary>
     /// <remarks>
     /// Returns a cached singleton instance. <see cref="Result"/> is immutable, so reusing
-    /// the same instance is safe and avoids per-call allocations on hot paths.
+    /// the same instance is safe and avoids per-call allocations on hot paths. Callers must
+    /// not rely on reference identity to distinguish results: every call to <see cref="Success"/>
+    /// returns the same object, so two successful results will be reference-equal.
     /// </remarks>
-    public static Result Success() => SuccessInstance;
+    public static Result Success() => _successInstance;
 
 
 
