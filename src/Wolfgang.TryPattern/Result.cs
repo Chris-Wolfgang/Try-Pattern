@@ -30,19 +30,26 @@ public class Result
         string? errorMessage
     )
     {
-        switch (succeeded)
+        if (succeeded && errorMessage != string.Empty)
         {
-            case true when errorMessage != string.Empty:
-                throw new ArgumentException("A successful result cannot have an error message.", nameof(errorMessage));
-
-            case false when string.IsNullOrWhiteSpace(errorMessage):
-                throw new ArgumentException("A failed result must have an error message.", nameof(errorMessage));
-
-            default:
-                Succeeded = succeeded;
-                ErrorMessage = errorMessage;
-                break;
+            throw new ArgumentException
+            (
+                "A successful result cannot have an error message.",
+                nameof(errorMessage)
+            );
         }
+
+        if (!succeeded && string.IsNullOrWhiteSpace(errorMessage))
+        {
+            throw new ArgumentException
+            (
+                "A failed result must have an error message.",
+                nameof(errorMessage)
+            );
+        }
+
+        Succeeded = succeeded;
+        ErrorMessage = errorMessage;
     }
 
 
@@ -51,7 +58,7 @@ public class Result
     /// Creates a failed Result with the specified error Message.
     /// </summary>
     /// <param name="errorMessage">The error message indicating the reason for failure.</param>
-    /// <exception cref="ArgumentException">errorMessage is null or empty</exception>
+    /// <exception cref="ArgumentException">errorMessage is null, empty, or whitespace</exception>
     public static Result Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
@@ -302,7 +309,7 @@ public class Result<T> : Result
     /// Creates a failed Result with the specified error message.
     /// </summary>
     /// <param name="errorMessage">The error message indicating the reason for failure.</param>
-    /// <exception cref="ArgumentException">errorMessage is null or empty</exception>
+    /// <exception cref="ArgumentException">errorMessage is null, empty, or whitespace</exception>
 #if NET5_0_OR_GREATER
     public static new Result<T?> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
