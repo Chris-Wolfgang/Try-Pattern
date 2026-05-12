@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Wolfgang.TryPattern;
@@ -108,28 +109,39 @@ public class Result
 
 
     /// <summary>
-    /// Takes one or more <see cref="Result"/>s and flattens them into a single <see cref="Result"/>.
+    /// Takes zero or more <see cref="Result"/>s and flattens them into a single <see cref="Result"/>.
     /// </summary>
-    /// <param name="results">One or more <see cref="Result"/>s to flatten</param>
+    /// <param name="results">Zero or more <see cref="Result"/>s to flatten</param>
     /// <returns>
-    /// If all the <see cref="Result"/>s were successful the return value is a successful <see cref="Result"/>.
-    /// If one or more failed, the return value is a failed <see cref="Result"/> and the ErrorMessage 
-    /// property will contain the errors from each failed <see cref="Result"/> separated by a newline character.
+    /// If all the <see cref="Result"/>s were successful (or the array is empty) the return value
+    /// is a successful <see cref="Result"/>. If one or more failed, the return value is a failed
+    /// <see cref="Result"/> and the ErrorMessage property will contain the errors from each failed
+    /// <see cref="Result"/> separated by a newline character.
     /// </returns>
-    /// <exception cref="ArgumentNullException">results is null</exception>
-    public static Result Flatten(params Result[] results)
+    /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="results"/> contains a null element.
+    /// </exception>
+    public static Result Flatten([NotNull] params Result[]? results)
     {
         if (results == null)
         {
             throw new ArgumentNullException(nameof(results));
         }
 
-        // Single-pass scan: find the first failure (if any) and remember its index
-        // so we can short-circuit the common cases (all-success, single-failure)
-        // without allocating a StringBuilder or running LINQ enumerators.
+        // Single-pass scan: walk the array once, validating element non-nullness
+        // inline and remembering the index of the first failure (if any). Because
+        // we visit every element across the head loop and the tail loop below,
+        // no element escapes null validation even though we short-circuit the
+        // head loop on the first failure.
         var firstFailureIndex = -1;
         for (var i = 0; i < results.Length; i++)
         {
+            if (results[i] == null)
+            {
+                throw new ArgumentException($"Element at index {i} is null. The results array must not contain null elements.", nameof(results));
+            }
+
             if (results[i].Failed)
             {
                 firstFailureIndex = i;
@@ -142,12 +154,18 @@ public class Result
             return Success();
         }
 
-        // Scan forward from the first failure to detect whether there are more.
-        // If only one failure exists, return its message verbatim with no joining.
+        // Scan forward from the first failure to collect any additional failure
+        // messages. Every remaining index is visited, so null validation continues
+        // to cover the tail of the array.
         var firstMessage = results[firstFailureIndex].ErrorMessage!;
         StringBuilder? builder = null;
         for (var i = firstFailureIndex + 1; i < results.Length; i++)
         {
+            if (results[i] == null)
+            {
+                throw new ArgumentException($"Element at index {i} is null. The results array must not contain null elements.", nameof(results));
+            }
+
             if (!results[i].Failed)
             {
                 continue;
@@ -167,15 +185,20 @@ public class Result
 
 
     /// <summary>
-    /// Returns true if any of the specified <see cref="Result"/>s indicate a failure. 
+    /// Returns true if any of the specified <see cref="Result"/>s indicate a failure.
     /// Otherwise, false.
     /// </summary>
     /// <param name="results">The array of <see cref="Result"/> to review.</param>
     /// <returns>
     /// <see langword="true"/> if any of the specified <see cref="Result"/>s failed, otherwise <see langword="false"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AnyFailed(params Result[]? results)
+    /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// A null element is encountered before the first failure. Note that elements after the first
+    /// failure are not inspected, so a trailing null may go undetected when at least one earlier
+    /// element has already failed.
+    /// </exception>
+    public static bool AnyFailed([NotNull] params Result[]? results)
     {
         if (results == null)
         {
@@ -184,6 +207,11 @@ public class Result
 
         for (var i = 0; i < results.Length; i++)
         {
+            if (results[i] == null)
+            {
+                throw new ArgumentException($"Element at index {i} is null. The results array must not contain null elements.", nameof(results));
+            }
+
             if (results[i].Failed)
             {
                 return true;
@@ -196,14 +224,19 @@ public class Result
 
 
     /// <summary>
-    /// Returns true if all the specified <see cref="Result"/>s indicate success. 
+    /// Returns true if all the specified <see cref="Result"/>s indicate success.
     /// </summary>
     /// <param name="results">The array of <see cref="Result"/> to review.</param>
     /// <returns>
     /// <see langword="true"/> if all the specified <see cref="Result"/>s succeeded, otherwise <see langword="false"/>.
     /// </returns>
-    /// <exception cref="ArgumentNullException">results is null</exception>
-    public static bool AllSucceeded(params Result[]? results)
+    /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// A null element is encountered before the first failure. Note that elements after the first
+    /// failure are not inspected, so a trailing null may go undetected when at least one earlier
+    /// element has already failed.
+    /// </exception>
+    public static bool AllSucceeded([NotNull] params Result[]? results)
     {
         if (results == null)
         {
@@ -212,6 +245,11 @@ public class Result
 
         for (var i = 0; i < results.Length; i++)
         {
+            if (results[i] == null)
+            {
+                throw new ArgumentException($"Element at index {i} is null. The results array must not contain null elements.", nameof(results));
+            }
+
             if (results[i].Failed)
             {
                 return false;

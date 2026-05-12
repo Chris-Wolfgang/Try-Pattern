@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ public static class Try
     /// A <see cref="Result"/> that indicates if the action was successful.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
-    public static Result Run(Action action)
+    public static Result Run([NotNull] Action? action)
     {
         if (action == null)
         {
@@ -50,7 +51,7 @@ public static class Try
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
 #if NET5_0_OR_GREATER
-    public static Result<T?> Run<T>(Func<T> function)
+    public static Result<T?> Run<T>([NotNull] Func<T>? function)
     {
         if (function == null)
         {
@@ -67,7 +68,7 @@ public static class Try
         }
     }
 #else
-    public static Result<T> Run<T>(Func<T>? function)
+    public static Result<T> Run<T>([NotNull] Func<T>? function)
     {
         if (function == null)
         {
@@ -109,7 +110,7 @@ public static class Try
     /// <paramref name="action"/> started, or because <paramref name="action"/> itself observed
     /// the token and threw).
     /// </exception>
-    public static async Task<Result> RunAsync(Action action, CancellationToken token = default)
+    public static async Task<Result> RunAsync([NotNull] Action? action, CancellationToken token = default)
     {
         if (action == null)
         {
@@ -158,7 +159,7 @@ public static class Try
     /// <see cref="OperationCanceledException"/> escape.
     /// </exception>
 #if NET5_0_OR_GREATER
-    public static async Task<Result<T?>> RunAsync<T>(Func<Task<T?>> function, CancellationToken token = default)
+    public static async Task<Result<T?>> RunAsync<T>([NotNull] Func<Task<T?>>? function, CancellationToken token = default)
     {
         if (function == null)
         {
@@ -186,7 +187,7 @@ public static class Try
         }
     }
 #else
-    public static async Task<Result<T>> RunAsync<T>(Func<Task<T>> function, CancellationToken token = default)
+    public static async Task<Result<T>> RunAsync<T>([NotNull] Func<Task<T>>? function, CancellationToken token = default)
     {
         if (function == null)
         {

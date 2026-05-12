@@ -216,6 +216,65 @@ public class ResultTests
 
 
     [Fact]
+    public void Flatten_when_array_contains_null_element_throws_ArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Result.Flatten(Result.Success(), null!, Result.Failure("x")));
+        Assert.Equal("results", ex.ParamName);
+        Assert.Contains("index 1", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    [Fact]
+    public void AllSucceeded_when_array_contains_null_element_throws_ArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Result.AllSucceeded(Result.Success(), null!));
+        Assert.Equal("results", ex.ParamName);
+        Assert.Contains("index 1", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    [Fact]
+    public void AnyFailed_when_array_contains_null_element_throws_ArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Result.AnyFailed(null!, Result.Success()));
+        Assert.Equal("results", ex.ParamName);
+        Assert.Contains("index 0", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    [Fact]
+    public void AnyFailed_does_not_inspect_elements_after_first_failure()
+    {
+        // Documents the short-circuit behavior: AnyFailed walks the array
+        // until it can decide the answer. Elements after the first failure
+        // (including nulls) are intentionally not inspected.
+        var result = Result.AnyFailed(Result.Failure("decisive"), null!);
+
+        Assert.True(result);
+    }
+
+
+
+    [Fact]
+    public void AllSucceeded_does_not_inspect_elements_after_first_failure()
+    {
+        // Documents the short-circuit behavior: AllSucceeded walks the array
+        // until it can decide the answer. Elements after the first failure
+        // (including nulls) are intentionally not inspected.
+        var result = Result.AllSucceeded(Result.Failure("decisive"), null!);
+
+        Assert.False(result);
+    }
+
+
+
+    [Fact]
     public void Flatten_when_passed_nothing_returns_new_successful_Result()
     {
         var result = Result.Flatten();
