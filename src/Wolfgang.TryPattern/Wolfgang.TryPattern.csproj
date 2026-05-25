@@ -6,7 +6,6 @@
 	  <Version>0.3.2</Version>
 	  <Title>$(AssemblyName)</Title>
 	  <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
-	  <Copyright>Copyright 2026 Chris Wolfgang </Copyright>
 	  <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <AssemblyVersion>1.0.0</AssemblyVersion>
