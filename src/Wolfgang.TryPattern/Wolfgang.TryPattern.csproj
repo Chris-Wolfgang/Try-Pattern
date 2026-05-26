@@ -10,6 +10,7 @@
 	  <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
 	  <Copyright>Copyright 2026 Chris Wolfgang </Copyright>
 	  <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/Chris-Wolfgang/Try-Pattern.git</RepositoryUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
