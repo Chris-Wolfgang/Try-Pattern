@@ -7,8 +7,8 @@
 	  <Title>$(AssemblyName)</Title>
 	  <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
 	  <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/Chris-Wolfgang/Try-Pattern.git</RepositoryUrl>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <AssemblyVersion>1.0.0</AssemblyVersion>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
