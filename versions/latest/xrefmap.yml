@@ -107,13 +107,13 @@ references:
   fullName: Wolfgang.TryPattern.Result.Failure
   nameWithType: Result.Failure
 - uid: Wolfgang.TryPattern.Result.Flatten(Wolfgang.TryPattern.Result[])
-  name: Flatten(params Result[])
+  name: Flatten(params Result[]?)
   href: api/Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_Flatten_Wolfgang_TryPattern_Result___
   commentId: M:Wolfgang.TryPattern.Result.Flatten(Wolfgang.TryPattern.Result[])
   name.vb: Flatten(ParamArray Result())
-  fullName: Wolfgang.TryPattern.Result.Flatten(params Wolfgang.TryPattern.Result[])
+  fullName: Wolfgang.TryPattern.Result.Flatten(params Wolfgang.TryPattern.Result[]?)
   fullName.vb: Wolfgang.TryPattern.Result.Flatten(ParamArray Wolfgang.TryPattern.Result())
-  nameWithType: Result.Flatten(params Result[])
+  nameWithType: Result.Flatten(params Result[]?)
   nameWithType.vb: Result.Flatten(ParamArray Result())
 - uid: Wolfgang.TryPattern.Result.Flatten*
   name: Flatten
@@ -217,11 +217,14 @@ references:
   fullName: Wolfgang.TryPattern.Try
   nameWithType: Try
 - uid: Wolfgang.TryPattern.Try.Run(System.Action)
-  name: Run(Action)
+  name: Run(Action?)
   href: api/Wolfgang.TryPattern.Try.html#Wolfgang_TryPattern_Try_Run_System_Action_
   commentId: M:Wolfgang.TryPattern.Try.Run(System.Action)
-  fullName: Wolfgang.TryPattern.Try.Run(System.Action)
-  nameWithType: Try.Run(Action)
+  name.vb: Run(Action)
+  fullName: Wolfgang.TryPattern.Try.Run(System.Action?)
+  fullName.vb: Wolfgang.TryPattern.Try.Run(System.Action)
+  nameWithType: Try.Run(Action?)
+  nameWithType.vb: Try.Run(Action)
 - uid: Wolfgang.TryPattern.Try.Run*
   name: Run
   href: api/Wolfgang.TryPattern.Try.html#Wolfgang_TryPattern_Try_Run_
@@ -230,11 +233,14 @@ references:
   fullName: Wolfgang.TryPattern.Try.Run
   nameWithType: Try.Run
 - uid: Wolfgang.TryPattern.Try.RunAsync(System.Action,System.Threading.CancellationToken)
-  name: RunAsync(Action, CancellationToken)
+  name: RunAsync(Action?, CancellationToken)
   href: api/Wolfgang.TryPattern.Try.html#Wolfgang_TryPattern_Try_RunAsync_System_Action_System_Threading_CancellationToken_
   commentId: M:Wolfgang.TryPattern.Try.RunAsync(System.Action,System.Threading.CancellationToken)
-  fullName: Wolfgang.TryPattern.Try.RunAsync(System.Action, System.Threading.CancellationToken)
-  nameWithType: Try.RunAsync(Action, CancellationToken)
+  name.vb: RunAsync(Action, CancellationToken)
+  fullName: Wolfgang.TryPattern.Try.RunAsync(System.Action?, System.Threading.CancellationToken)
+  fullName.vb: Wolfgang.TryPattern.Try.RunAsync(System.Action, System.Threading.CancellationToken)
+  nameWithType: Try.RunAsync(Action?, CancellationToken)
+  nameWithType.vb: Try.RunAsync(Action, CancellationToken)
 - uid: Wolfgang.TryPattern.Try.RunAsync*
   name: RunAsync
   href: api/Wolfgang.TryPattern.Try.html#Wolfgang_TryPattern_Try_RunAsync_
@@ -243,20 +249,20 @@ references:
   fullName: Wolfgang.TryPattern.Try.RunAsync
   nameWithType: Try.RunAsync
 - uid: Wolfgang.TryPattern.Try.RunAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)
-  name: RunAsync<T>(Func<Task<T?>>, CancellationToken)
+  name: RunAsync<T>(Func<Task<T?>>?, CancellationToken)
   href: api/Wolfgang.TryPattern.Try.html#Wolfgang_TryPattern_Try_RunAsync__1_System_Func_System_Threading_Tasks_Task___0___System_Threading_CancellationToken_
   commentId: M:Wolfgang.TryPattern.Try.RunAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)
   name.vb: RunAsync(Of T)(Func(Of Task(Of T)), CancellationToken)
-  fullName: Wolfgang.TryPattern.Try.RunAsync<T>(System.Func<System.Threading.Tasks.Task<T?>>, System.Threading.CancellationToken)
+  fullName: Wolfgang.TryPattern.Try.RunAsync<T>(System.Func<System.Threading.Tasks.Task<T?>>?, System.Threading.CancellationToken)
   fullName.vb: Wolfgang.TryPattern.Try.RunAsync(Of T)(System.Func(Of System.Threading.Tasks.Task(Of T)), System.Threading.CancellationToken)
-  nameWithType: Try.RunAsync<T>(Func<Task<T?>>, CancellationToken)
+  nameWithType: Try.RunAsync<T>(Func<Task<T?>>?, CancellationToken)
   nameWithType.vb: Try.RunAsync(Of T)(Func(Of Task(Of T)), CancellationToken)
 - uid: Wolfgang.TryPattern.Try.Run``1(System.Func{``0})
-  name: Run<T>(Func<T>)
+  name: Run<T>(Func<T>?)
   href: api/Wolfgang.TryPattern.Try.html#Wolfgang_TryPattern_Try_Run__1_System_Func___0__
   commentId: M:Wolfgang.TryPattern.Try.Run``1(System.Func{``0})
   name.vb: Run(Of T)(Func(Of T))
-  fullName: Wolfgang.TryPattern.Try.Run<T>(System.Func<T>)
+  fullName: Wolfgang.TryPattern.Try.Run<T>(System.Func<T>?)
   fullName.vb: Wolfgang.TryPattern.Try.Run(Of T)(System.Func(Of T))
-  nameWithType: Try.Run<T>(Func<T>)
+  nameWithType: Try.Run<T>(Func<T>?)
   nameWithType.vb: Try.Run(Of T)(Func(Of T))
