@@ -12,7 +12,7 @@ A lightweight .NET library that provides a Try/Result pattern for executing acti
 
 ---
 
-## Installation
+## 📦 Installation
 
 ### Via .NET CLI
 
@@ -28,7 +28,7 @@ Install-Package Wolfgang.TryPattern
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Execute an action safely
 
@@ -96,7 +96,7 @@ var result = await Try.RunAsync(() =>
 
 ---
 
-## Features
+## ✨ Features
 
 | Feature | Description |
 |---------|-------------|
@@ -325,7 +325,7 @@ public Result<Order> PlaceOrder(OrderRequest request)
 
 ---
 
-## Target Frameworks
+## 🎯 Target Frameworks
 
 | Framework | Version |
 |-----------|---------|
@@ -358,6 +358,6 @@ dotnet format --verify-no-changes
 
 ---
 
-## License
+## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
