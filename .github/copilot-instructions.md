@@ -14,7 +14,7 @@ This is a C# library that implements the Try Pattern - a design pattern where co
 ### 2. Exception Handling Guidelines
 - **DO NOT** throw exceptions for expected failures (file not found, network timeout, etc.)
 - **DO** throw exceptions for programming errors (null arguments, invalid state)
-- Wrap operations that may throw with `Try. Run()` or `Try.RunAsync()`
+- Wrap operations that may throw with `Try.Run()` or `Try.RunAsync()`
 - Use `Result.Failure()` for expected error conditions
 - Use `Result.Success()` or `Result<T>.Success(value)` for successful operations
 
@@ -45,7 +45,7 @@ This is a C# library that implements the Try Pattern - a design pattern where co
 public async Task<Result<Order>> GetOrderAsync(string orderId)
 {
     // Validate arguments - throw for programming errors
-    if (string. IsNullOrWhiteSpace(orderId))
+    if (string.IsNullOrWhiteSpace(orderId))
     {
         throw new ArgumentNullException(nameof(orderId));
     }
@@ -72,16 +72,16 @@ return Result<string>.Success("value");
 
 // Creating failure results
 return Result.Failure("Error message describing what failed");
-return Result<string>. Failure("Error message");
+return Result<string>.Failure("Error message");
 
 // Checking results
-if (result. Succeeded)
+if (result.Succeeded)
 {
     // Use result.Value for Result<T>
 }
 else
 {
-    // Use result. ErrorMessage
+    // Use result.ErrorMessage
 }
 ```
 
@@ -128,9 +128,10 @@ public async Task TryRunAsync_FileNotFound_ReturnsFailureResult()
 /// </summary>
 /// <typeparam name="T">The type of value returned by the operation.</typeparam>
 /// <param name="func">The asynchronous function to execute.</param>
+/// <param name="token">Cancellation token observed by the operation.</param>
 /// <returns>A Result<T> containing the value if successful, or an error message if failed.</returns>
 /// <exception cref="ArgumentNullException">Thrown when func is null.</exception>
-public static async Task<Result<T>> RunAsync<T>(Func<Task<T>> func)
+public static async Task<Result<T>> RunAsync<T>(Func<Task<T>> func, CancellationToken token = default)
 ```
 
 ## Benchmarking
@@ -178,7 +179,7 @@ public async Task<Result<TResponse>> GetAsync<TResponse>(string url)
         return Result<TResponse>.Success(data);
     }
     
-    return Result<TResponse>. Failure($"Request failed:  {response.StatusCode}");
+    return Result<TResponse>.Failure($"Request failed:  {response.StatusCode}");
 }
 ```
 
@@ -190,8 +191,8 @@ public Result Validate(string input)
         return Result.Failure("Input cannot be empty");
         
     if (input.Length < 5)
-        return Result. Failure("Input must be at least 5 characters");
+        return Result.Failure("Input must be at least 5 characters");
         
-    return Result. Success();
+    return Result.Success();
 }
 ```
