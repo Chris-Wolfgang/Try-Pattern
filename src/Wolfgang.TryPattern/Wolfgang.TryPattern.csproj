@@ -43,4 +43,23 @@
 
   <!-- AdditionalFiles (BannedSymbols.txt) and analyzer PackageReferences are centralized in Directory.Build.props -->
 
+  <!-- PublicApiAnalyzers: the public surface diverges by TFM. Try.Run<T> /
+       Try.RunAsync<T> (and the Result<T> factory returns) yield Result<T?> on
+       net5+ but Result<T> on net462 / netstandard2.0 (see the
+       #if NET5_0_OR_GREATER branches in Try.cs / Result.cs). The shared
+       PublicAPI.Shipped.txt (wired in Directory.Build.props) holds the
+       TFM-invariant surface; these per-TFM files carry the divergent entries.
+       Both files are named PublicAPI.Shipped.txt (analyzer matches by file
+       name) and live in framework-specific subfolders. -->
+  <ItemGroup>
+    <AdditionalFiles Include="PublicApi\modern\PublicAPI.Shipped.txt"
+                     Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))" />
+    <AdditionalFiles Include="PublicApi\modern\PublicAPI.Unshipped.txt"
+                     Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))" />
+    <AdditionalFiles Include="PublicApi\legacy\PublicAPI.Shipped.txt"
+                     Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))" />
+    <AdditionalFiles Include="PublicApi\legacy\PublicAPI.Unshipped.txt"
+                     Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))" />
+  </ItemGroup>
+
 </Project>

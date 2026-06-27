@@ -7,14 +7,10 @@ Wolfgang.TryPattern.Result.Succeeded.get -> bool
 Wolfgang.TryPattern.Result<T>
 Wolfgang.TryPattern.Result<T>.Value.get -> T
 Wolfgang.TryPattern.Try
-static Wolfgang.TryPattern.Result.AllSucceeded(params Wolfgang.TryPattern.Result[]? results) -> bool
-static Wolfgang.TryPattern.Result.AnyFailed(params Wolfgang.TryPattern.Result[]? results) -> bool
-static Wolfgang.TryPattern.Result.Failure(string errorMessage) -> Wolfgang.TryPattern.Result
-static Wolfgang.TryPattern.Result.Flatten(params Wolfgang.TryPattern.Result[]? results) -> Wolfgang.TryPattern.Result
-static Wolfgang.TryPattern.Result.Success() -> Wolfgang.TryPattern.Result
-static Wolfgang.TryPattern.Result<T>.Failure(string errorMessage) -> Wolfgang.TryPattern.Result<T>
-static Wolfgang.TryPattern.Result<T>.Success(T value) -> Wolfgang.TryPattern.Result<T>
-static Wolfgang.TryPattern.Try.Run(System.Action? action) -> Wolfgang.TryPattern.Result
-static Wolfgang.TryPattern.Try.Run<T>(System.Func<T>? function) -> Wolfgang.TryPattern.Result<T>
-static Wolfgang.TryPattern.Try.RunAsync(System.Action? action, System.Threading.CancellationToken token = default) -> System.Threading.Tasks.Task<Wolfgang.TryPattern.Result>
-static Wolfgang.TryPattern.Try.RunAsync<T>(System.Func<System.Threading.Tasks.Task<T>>? function, System.Threading.CancellationToken token = default) -> System.Threading.Tasks.Task<Wolfgang.TryPattern.Result<T>>
+static Wolfgang.TryPattern.Result.AllSucceeded(params Wolfgang.TryPattern.Result![]? results) -> bool
+static Wolfgang.TryPattern.Result.AnyFailed(params Wolfgang.TryPattern.Result![]? results) -> bool
+static Wolfgang.TryPattern.Result.Failure(string! errorMessage) -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Result.Flatten(params Wolfgang.TryPattern.Result![]? results) -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Result.Success() -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Try.Run(System.Action? action) -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Try.RunAsync(System.Action? action, System.Threading.CancellationToken token = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Wolfgang.TryPattern.Result!>!

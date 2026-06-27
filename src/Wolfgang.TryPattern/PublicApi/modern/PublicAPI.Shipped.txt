@@ -1,0 +1,5 @@
+#nullable enable
+static Wolfgang.TryPattern.Result<T>.Failure(string! errorMessage) -> Wolfgang.TryPattern.Result<T?>!
+static Wolfgang.TryPattern.Result<T>.Success(T? value) -> Wolfgang.TryPattern.Result<T?>!
+static Wolfgang.TryPattern.Try.Run<T>(System.Func<T>? function) -> Wolfgang.TryPattern.Result<T?>!
+static Wolfgang.TryPattern.Try.RunAsync<T>(System.Func<System.Threading.Tasks.Task<T?>!>? function, System.Threading.CancellationToken token = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Wolfgang.TryPattern.Result<T?>!>!
