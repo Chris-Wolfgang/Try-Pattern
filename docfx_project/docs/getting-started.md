@@ -22,7 +22,7 @@ dotnet add package Wolfgang.TryPattern
 ### PackageReference
 
 ```xml
-<PackageReference Include="Wolfgang.TryPattern" Version="0.3.0" />
+<PackageReference Include="Wolfgang.TryPattern" Version="0.3.1" />
 ```
 
 ## Basic Usage
