@@ -1,7 +1,12 @@
 # Wolfgang.TryPattern
 
-[![NuGet](https://img.shields.io/nuget/v/Wolfgang.TryPattern.svg)](https://www.nuget.org/packages/Wolfgang.TryPattern)
+[![NuGet](https://img.shields.io/nuget/v/Wolfgang.TryPattern.svg?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Wolfgang.TryPattern)
+[![NuGet downloads](https://img.shields.io/nuget/dt/Wolfgang.TryPattern.svg?logo=nuget&label=downloads)](https://www.nuget.org/packages/Wolfgang.TryPattern)
+[![PR build](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/Try-Pattern/pr.yaml?branch=main&label=PR%20build&logo=github)](https://github.com/Chris-Wolfgang/Try-Pattern/actions/workflows/pr.yaml)
+[![Release](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/Try-Pattern/release.yaml?label=release&logo=github)](https://github.com/Chris-Wolfgang/Try-Pattern/actions/workflows/release.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-Multi--Targeted-purple.svg)](https://dotnet.microsoft.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/Chris-Wolfgang/Try-Pattern)
 
 A lightweight .NET library that provides a Try/Result pattern for executing actions and functions with automatic exception handling. Instead of try/catch blocks scattered throughout your code, wrap operations in `Try.Run()` and get back a `Result` indicating success or failure.
 
@@ -123,7 +128,7 @@ var result = await Try.RunAsync(() =>
 
 ---
 
-## Combining Results
+## 🔗 Combining Results
 
 ```csharp
 var r1 = Try.Run(() => ValidateName(name));
@@ -148,7 +153,7 @@ if (Result.AnyFailed(r1, r2, r3))
 
 ---
 
-## Real-World Examples
+## 📚 Real-World Examples
 
 ### Database access with Try.Run
 
@@ -335,7 +340,7 @@ public Result<Order> PlaceOrder(OrderRequest request)
 
 ---
 
-## Building from Source
+## 🛠️ Building from Source
 
 ```bash
 # Clone the repository
@@ -355,6 +360,13 @@ dotnet format
 # Verify formatting
 dotnet format --verify-no-changes
 ```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the
+development workflow, coding conventions, and PR checklist.
 
 ---
 
