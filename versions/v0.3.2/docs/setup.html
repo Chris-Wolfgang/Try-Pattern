@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <title>Setup Guide | Wolfgang.TryPattern Documentation </title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="title" content="Setup Guide | Wolfgang.TryPattern Documentation ">
+      
+      
+      <link rel="icon" href="../favicon.svg">
+      <link rel="stylesheet" href="../public/docfx.min.css">
+      <link rel="stylesheet" href="../public/main.css">
+      <meta name="docfx:navrel" content="../toc.html">
+      <meta name="docfx:tocrel" content="../toc.html">
+      
+      <meta name="docfx:rel" content="../">
+      
+      
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/docfx_project/docs/setup.md/#L1">
+      <meta name="loc:inThisArticle" content="In this article">
+      <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
+      <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
+      <meta name="loc:tocFilter" content="Filter by title">
+      <meta name="loc:nextArticle" content="Next">
+      <meta name="loc:prevArticle" content="Previous">
+      <meta name="loc:themeLight" content="Light">
+      <meta name="loc:themeDark" content="Dark">
+      <meta name="loc:themeAuto" content="Auto">
+      <meta name="loc:changeTheme" content="Change theme">
+      <meta name="loc:copy" content="Copy">
+      <meta name="loc:downloadPdf" content="Download PDF">
+
+      <script type="module" src="./../public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+  </head>
+
+  <body class="tex2jax_ignore" data-layout="" data-yaml-mime="">
+    <header class="bg-body border-bottom">
+      <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
+        <div class="container-xxl flex-nowrap">
+          <a class="navbar-brand" href="../index.html">
+            <img id="logo" class="svg" src="../logo.svg" alt="Wolfgang.TryPattern">
+            Wolfgang.TryPattern
+          </a>
+          <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navpanel">
+            <div id="navbar">
+              <form class="search" role="search" id="search">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="search-query" type="search" disabled placeholder="Search" autocomplete="off" aria-label="Search">
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container-xxl">
+
+      <div class="content">
+        <div class="actionbar">
+
+          <nav id="breadcrumb"></nav>
+        </div>
+
+        <article data-uid="">
+<h1 id="setup-guide">Setup Guide</h1>
+
+<p>This guide provides instructions for setting up the Try Pattern library for development and usage.</p>
+<h2 id="for-library-users">For Library Users</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>.NET SDK (the library supports .NET Framework 4.6.2, .NET Standard 2.0, .NET 8.0, and .NET 10.0)</li>
+<li>Visual Studio 2022, VS Code, or Rider (recommended)</li>
+</ul>
+<h3 id="quick-setup">Quick Setup</h3>
+<ol>
+<li><p><strong>Install via NuGet</strong></p>
+<pre><code class="lang-bash">dotnet add package Wolfgang.TryPattern
+</code></pre>
+</li>
+<li><p><strong>Add using statement</strong></p>
+<pre><code class="lang-csharp">using Wolfgang.TryPattern;
+</code></pre>
+</li>
+<li><p><strong>Start using the library</strong></p>
+<pre><code class="lang-csharp">var result = await Try.RunAsync(() =&gt; SomeOperationAsync());
+</code></pre>
+</li>
+</ol>
+<h2 id="for-contributors">For Contributors</h2>
+<h3 id="prerequisites-1">Prerequisites</h3>
+<ul>
+<li>.NET 8.0 SDK or later (for building the library which targets .NET 4.6.2 through .NET 10.0)</li>
+<li>Git</li>
+<li>Visual Studio 2022, VS Code, or Rider</li>
+</ul>
+<h3 id="clone-the-repository">Clone the Repository</h3>
+<pre><code class="lang-bash">git clone https://github.com/Chris-Wolfgang/Try-Pattern.git
+cd Try-Pattern
+</code></pre>
+<h3 id="build-the-solution">Build the Solution</h3>
+<pre><code class="lang-bash">dotnet restore
+dotnet build
+</code></pre>
+<h3 id="run-tests">Run Tests</h3>
+<pre><code class="lang-bash">dotnet test
+</code></pre>
+<h3 id="project-structure">Project Structure</h3>
+<pre><code>Try-Pattern/
+├── src/
+│   └── Wolfgang.TryPattern/        # Main library project
+├── tests/
+│   └── Wolfgang.TryPattern.Tests/  # Unit tests
+├── examples/
+│   ├── CSharp.DotNet8.Example/     # C# .NET 8 examples
+│   ├── CSharp.DotNet462.Example/   # C# .NET Framework examples
+│   ├── FSharp.DotNet8.Example/     # F# .NET 8 examples
+│   ├── FSharp.DotNet462.Example/   # F# .NET Framework examples
+│   ├── VB.DotNet8.Example/         # VB.NET .NET 8 examples
+│   └── VB.DotNet462.Example/       # VB.NET .NET Framework examples
+├── benchmarks/                      # Performance benchmarks
+└── docs/                            # Documentation files
+</code></pre>
+<h2 id="development-workflow">Development Workflow</h2>
+<h3 id="1-create-a-feature-branch">1. Create a Feature Branch</h3>
+<pre><code class="lang-bash">git checkout -b feature/your-feature-name
+</code></pre>
+<h3 id="2-make-changes">2. Make Changes</h3>
+<p>Edit the code, add tests, and ensure all tests pass.</p>
+<h3 id="3-run-quality-checks">3. Run Quality Checks</h3>
+<pre><code class="lang-bash"># Run tests
+dotnet test
+
+# Build the solution
+dotnet build
+
+# Run benchmarks (optional)
+cd benchmarks
+dotnet run -c Release
+</code></pre>
+<h3 id="4-commit-and-push">4. Commit and Push</h3>
+<pre><code class="lang-bash">git add .
+git commit -m &quot;Add: your feature description&quot;
+git push origin feature/your-feature-name
+</code></pre>
+<h3 id="5-create-pull-request">5. Create Pull Request</h3>
+<p>Open a pull request on GitHub and wait for review.</p>
+<h2 id="building-documentation">Building Documentation</h2>
+<p>The project uses DocFX for documentation generation.</p>
+<pre><code class="lang-bash">cd docfx_project
+docfx build
+docfx serve
+</code></pre>
+<p>Visit <code>http://localhost:8080</code> to view the documentation.</p>
+<h2 id="running-examples">Running Examples</h2>
+<p>Navigate to any example project and run:</p>
+<pre><code class="lang-bash">cd examples/CSharp.DotNet8.Example
+dotnet run
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="build-errors">Build Errors</h3>
+<p><strong>Issue</strong>: Missing .NET SDK version</p>
+<pre><code>Solution: Install the required .NET SDK from https://dotnet.microsoft.com/download
+</code></pre>
+<p><strong>Issue</strong>: NuGet package restore fails</p>
+<pre><code>Solution: Clear NuGet cache and restore
+dotnet nuget locals all --clear
+dotnet restore
+</code></pre>
+<h3 id="test-failures">Test Failures</h3>
+<p><strong>Issue</strong>: Tests fail on first run</p>
+<pre><code>Solution: Ensure all dependencies are restored
+dotnet restore
+dotnet build
+dotnet test
+</code></pre>
+<h2 id="ide-setup">IDE Setup</h2>
+<h3 id="visual-studio-2022">Visual Studio 2022</h3>
+<ol>
+<li>Open <code>TryPattern.sln</code></li>
+<li>Restore NuGet packages (automatic)</li>
+<li>Build solution (Ctrl+Shift+B)</li>
+<li>Run tests (Ctrl+R, A)</li>
+</ol>
+<h3 id="vs-code">VS Code</h3>
+<ol>
+<li>Open folder in VS Code</li>
+<li>Install C# extension</li>
+<li>Use integrated terminal for commands:
+<pre><code class="lang-bash">dotnet build
+dotnet test
+</code></pre>
+</li>
+</ol>
+<h3 id="rider">Rider</h3>
+<ol>
+<li>Open <code>TryPattern.sln</code></li>
+<li>Restore NuGet packages (automatic)</li>
+<li>Build solution</li>
+<li>Run tests from Test Explorer</li>
+</ol>
+<h2 id="contributing">Contributing</h2>
+<p>Please read <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for details on our code of conduct and the process for submitting pull requests.</p>
+<h2 id="license">License</h2>
+<p>This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
+<h2 id="support">Support</h2>
+<ul>
+<li><strong>Issues</strong>: Report bugs or request features on <a href="https://github.com/Chris-Wolfgang/Try-Pattern/issues">GitHub Issues</a></li>
+<li><strong>Discussions</strong>: Ask questions in <a href="https://github.com/Chris-Wolfgang/Try-Pattern/discussions">GitHub Discussions</a></li>
+<li><strong>Documentation</strong>: Check the <a href="docs/">docs</a> folder for detailed documentation</li>
+</ul>
+
+</article>
+
+        <div class="contribution d-print-none">
+          <a href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/docfx_project/docs/setup.md/#L1" class="edit-link">Edit this page</a>
+        </div>
+
+        <div class="next-article d-print-none border-top" id="nextArticle"></div>
+
+      </div>
+
+      <div class="affix">
+        <nav id="affix"></nav>
+      </div>
+    </main>
+
+    <div class="container-xxl search-results" id="search-results"></div>
+
+    <footer class="border-top text-secondary">
+      <div class="container-xxl">
+        <div class="flex-fill">
+          Made with DocFX
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
