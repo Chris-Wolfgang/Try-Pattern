@@ -4,19 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-
-    <!--
-      Suppress analyzer rules that are noisy or non-applicable in benchmark code.
-      These are firing on the Windows CI runner despite being relaxed in
-      .editorconfig's [benchmarks/**/*.cs] section, so we suppress at the project
-      level for explicit, reliable enforcement.
-    -->
-    <NoWarn>$(NoWarn);
-      MA0004;    <!-- ConfigureAwait - benchmarks intentionally use SynchronizationContext-equivalent default -->
-      VSTHRD200; <!-- Async naming - benchmark methods don't follow 'Async' suffix convention -->
-      S6966      <!-- Sync vs async - benchmarks intentionally compare both -->
-    </NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

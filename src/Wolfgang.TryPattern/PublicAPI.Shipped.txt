@@ -1,0 +1,16 @@
+#nullable enable
+Wolfgang.TryPattern.Result
+Wolfgang.TryPattern.Result.ErrorMessage.get -> string?
+Wolfgang.TryPattern.Result.Failed.get -> bool
+Wolfgang.TryPattern.Result.Result(bool succeeded, string? errorMessage) -> void
+Wolfgang.TryPattern.Result.Succeeded.get -> bool
+Wolfgang.TryPattern.Result<T>
+Wolfgang.TryPattern.Result<T>.Value.get -> T
+Wolfgang.TryPattern.Try
+static Wolfgang.TryPattern.Result.AllSucceeded(params Wolfgang.TryPattern.Result![]? results) -> bool
+static Wolfgang.TryPattern.Result.AnyFailed(params Wolfgang.TryPattern.Result![]? results) -> bool
+static Wolfgang.TryPattern.Result.Failure(string! errorMessage) -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Result.Flatten(params Wolfgang.TryPattern.Result![]? results) -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Result.Success() -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Try.Run(System.Action? action) -> Wolfgang.TryPattern.Result!
+static Wolfgang.TryPattern.Try.RunAsync(System.Action? action, System.Threading.CancellationToken token = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Wolfgang.TryPattern.Result!>!
