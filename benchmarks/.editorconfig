@@ -1,0 +1,56 @@
+# Analyzer rules relaxed for benchmark projects.
+#
+# Mirrors the tests/.editorconfig pattern: each rule is suppressed with an
+# explicit reason, so when a new analyzer fires on benchmark code we can
+# decide whether to fix the benchmark or carve out the rule per-instance
+# rather than blanket-exempting benchmarks from TreatWarningsAsErrors.
+
+[*.cs]
+
+# AsyncFixer01: Remove async/await for single-expression methods — benchmark
+# methods deliberately keep async/await to measure the state-machine path.
+dotnet_diagnostic.AsyncFixer01.severity = none
+
+# ConfigureAwait — benchmarks run in console host, no SynchronizationContext
+# to deadlock against; the call-site noise is not useful.
+dotnet_diagnostic.MA0004.severity = none           # Meziantou: Use ConfigureAwait
+dotnet_diagnostic.S3216.severity = none            # Sonar:     ConfigureAwait
+dotnet_diagnostic.CA2007.severity = none           # .NET:      ConfigureAwait
+
+# RS0030: BannedSymbols — benchmarks intentionally measure sync APIs
+# (Thread.Sleep, etc.) that may be on the banned list.
+dotnet_diagnostic.RS0030.severity = none
+
+# Naming — BenchmarkDotNet method names follow Underscore_Style for chart
+# readability, conflicting with the usual PascalCase rule set.
+dotnet_diagnostic.SA1300.severity = none
+dotnet_diagnostic.IDE1006.severity = none
+dotnet_diagnostic.CA1707.severity = none
+
+# Documentation — benchmark methods are not part of the public surface.
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1601.severity = none
+dotnet_diagnostic.SA1602.severity = none
+
+# Meziantou
+dotnet_diagnostic.MA0002.severity = none           # IEqualityComparer needed
+dotnet_diagnostic.MA0011.severity = none           # IFormatProvider
+dotnet_diagnostic.MA0016.severity = none           # Prefer collection abstraction
+dotnet_diagnostic.MA0021.severity = none           # Use StringComparer.Ordinal
+dotnet_diagnostic.MA0036.severity = none           # Make class static
+dotnet_diagnostic.MA0038.severity = none           # Make method static
+dotnet_diagnostic.MA0040.severity = none           # Forward the CancellationToken
+dotnet_diagnostic.MA0048.severity = none           # File name match type
+dotnet_diagnostic.MA0051.severity = none           # Method is too long
+dotnet_diagnostic.MA0053.severity = none           # Make class sealed
+dotnet_diagnostic.MA0076.severity = none           # Do not use implicit culture-sensitive ToString
+
+# Sonar
+dotnet_diagnostic.S1118.severity = none            # Add a private constructor
+dotnet_diagnostic.S1144.severity = none            # Unused private members
+dotnet_diagnostic.S3776.severity = none            # Cognitive complexity
+dotnet_diagnostic.S6966.severity = none            # Use async overload (benchmarks compare sync vs async)
+
+# VSTHRD200: Async-suffix naming — benchmark methods don't follow that
+# convention (chart-friendly names).
+dotnet_diagnostic.VSTHRD200.severity = none
