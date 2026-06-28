@@ -7,10 +7,14 @@ namespace Wolfgang.TryPattern;
 
 
 /// <summary>
-/// The result of executing an <seealso cref="Action"/>. Contains properties indicating whether the operation
-/// succeeded or failed. If the operation failed the <see cref="Result.ErrorMessage"/> property will contain
-/// a message as to why.
+/// Represents the outcome of an operation. Contains properties indicating whether the operation
+/// succeeded or failed. If the operation failed the <see cref="Result.ErrorMessage"/> property will
+/// contain a message as to why.
 /// </summary>
+/// <remarks>
+/// Commonly produced by <see cref="Try.Run(Action)"/>, but also useful directly as a return type
+/// from validation helpers, repository methods, and other service-layer code.
+/// </remarks>
 public class Result
 {
     /// <summary>
@@ -55,13 +59,14 @@ public class Result
 
 
     /// <summary>
-    /// Creates a failed Result with the specified error Message.
+    /// Creates a failed <see cref="Result"/> with the specified error message.
     /// </summary>
     /// <param name="errorMessage">The error message indicating the reason for failure.</param>
-    /// <exception cref="ArgumentException">errorMessage is null, empty, or whitespace</exception>
+    /// <returns>A failed <see cref="Result"/> whose <see cref="ErrorMessage"/> is set to <paramref name="errorMessage"/>.</returns>
+    /// <exception cref="ArgumentException"><paramref name="errorMessage"/> is null, empty, or whitespace.</exception>
     public static Result Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
-            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
+            ? throw new ArgumentException("errorMessage cannot be null, empty, or whitespace.", nameof(errorMessage))
             : new Result(succeeded: false, errorMessage);
 
 
@@ -73,6 +78,7 @@ public class Result
     /// <summary>
     /// Creates a successful <see cref="Result"/>.
     /// </summary>
+    /// <returns>A successful <see cref="Result"/>.</returns>
     /// <remarks>
     /// Returns a cached singleton instance. <see cref="Result"/> is immutable, so reusing
     /// the same instance is safe and avoids per-call allocations on hot paths. Callers must
@@ -102,7 +108,7 @@ public class Result
 
 
     /// <summary>
-    /// The error message describing why the operation failed. Otherwise, an empty string if the operation succeeded.
+    /// Gets the error message describing why the operation failed, or an empty string if the operation succeeded.
     /// </summary>
     public string? ErrorMessage { get; }
 
@@ -263,11 +269,17 @@ public class Result
 
 
 /// <summary>
-/// The result of executing an <seealso cref="Func{T}"/>. Contains properties indicating whether the operation
-/// <see cref="Result.Succeeded"/> or <see cref="Result.Failed"/>. If the operation failed the
-/// <see cref="Result.ErrorMessage"/> property will contain a message as to why. If the operation succeeded the
-/// <see cref="Result{T}.Value"/> property will contain the return value from the function.
+/// Represents the outcome of an operation that produces a value of type <typeparamref name="T"/>.
+/// Contains properties indicating whether the operation <see cref="Result.Succeeded"/> or
+/// <see cref="Result.Failed"/>. If the operation failed the <see cref="Result.ErrorMessage"/> property
+/// will contain a message as to why. If the operation succeeded the <see cref="Result{T}.Value"/>
+/// property will contain the returned value.
 /// </summary>
+/// <typeparam name="T">The type of value returned on success.</typeparam>
+/// <remarks>
+/// Commonly produced by <see cref="Try.Run{T}(Func{T})"/>, but also useful directly as a return type
+/// from repository, service, or validation code that wants to surface a value-or-error outcome.
+/// </remarks>
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Design",
     "CA1000:Do not declare static members on generic types",
@@ -306,27 +318,30 @@ public class Result<T> : Result
 
 
     /// <summary>
-    /// Creates a failed Result with the specified error message.
+    /// Creates a failed <see cref="Result{T}"/> with the specified error message.
     /// </summary>
     /// <param name="errorMessage">The error message indicating the reason for failure.</param>
-    /// <exception cref="ArgumentException">errorMessage is null, empty, or whitespace</exception>
+    /// <returns>A failed <see cref="Result{T}"/> whose <see cref="Result.ErrorMessage"/> is set to <paramref name="errorMessage"/>.</returns>
+    /// <exception cref="ArgumentException"><paramref name="errorMessage"/> is null, empty, or whitespace.</exception>
 #if NET5_0_OR_GREATER
     public static new Result<T?> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
-            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
+            ? throw new ArgumentException("errorMessage cannot be null, empty, or whitespace.", nameof(errorMessage))
             : new Result<T?>(succeeded: false, errorMessage, default!);
 #else
     public static new Result<T> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
-            ? throw new ArgumentException("errorMessage cannot be empty", nameof(errorMessage))
+            ? throw new ArgumentException("errorMessage cannot be null, empty, or whitespace.", nameof(errorMessage))
             : new Result<T>(succeeded: false, errorMessage, default!);
 #endif
 
 
 
     /// <summary>
-    /// Creates a successful <see cref="Result"/> with specified value.
+    /// Creates a successful <see cref="Result{T}"/> with the specified value.
     /// </summary>
+    /// <param name="value">The value produced by the operation.</param>
+    /// <returns>A successful <see cref="Result{T}"/> whose <see cref="Value"/> is <paramref name="value"/>.</returns>
 #if NET5_0_OR_GREATER
     public static Result<T?> Success(T? value) => new(succeeded: true, string.Empty, value);
 #else
@@ -336,9 +351,9 @@ public class Result<T> : Result
 
 
     /// <summary>
-    /// The value produced by the operation if it succeeded.
+    /// Gets the value produced by the operation if it succeeded; throws if the operation failed.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Retrieving this property if the operation failed</exception>
+    /// <exception cref="InvalidOperationException">Thrown when this property is accessed after the operation has failed.</exception>
 #if NET5_0_OR_GREATER
     public T? Value => Failed
         ? throw new InvalidOperationException("Cannot access the Value of a failed Result.")

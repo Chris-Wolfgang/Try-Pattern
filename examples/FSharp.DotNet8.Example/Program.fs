@@ -1,4 +1,4 @@
-module FSharp.DotNet462.Example
+module FSharp.DotNet8.Example
 
 open System
 open System.IO

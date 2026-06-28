@@ -41,13 +41,13 @@ public static class Try
 
 
     /// <summary>
-    /// Executes the specified function, catching any exception that may occur.
+    /// Executes the specified function and returns its result, catching any exception that may occur.
     /// </summary>
     /// <typeparam name="T">The return type of the function.</typeparam>
     /// <param name="function">The function to execute.</param>
     /// <returns>
-    /// A <see cref="Result{T}"/> indicating if the function was successful or not and the result of
-    /// the function if it was.
+    /// A successful <see cref="Result{T}"/> wrapping the function's return value, or a failed
+    /// <see cref="Result{T}"/> whose <see cref="Result.ErrorMessage"/> is the caught exception's message.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
 #if NET5_0_OR_GREATER
@@ -135,10 +135,10 @@ public static class Try
 
 
     /// <summary>
-    /// Executes the specified function, catching any exception that may occur.
+    /// Executes the specified asynchronous function, catching any exception that may occur.
     /// </summary>
     /// <typeparam name="T">The return type of the function.</typeparam>
-    /// <param name="function">The function to execute.</param>
+    /// <param name="function">The asynchronous function to execute.</param>
     /// <param name="token">
     /// A <see cref="CancellationToken"/> that is checked before <paramref name="function"/> is
     /// invoked. If cancellation is already requested, an <see cref="OperationCanceledException"/>

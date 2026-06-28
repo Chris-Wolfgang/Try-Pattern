@@ -6,7 +6,7 @@ namespace Wolfgang.TryPattern.Tests;
 public class RunFuncTests
 {
     [Fact]
-    public void Run_Func_WithNullFunction_ThrowsArgumentNullException()
+    public void Run_Func_when_function_is_null_throws_ArgumentNullException()
     {
         // Arrange
         Func<int>? nullFunction = null;
@@ -18,7 +18,7 @@ public class RunFuncTests
 
 
     [Fact]
-    public void Run_Func_WithSuccessfulFunctionOfInt_ReturnsResult()
+    public void Run_Func_when_int_function_succeeds_returns_successful_Result()
     {
         // Arrange
         const int expectedValue = 42;
@@ -37,7 +37,7 @@ public class RunFuncTests
 
 
     [Fact]
-    public void Run_Func_WithSuccessfulFunctionOfNullableInt_ReturnsResult()
+    public void Run_Func_when_nullable_int_function_succeeds_returns_successful_Result()
     {
         // Arrange
         var expectedValue = 42;
@@ -56,7 +56,7 @@ public class RunFuncTests
 
 
     [Fact]
-    public void Run_Func_WithStringFunction_ReturnsResult()
+    public void Run_Func_when_string_function_succeeds_returns_successful_Result()
     {
         // Arrange
         const string expectedValue = "Hello, World!";
@@ -75,7 +75,7 @@ public class RunFuncTests
 
 
     [Fact]
-    public void Run_Func_WithNullableStringFunction_ReturnsResult()
+    public void Run_Func_when_nullable_string_function_succeeds_returns_successful_Result()
     {
         // Arrange
         const string expectedValue = "Hello, World!";
@@ -94,7 +94,7 @@ public class RunFuncTests
 
 
     [Fact]
-    public void Run_Func_WithObjectFunction_ReturnsResult()
+    public void Run_Func_when_object_function_succeeds_returns_successful_Result()
     {
         // Arrange
         var expectedValue = new object();
@@ -113,7 +113,7 @@ public class RunFuncTests
 
 
     [Fact]
-    public void FunctionNullableInt_WithExceptionThrowingFunction_ReturnsDefault()
+    public void Run_Func_when_nullable_int_function_throws_returns_failed_Result_whose_Value_access_throws()
     {
         // Arrange
         static int? Function() => throw new InvalidOperationException("Test exception");
@@ -149,7 +149,7 @@ public class RunFuncTests
 
 
     [Fact]
-    public void Run_Func_WithMultipleCalls_HandlesEachIndependently()
+    public void Run_Func_when_called_multiple_times_handles_each_independently()
     {
         // Arrange
         var callCount = 0;
