@@ -87,8 +87,8 @@ Committed as `[]` (empty array). The `docfx.yaml` workflow regenerates
 the real `versions.json` at deploy time from the set of actual `v*`
 tags that have versioned docs deployed (D6 derivation) and writes it
 to the gh-pages site root. The empty stub is the fanout-safe default —
-no DateTime-Extensions paths leak into other repos when this folder is
-synced fleet-wide.
+no repo-specific version paths leak into other repos when this folder
+is synced fleet-wide.
 
 **Local picker testing** requires populating `versions.json` manually
 with mock entries (see "Testing locally" below). The picker

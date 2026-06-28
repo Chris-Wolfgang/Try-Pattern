@@ -1,32 +1,33 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>net462;netstandard2.0;net8.0;net10.0</TargetFrameworks>
-	  <LangVersion>14</LangVersion>
-	  <Version>0.3.2</Version>
-	  <!-- Pin AssemblyVersion to a fixed binding-stability baseline so consumers
-	       do not need to recompile / add binding redirects on every minor/patch
-	       bump. Bump only on a deliberate breaking API change. FileVersion +
-	       InformationalVersion (the latter auto-derived from <Version>) carry
-	       the actual release version. -->
-	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
-	  <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace("$(Version)", "[-+].*$", "")).0</FileVersion>
-	  <Title>$(AssemblyName)</Title>
-	  <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
-	  <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/Chris-Wolfgang/Try-Pattern.git</RepositoryUrl>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	  <SignAssembly>False</SignAssembly>
-	  <PackageIcon>icon.png</PackageIcon>
+    <TargetFrameworks>net462;netstandard2.0;net8.0;net10.0</TargetFrameworks>
+    <LangVersion>14</LangVersion>
+    <Version>0.3.2</Version>
+    <!-- Pin AssemblyVersion to a fixed binding-stability baseline so consumers
+         do not need to recompile / add binding redirects on every minor/patch
+         bump. Bump only on a deliberate breaking API change. FileVersion +
+         InformationalVersion (the latter auto-derived from <Version>) carry
+         the actual release version. -->
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace("$(Version)", "[-+].*$", "")).0</FileVersion>
+    <Title>$(AssemblyName)</Title>
+    <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
+    <PackageTags>try;result;error-handling;exception-handling;functional;railway-oriented;dotnet</PackageTags>
+    <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Chris-Wolfgang/Try-Pattern.git</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <SignAssembly>False</SignAssembly>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="
-				 '$(TargetFramework)' == 'net8.0' OR
-				 '$(TargetFramework)' == 'net10.0'
-				 ">
+                 '$(TargetFramework)' == 'net8.0' OR
+                 '$(TargetFramework)' == 'net10.0'
+                 ">
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 

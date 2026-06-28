@@ -18,7 +18,7 @@ public class ResultTests
     [InlineData(null)]
     [InlineData(" ")]
     [InlineData("Test error")]
-    public void Ctor_when_passed_true_and_non_empty_string_throw_InvalidOperationException(string? message)
+    public void Ctor_when_passed_true_and_non_empty_string_throws_ArgumentException(string? message)
     {
         var ex = Assert.Throws<ArgumentException>(() => new TestResult(succeeded: true, message));
         Assert.Equal("errorMessage", ex.ParamName);
@@ -38,7 +38,7 @@ public class ResultTests
     [InlineData(null)]
     [InlineData(" ")]
     [InlineData("")]
-    public void Ctor_when_passed_false_and_no_message_throw_InvalidOperationException(string? message)
+    public void Ctor_when_passed_false_and_no_message_throws_ArgumentException(string? message)
     {
         var ex = Assert.Throws<ArgumentException>(() => new TestResult(succeeded: false, message));
         Assert.Equal("errorMessage", ex.ParamName);
