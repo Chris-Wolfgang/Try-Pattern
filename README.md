@@ -10,11 +10,6 @@
 
 A lightweight .NET library that provides a Try/Result pattern for executing actions and functions with automatic exception handling. Instead of try/catch blocks scattered throughout your code, wrap operations in `Try.Run()` and get back a `Result` indicating success or failure.
 
-- **GitHub Repository:** [https://github.com/Chris-Wolfgang/Try-Pattern](https://github.com/Chris-Wolfgang/Try-Pattern)
-- **API Documentation:** [https://chris-wolfgang.github.io/Try-Pattern/](https://chris-wolfgang.github.io/Try-Pattern/)
-- **API Reference:** [https://chris-wolfgang.github.io/Try-Pattern/api/](https://chris-wolfgang.github.io/Try-Pattern/api/)
-- **Contributing Guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
-
 ---
 
 ## 📦 Installation
@@ -30,6 +25,22 @@ dotnet add package Wolfgang.TryPattern
 ```powershell
 Install-Package Wolfgang.TryPattern
 ```
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 📚 Documentation
+
+- **GitHub Repository:** [https://github.com/Chris-Wolfgang/Try-Pattern](https://github.com/Chris-Wolfgang/Try-Pattern)
+- **API Documentation:** [https://chris-wolfgang.github.io/Try-Pattern/](https://chris-wolfgang.github.io/Try-Pattern/)
+- **API Reference:** [https://chris-wolfgang.github.io/Try-Pattern/api/](https://chris-wolfgang.github.io/Try-Pattern/api/)
+- **Contributing Guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -153,7 +164,7 @@ if (Result.AnyFailed(r1, r2, r3))
 
 ---
 
-## 📚 Real-World Examples
+## 📖 Real-World Examples
 
 ### Database access with Try.Run
 
@@ -340,6 +351,23 @@ public Result<Order> PlaceOrder(OrderRequest request)
 
 ---
 
+## 🔍 Code Quality & Static Analysis
+
+This project enforces **strict code quality standards** through **8 specialized analyzers**, a `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` Release gate, and SourceLink-embedded provenance for debugger step-into.
+
+### Analyzers in Use
+
+1. **Microsoft.CodeAnalysis.NetAnalyzers** — Built-in .NET analyzers for correctness and performance
+2. **Roslynator.Analyzers** — Advanced refactoring and code quality rules
+3. **AsyncFixer** — Async/await best practices and anti-pattern detection
+4. **Microsoft.VisualStudio.Threading.Analyzers** — Thread safety and async patterns
+5. **Microsoft.CodeAnalysis.BannedApiAnalyzers** — Prevents usage of banned synchronous APIs (see `BannedSymbols.txt`)
+6. **Meziantou.Analyzer** — Comprehensive code quality rules
+7. **SonarAnalyzer.CSharp** — Industry-standard code analysis
+8. **Microsoft.CodeAnalysis.PublicApiAnalyzers** — Tracks the public API surface via `PublicAPI.Shipped.txt` / `PublicAPI.Unshipped.txt`; surfaces additions/removals at compile time as a breaking-change review gate
+
+---
+
 ## 🛠️ Building from Source
 
 ```bash
@@ -367,9 +395,3 @@ dotnet format --verify-no-changes
 
 Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the
 development workflow, coding conventions, and PR checklist.
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
