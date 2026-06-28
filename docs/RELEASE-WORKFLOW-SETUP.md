@@ -82,10 +82,26 @@ The workflow triggers automatically when the release is published.
    - Uploads packages as artifacts
    - ✅ Auto-passes if packages are valid
 
-3. **Job 3: publish-nuget** (1-2 minutes)
+3. **Job 3: verify-docs-build** (2-5 minutes)
+   - Runs DocFX `metadata` + `build` to confirm the docs site builds
+     cleanly against the release commit
+   - Blocks the NuGet push if docs would fail to deploy
+   - ✅ Auto-passes if DocFX completes without errors
+
+4. **Job 4: publish-nuget** (1-2 minutes)
    - Validates NUGET_API_KEY secret
    - Publishes packages to NuGet.org automatically
    - ✅ Auto-completes if secret is valid
+
+5. **Job 5: trigger-docs** (workflow_call)
+   - Invokes `docfx.yaml` as a reusable workflow to deploy the just-
+     released docs to `gh-pages` under `versions/<tag>/` and (when
+     `deploy_as_latest` is true) `versions/latest/` + the site-root
+     redirect
+
+6. **Job 6: update-release-artifacts** (1-2 minutes)
+   - Attaches the validated `.nupkg` + `.snupkg` artifacts to the
+     GitHub Release object
 
 ### Monitoring the Workflow
 
@@ -187,10 +203,31 @@ Before creating a production GitHub Release (e.g., `v1.0.0`):
                             │
                             ▼ (only if packing succeeds)
 ┌─────────────────────────────────────────────────────────────┐
-│  Job 3: publish-nuget (Windows)                             │
+│  Job 3: verify-docs-build (Ubuntu)                          │
+│  • docfx metadata + docfx build                             │
+│  • Blocks downstream jobs if docs would fail to deploy      │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼ (only if docs build succeeds)
+┌─────────────────────────────────────────────────────────────┐
+│  Job 4: publish-nuget (Windows)                             │
 │  • Download packages                                        │
 │  • Validate NUGET_API_KEY                                   │
 │  • Publish to NuGet.org automatically                       │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼ (only if NuGet publish succeeds)
+┌─────────────────────────────────────────────────────────────┐
+│  Job 5: trigger-docs (workflow_call → docfx.yaml)           │
+│  • Deploy _site/ to gh-pages /versions/<tag>/               │
+│  • Deploy _site/ to gh-pages /versions/latest/              │
+│  • Refresh root index.html (meta-refresh redirect)          │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Job 6: update-release-artifacts                            │
+│  • Attach .nupkg + .snupkg to the GitHub Release            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
