@@ -5,7 +5,6 @@ Wolfgang.TryPattern.Result.Failed.get -> bool
 Wolfgang.TryPattern.Result.Result(bool succeeded, string? errorMessage) -> void
 Wolfgang.TryPattern.Result.Succeeded.get -> bool
 Wolfgang.TryPattern.Result<T>
-Wolfgang.TryPattern.Result<T>.Value.get -> T
 Wolfgang.TryPattern.Try
 static Wolfgang.TryPattern.Result.AllSucceeded(params Wolfgang.TryPattern.Result![]? results) -> bool
 static Wolfgang.TryPattern.Result.AnyFailed(params Wolfgang.TryPattern.Result![]? results) -> bool

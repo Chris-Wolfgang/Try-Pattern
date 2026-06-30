@@ -1,7 +1,7 @@
 #if !NET6_0_OR_GREATER
 using System;
 #endif
-namespace Wolfgang.TryPattern.Tests;
+namespace Wolfgang.TryPattern.Tests.Unit;
 
 public class RunFuncTests
 {

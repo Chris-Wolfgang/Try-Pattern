@@ -166,22 +166,22 @@ if (Result.AnyFailed(r1, r2, r3))
 
 ## 📖 Real-World Examples
 
-### Database access with Try.Run
+### Database access with Try.RunAsync
 
 Wrap database calls to get a clean `Result` instead of scattered try/catch:
 
 ```csharp
-public Result<Customer> GetCustomerById(int id)
+public async Task<Result<Customer>> GetCustomerByIdAsync(int id, CancellationToken token = default)
 {
-    return Try.Run(() =>
+    return await Try.RunAsync(async () =>
     {
-        using var connection = new SqlConnection(connectionString);
-        connection.Open();
-        using var command = new SqlCommand("SELECT Id, Name, Email FROM Customers WHERE Id = @Id", connection);
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(token);
+        await using var command = new SqlCommand("SELECT Id, Name, Email FROM Customers WHERE Id = @Id", connection);
         command.Parameters.AddWithValue("@Id", id);
 
-        using var reader = command.ExecuteReader();
-        if (!reader.Read())
+        await using var reader = await command.ExecuteReaderAsync(token);
+        if (!await reader.ReadAsync(token))
             throw new InvalidOperationException($"Customer {id} not found.");
 
         return new Customer
@@ -190,11 +190,11 @@ public Result<Customer> GetCustomerById(int id)
             Name = reader.GetString(1),
             Email = reader.GetString(2)
         };
-    });
+    }, token);
 }
 
 // Usage
-var result = GetCustomerById(42);
+var result = await GetCustomerByIdAsync(42);
 if (result.Succeeded)
 {
     Console.WriteLine($"Found: {result.Value.Name}");
@@ -205,18 +205,18 @@ else
 }
 ```
 
-### Async database access
+### Async query returning a list
 
 ```csharp
-public async Task<Result<List<Order>>> GetRecentOrdersAsync(int customerId)
+public async Task<Result<List<Order>>> GetRecentOrdersAsync(int customerId, CancellationToken token = default)
 {
     return await Try.RunAsync(async () =>
     {
         await using var connection = new SqlConnection(connectionString);
-        await connection.OpenAsync();
+        await connection.OpenAsync(token);
         // ... query and return orders
         return orders;
-    });
+    }, token);
 }
 ```
 

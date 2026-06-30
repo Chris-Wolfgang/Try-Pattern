@@ -19,6 +19,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.3.4] - 2026-06-30
+
+Follow-up Tier-2 cleanup round surfaced by the v0.3.3 AI code-review
+pass. No public API change in `Wolfgang.TryPattern` itself; PATCH bump.
+
+### Changed
+
+- **docs (README)** — Database-access example converted from sync
+  ADO inside `Try.Run` to `Try.RunAsync` with `ExecuteReaderAsync` /
+  `OpenAsync` / `ReadAsync` and a `CancellationToken` parameter. The
+  next example in the file was renamed from "Async database access"
+  to "Async query returning a list" to avoid two sections sharing the
+  same name
+  ([#226](https://github.com/Chris-Wolfgang/Try-Pattern/pull/226), closes #221).
+- **benchmarks** — `Wolfgang.TryPattern.Benchmarks.csproj`
+  `<TargetFramework>` bumped from `net8.0` to `net10.0` so the
+  published benchmark chart reflects the modern runtime consumers
+  actually use. `benchmarks.yaml` SDK install updated from `8.0.x` to
+  `10.0.x`
+  ([#227](https://github.com/Chris-Wolfgang/Try-Pattern/pull/227), closes #220).
+- **tests** — `xunit.runner.visualstudio` bumped from `3.0.0` to
+  `3.1.5` (latest GA on the 3.x line; xunit core stays at 2.9.3 —
+  runner 3.x supports xunit 1.x / 2.x / 3.x test discovery)
+  ([#229](https://github.com/Chris-Wolfgang/Try-Pattern/pull/229), closes #218).
+
+### Fixed
+
+- **PublicApiAnalyzer manifest** — `Result<T>.Value.get` moved from
+  the top-level `PublicAPI.Shipped.txt` into the existing per-TFM
+  split (`PublicApi/modern/...` carries `Value.get -> T?`,
+  `PublicApi/legacy/...` carries `Value.get -> T`). The top-level
+  entry was silently wrong against modern (net5+) builds because
+  RS0017 matches on member name, not return-type signature — so a
+  future `Value` return-type regression would not have been caught
+  ([#228](https://github.com/Chris-Wolfgang/Try-Pattern/pull/228), closes #219).
+- **build scripts** — `scripts/build-pr.ps1` restored
+  `-UseBasicParsing` on `Invoke-WebRequest` (was silently failing
+  under PowerShell Core's stricter parser)
+  ([#230](https://github.com/Chris-Wolfgang/Try-Pattern/pull/230)).
+
+### Chore
+
+- **tests directory + namespace alignment** — test project's
+  directory, csproj filename, assembly name, and root namespace
+  now all match under a single `Wolfgang.TryPattern.Tests.Unit`
+  identity. Previously the directory was
+  `tests/Wolfgang.TryPattern.Tests/` but the csproj was
+  `Wolfgang.TryPattern.Tests.Unit.csproj` and the `.cs` files
+  declared `namespace Wolfgang.TryPattern.Tests;` — three different
+  names for the same project. `TryPattern.sln` and `stryker-config.json`
+  paths updated to match
+  ([#231](https://github.com/Chris-Wolfgang/Try-Pattern/pull/231), closes #222).
+
 ## [0.3.3] - 2026-06-28
 
 Tier-1 maintenance round. Docs accuracy, code-review polish, and a
