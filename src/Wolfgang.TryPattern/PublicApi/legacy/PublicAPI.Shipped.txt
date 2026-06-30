@@ -1,4 +1,5 @@
 #nullable enable
+Wolfgang.TryPattern.Result<T>.Value.get -> T
 static Wolfgang.TryPattern.Result<T>.Failure(string! errorMessage) -> Wolfgang.TryPattern.Result<T>!
 static Wolfgang.TryPattern.Result<T>.Success(T value) -> Wolfgang.TryPattern.Result<T>!
 static Wolfgang.TryPattern.Try.Run<T>(System.Func<T>? function) -> Wolfgang.TryPattern.Result<T>!
