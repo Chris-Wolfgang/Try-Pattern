@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Wolfgang.TryPattern.Tests;
+namespace Wolfgang.TryPattern.Tests.Unit;
 
 [ExcludeFromCodeCoverage]
 internal class Person

@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 #endif
-namespace Wolfgang.TryPattern.Tests;
+namespace Wolfgang.TryPattern.Tests.Unit;
 
 public class RunAsyncFuncTests
 {
