@@ -6,7 +6,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta name="title" content="Class Result | Wolfgang.TryPattern Documentation ">
       
-      <meta name="description" content="The result of executing an . Contains properties indicating whether the operation succeeded or failed. If the operation failed the  property will contain a message as to why.">
+      <meta name="description" content="Represents the outcome of an operation. Contains properties indicating whether the operation succeeded or failed. If the operation failed the  property will contain a message as to why.">
       <link rel="icon" href="../favicon.svg">
       <link rel="stylesheet" href="../public/docfx.min.css">
       <link rel="stylesheet" href="../public/main.css">
@@ -16,7 +16,7 @@
       <meta name="docfx:rel" content="../">
       
       
-      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/Try-Pattern/new/v0.3.2/apiSpec/new?filename=Wolfgang_TryPattern_Result.md&amp;value=---%0Auid%3A%20Wolfgang.TryPattern.Result%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/Try-Pattern/new/v0.3.3/apiSpec/new?filename=Wolfgang_TryPattern_Result.md&amp;value=---%0Auid%3A%20Wolfgang.TryPattern.Result%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
       <meta name="loc:inThisArticle" content="In this article">
       <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
       <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
@@ -75,7 +75,7 @@
 
 
   <h1 id="Wolfgang_TryPattern_Result" data-uid="Wolfgang.TryPattern.Result" class="text-break">
-Class Result  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L14"><i class="bi bi-code-slash"></i></a>
+Class Result  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L18"><i class="bi bi-code-slash"></i></a>
   </h1>
 
   <div class="facts text-secondary">
@@ -83,9 +83,9 @@ Class Result  <a class="header-action link-secondary" title="View source" href="
   <dl><dt>Assembly</dt><dd>Wolfgang.TryPattern.dll</dd></dl>
   </div>
 
-  <div class="markdown summary"><p>The result of executing an <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action">Action</a>. Contains properties indicating whether the operation
-succeeded or failed. If the operation failed the <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a> property will contain
-a message as to why.</p>
+  <div class="markdown summary"><p>Represents the outcome of an operation. Contains properties indicating whether the operation
+succeeded or failed. If the operation failed the <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a> property will
+contain a message as to why.</p>
 </div>
   <div class="markdown conceptual"></div>
 
@@ -141,6 +141,10 @@ a message as to why.</p>
 
 
 
+  <h2 id="Wolfgang_TryPattern_Result_remarks">Remarks</h2>
+  <div class="markdown level0 remarks"><p>Commonly produced by <a class="xref" href="Wolfgang.TryPattern.Try.html#Wolfgang_TryPattern_Try_Run_System_Action_">Run(Action?)</a>, but also useful directly as a return type
+from validation helpers, repository methods, and other service-layer code.</p>
+</div>
 
 
   <h2 class="section" id="constructors">Constructors
@@ -151,7 +155,7 @@ a message as to why.</p>
 
   <h3 id="Wolfgang_TryPattern_Result__ctor_System_Boolean_System_String_" data-uid="Wolfgang.TryPattern.Result.#ctor(System.Boolean,System.String)">
   Result(bool, string?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L27"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L31"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Initializes a new instance of the Result class with the specified success status and
@@ -197,10 +201,10 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_ErrorMessage" data-uid="Wolfgang.TryPattern.Result.ErrorMessage">
   ErrorMessage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L107"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L113"><i class="bi bi-code-slash"></i></a>
   </h3>
 
-  <div class="markdown level1 summary"><p>The error message describing why the operation failed. Otherwise, an empty string if the operation succeeded.</p>
+  <div class="markdown level1 summary"><p>Gets the error message describing why the operation failed, or an empty string if the operation succeeded.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
 
@@ -229,7 +233,7 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_Failed" data-uid="Wolfgang.TryPattern.Result.Failed">
   Failed
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L100"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L106"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Gets a value indicating whether the operation failed.</p>
@@ -265,7 +269,7 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_Succeeded" data-uid="Wolfgang.TryPattern.Result.Succeeded">
   Succeeded
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L91"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L97"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Gets a value indicating whether the operation completed successfully.</p>
@@ -305,7 +309,7 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_AllSucceeded_Wolfgang_TryPattern_Result___" data-uid="Wolfgang.TryPattern.Result.AllSucceeded(Wolfgang.TryPattern.Result[])">
   AllSucceeded(params Result[]?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L239"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L245"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Returns true if all the specified <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>s indicate success.</p>
@@ -355,7 +359,7 @@ element has already failed.</p>
 
   <h3 id="Wolfgang_TryPattern_Result_AnyFailed_Wolfgang_TryPattern_Result___" data-uid="Wolfgang.TryPattern.Result.AnyFailed(Wolfgang.TryPattern.Result[])">
   AnyFailed(params Result[]?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L201"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L207"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Returns true if any of the specified <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>s indicate a failure.
@@ -406,10 +410,10 @@ element has already failed.</p>
 
   <h3 id="Wolfgang_TryPattern_Result_Failure_System_String_" data-uid="Wolfgang.TryPattern.Result.Failure(System.String)">
   Failure(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L62"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L67"><i class="bi bi-code-slash"></i></a>
   </h3>
 
-  <div class="markdown level1 summary"><p>Creates a failed Result with the specified error Message.</p>
+  <div class="markdown level1 summary"><p>Creates a failed <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a> with the specified error message.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
 
@@ -427,7 +431,8 @@ element has already failed.</p>
   <h4 class="section">Returns</h4>
   <dl class="parameters">
     <dt><a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a></dt>
-    <dd></dd>
+    <dd><p>A failed <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a> whose <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a> is set to <code class="paramref">errorMessage</code>.</p>
+</dd>
   </dl>
 
 
@@ -440,7 +445,7 @@ element has already failed.</p>
   <h4 class="section">Exceptions</h4>
   <dl class="parameters">
     <dt><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.argumentexception">ArgumentException</a></dt>
-    <dd><p>errorMessage is null, empty, or whitespace</p>
+    <dd><p><code class="paramref">errorMessage</code> is null, empty, or whitespace.</p>
 </dd>
   </dl>
 
@@ -450,7 +455,7 @@ element has already failed.</p>
 
   <h3 id="Wolfgang_TryPattern_Result_Flatten_Wolfgang_TryPattern_Result___" data-uid="Wolfgang.TryPattern.Result.Flatten(Wolfgang.TryPattern.Result[])">
   Flatten(params Result[]?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L125"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L131"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Takes zero or more <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>s and flattens them into a single <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>.</p>
@@ -501,7 +506,7 @@ is a successful <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a
 
   <h3 id="Wolfgang_TryPattern_Result_Success" data-uid="Wolfgang.TryPattern.Result.Success">
   Success()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L82"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L88"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Creates a successful <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>.</p>
@@ -516,7 +521,8 @@ is a successful <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a
   <h4 class="section">Returns</h4>
   <dl class="parameters">
     <dt><a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a></dt>
-    <dd></dd>
+    <dd><p>A successful <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>.</p>
+</dd>
   </dl>
 
 
@@ -539,7 +545,7 @@ returns the same object, so two successful results will be reference-equal.</p>
 </article>
 
         <div class="contribution d-print-none">
-          <a href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.2/src/Wolfgang.TryPattern/Result.cs/#L14" class="edit-link">Edit this page</a>
+          <a href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.3/src/Wolfgang.TryPattern/Result.cs/#L18" class="edit-link">Edit this page</a>
         </div>
 
 
@@ -555,7 +561,7 @@ returns the same object, so two successful results will be reference-equal.</p>
     <footer class="border-top text-secondary">
       <div class="container-xxl">
         <div class="flex-fill">
-          Made with DocFX
+          Made with DocFX <script>(function(){var r='/';if(window.location.hostname.endsWith('.github.io')){var s=window.location.pathname.split('/').filter(Boolean);if(s.length)r='/'+s[0]+'/';}var t=document.createElement('script');t.src=r+'public/version-picker.js';t.async=true;document.head.appendChild(t);})();</script>
         </div>
       </div>
     </footer>

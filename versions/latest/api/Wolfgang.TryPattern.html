@@ -82,17 +82,18 @@ Classes
 </h3>
     <dl class="jumplist">
       <dt><a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a></dt>
-      <dd><p>The result of executing an <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.action">Action</a>. Contains properties indicating whether the operation
-succeeded or failed. If the operation failed the <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a> property will contain
-a message as to why.</p>
+      <dd><p>Represents the outcome of an operation. Contains properties indicating whether the operation
+succeeded or failed. If the operation failed the <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a> property will
+contain a message as to why.</p>
 </dd>
     </dl>
     <dl class="jumplist">
       <dt><a class="xref" href="Wolfgang.TryPattern.Result-1.html">Result&lt;T&gt;</a></dt>
-      <dd><p>The result of executing an <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-1">Func&lt;TResult&gt;</a>. Contains properties indicating whether the operation
-<a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_Succeeded">Succeeded</a> or <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_Failed">Failed</a>. If the operation failed the
-<a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a> property will contain a message as to why. If the operation succeeded the
-<a class="xref" href="Wolfgang.TryPattern.Result-1.html#Wolfgang_TryPattern_Result_1_Value">Value</a> property will contain the return value from the function.</p>
+      <dd><p>Represents the outcome of an operation that produces a value of type <code class="typeparamref">T</code>.
+Contains properties indicating whether the operation <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_Succeeded">Succeeded</a> or
+<a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_Failed">Failed</a>. If the operation failed the <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a> property
+will contain a message as to why. If the operation succeeded the <a class="xref" href="Wolfgang.TryPattern.Result-1.html#Wolfgang_TryPattern_Result_1_Value">Value</a>
+property will contain the returned value.</p>
 </dd>
     </dl>
     <dl class="jumplist">
@@ -122,7 +123,7 @@ of the function if successful or an error message if the action/function failed.
     <footer class="border-top text-secondary">
       <div class="container-xxl">
         <div class="flex-fill">
-          Made with DocFX
+          Made with DocFX <script>(function(){var r='/';if(window.location.hostname.endsWith('.github.io')){var s=window.location.pathname.split('/').filter(Boolean);if(s.length)r='/'+s[0]+'/';}var t=document.createElement('script');t.src=r+'public/version-picker.js';t.async=true;document.head.appendChild(t);})();</script>
         </div>
       </div>
     </footer>

@@ -290,8 +290,8 @@ var assemblies = [
   {
     "name": "Wolfgang.TryPattern",
     "classes": [
-      { "name": "Wolfgang.TryPattern.Result", "rp": "Wolfgang.TryPattern_Result.html", "cl": 64, "ucl": 1, "cal": 65, "tl": 355, "cb": 46, "tb": 48, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Wolfgang.TryPattern.Result\u003CT\u003E", "rp": "Wolfgang.TryPattern_Result_1.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 355, "cb": 3, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Wolfgang.TryPattern.Result", "rp": "Wolfgang.TryPattern_Result.html", "cl": 64, "ucl": 1, "cal": 65, "tl": 370, "cb": 46, "tb": 48, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Wolfgang.TryPattern.Result\u003CT\u003E", "rp": "Wolfgang.TryPattern_Result_1.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 370, "cb": 3, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Wolfgang.TryPattern.Try", "rp": "Wolfgang.TryPattern_Try.html", "cl": 28, "ucl": 0, "cal": 28, "tl": 218, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
@@ -307,7 +307,7 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "Wolfgang.TryPattern", "class": "Wolfgang.TryPattern.Result", "reportPath": "Wolfgang.TryPattern_Result.html", "methodName": "Flatten(Wolfgang.TryPattern.Result[])", "methodShortName": "Flatten(...)", "fileIndex": 0, "line": 127,
+    "assembly": "Wolfgang.TryPattern", "class": "Wolfgang.TryPattern.Result", "reportPath": "Wolfgang.TryPattern_Result.html", "methodName": "Flatten(Wolfgang.TryPattern.Result[])", "methodShortName": "Flatten(...)", "fileIndex": 0, "line": 133,
     "metrics": [
       { "value": 22, "exceeded": false },
       { "value": 22, "exceeded": true },

@@ -22,7 +22,7 @@
       "Uid": null,
       "IsMRef": true,
       "Title": "Wolfgang.TryPattern.Result<T>",
-      "Summary": "<p sourcefile=\"api/Wolfgang.TryPattern.Result-1.yml\" sourcestartlinenumber=\"1\">The result of executing an <xref href=\"System.Func%601\" data-throw-if-not-resolved=\"false\"></xref>. Contains properties indicating whether the operation\n<xref href=\"Wolfgang.TryPattern.Result.Succeeded\" data-throw-if-not-resolved=\"false\"></xref> or <xref href=\"Wolfgang.TryPattern.Result.Failed\" data-throw-if-not-resolved=\"false\"></xref>. If the operation failed the\n<xref href=\"Wolfgang.TryPattern.Result.ErrorMessage\" data-throw-if-not-resolved=\"false\"></xref> property will contain a message as to why. If the operation succeeded the\n<xref href=\"Wolfgang.TryPattern.Result%601.Value\" data-throw-if-not-resolved=\"false\"></xref> property will contain the return value from the function.</p>\n"
+      "Summary": "<p sourcefile=\"api/Wolfgang.TryPattern.Result-1.yml\" sourcestartlinenumber=\"1\">Represents the outcome of an operation that produces a value of type <code class=\"typeparamref\">T</code>.\nContains properties indicating whether the operation <xref href=\"Wolfgang.TryPattern.Result.Succeeded\" data-throw-if-not-resolved=\"false\"></xref> or\n<xref href=\"Wolfgang.TryPattern.Result.Failed\" data-throw-if-not-resolved=\"false\"></xref>. If the operation failed the <xref href=\"Wolfgang.TryPattern.Result.ErrorMessage\" data-throw-if-not-resolved=\"false\"></xref> property\nwill contain a message as to why. If the operation succeeded the <xref href=\"Wolfgang.TryPattern.Result%601.Value\" data-throw-if-not-resolved=\"false\"></xref>\nproperty will contain the returned value.</p>\n"
     },
     {
       "type": "ManagedReference",
@@ -36,7 +36,7 @@
       "Uid": null,
       "IsMRef": true,
       "Title": "Wolfgang.TryPattern.Result",
-      "Summary": "<p sourcefile=\"api/Wolfgang.TryPattern.Result.yml\" sourcestartlinenumber=\"1\">The result of executing an <xref href=\"System.Action\" data-throw-if-not-resolved=\"false\"></xref>. Contains properties indicating whether the operation\nsucceeded or failed. If the operation failed the <xref href=\"Wolfgang.TryPattern.Result.ErrorMessage\" data-throw-if-not-resolved=\"false\"></xref> property will contain\na message as to why.</p>\n"
+      "Summary": "<p sourcefile=\"api/Wolfgang.TryPattern.Result.yml\" sourcestartlinenumber=\"1\">Represents the outcome of an operation. Contains properties indicating whether the operation\nsucceeded or failed. If the operation failed the <xref href=\"Wolfgang.TryPattern.Result.ErrorMessage\" data-throw-if-not-resolved=\"false\"></xref> property will\ncontain a message as to why.</p>\n"
     },
     {
       "type": "ManagedReference",
