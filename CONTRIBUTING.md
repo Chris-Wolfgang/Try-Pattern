@@ -49,7 +49,7 @@ You can contribute in several ways:
 
 This project maintains **extremely high code quality standards** through multiple layers of static analysis and automated enforcement.
 
-### The 7 Analyzers
+### The 8 Analyzers
 
 All code is analyzed by these tools during build:
 
@@ -86,6 +86,12 @@ All code is analyzed by these tools during build:
    - Industry-standard code analysis
    - Security vulnerability detection
    - Code smell identification
+
+8. **Microsoft.CodeAnalysis.PublicApiAnalyzers**
+   - Tracks the public API surface via `PublicAPI.Shipped.txt` /
+     `PublicAPI.Unshipped.txt`
+   - Surfaces additions or removals at compile time as a breaking-change
+     review gate
 
 ### Async-First Enforcement
 
