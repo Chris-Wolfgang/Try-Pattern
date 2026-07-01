@@ -203,7 +203,7 @@ Before creating a production GitHub Release (e.g., `v1.0.0`):
                             │
                             ▼ (only if packing succeeds)
 ┌─────────────────────────────────────────────────────────────┐
-│  Job 3: verify-docs-build (windows-latest)                          │
+│  Job 3: verify-docs-build (windows-latest)                  │
 │  • docfx metadata + docfx build                             │
 │  • Blocks downstream jobs if docs would fail to deploy      │
 └─────────────────────────────────────────────────────────────┘
