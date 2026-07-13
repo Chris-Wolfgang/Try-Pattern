@@ -1,3 +1,5 @@
+using System;
+
 namespace Wolfgang.TryPattern.Tests.Unit;
 
 public class ResultOfTTests

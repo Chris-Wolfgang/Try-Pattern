@@ -24,12 +24,13 @@
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
-  <PropertyGroup Condition="
-                 '$(TargetFramework)' == 'net8.0' OR
-                 '$(TargetFramework)' == 'net10.0'
-                 ">
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+  <!--
+    ImplicitUsings intentionally NOT enabled. Every source file declares its
+    own `using` directives explicitly so the compiler treats them as required
+    on ALL target frameworks (rather than "redundant" on TFMs where the SDK
+    would have provided them implicitly). Removes RedundantUsingDirective
+    noise from InspectCode without needing to silence it in .DotSettings.
+  -->
 
   <ItemGroup>
     <None Include="..\..\asset\icon.png">

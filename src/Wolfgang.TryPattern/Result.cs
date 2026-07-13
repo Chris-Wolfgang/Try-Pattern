@@ -280,7 +280,7 @@ public class Result
 /// Commonly produced by <see cref="Try.Run{T}(Func{T})"/>, but also useful directly as a return type
 /// from repository, service, or validation code that wants to surface a value-or-error outcome.
 /// </remarks>
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
+[SuppressMessage(
     "Design",
     "CA1000:Do not declare static members on generic types",
     Justification = "Result<T>.Failure / Result<T>.Success are factory methods central to the public API; consumers explicitly specify T at the call site by design.")]
