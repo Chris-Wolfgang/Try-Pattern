@@ -5,7 +5,6 @@ Imports Wolfgang.TryPattern
 
 
 <ExcludeFromCodeCoverage>
-<SuppressMessage("ApiDesign", "RS0030:Do not used banned APIs", Justification:="net462 has no File.ReadAllTextAsync; the example demonstrates Try.Run wrapping sync IO. Consumer code is not bound by the library's banned-symbol list.")>
 Friend Module Program
 	Sub Main(args As String())
 		Console.ForegroundColor = ConsoleColor.Cyan
