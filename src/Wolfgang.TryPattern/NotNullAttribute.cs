@@ -5,8 +5,10 @@
 // runtime-provided types on newer TFMs.
 #if !NET5_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
 
-using System;
-
+// No `using System;` needed here — the type is declared inside
+// `namespace System.Diagnostics.CodeAnalysis` and unqualified `Attribute` /
+// `AttributeUsageAttribute` / `AttributeTargets` resolve via parent-namespace
+// lookup.
 namespace System.Diagnostics.CodeAnalysis
 {
     /// <summary>

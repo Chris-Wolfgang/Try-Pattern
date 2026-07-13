@@ -15,11 +15,6 @@
 
       2. R#-native inspections that are false positives for this repo's
          patterns:
-           - RedundantUsingDirective  — Try.cs / Result.cs / NotNullAttribute.cs
-             `using System;` etc. are needed on net462 / netstandard2.0 /
-             net5-7 where <ImplicitUsings> is either not enabled or not
-             defined; silencing globally is cheaper than #if-guarding every
-             using in every file.
            - CheckNamespace           — NotNullAttribute.cs polyfill
              deliberately declares `internal sealed class NotNullAttribute`
              inside `namespace System.Diagnostics.CodeAnalysis` so the
@@ -59,7 +54,6 @@
   <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=VSTHRD003/@EntryIndexedValue">DO_NOT_SHOW</s:String>
 
   <!-- Group 2: R#-native false positives for this repo's patterns -->
-  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=RedundantUsingDirective/@EntryIndexedValue">DO_NOT_SHOW</s:String>
   <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CheckNamespace/@EntryIndexedValue">DO_NOT_SHOW</s:String>
   <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=AccessToDisposedClosure/@EntryIndexedValue">DO_NOT_SHOW</s:String>
   <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=RedundantSuppressNullableWarningExpression/@EntryIndexedValue">DO_NOT_SHOW</s:String>
