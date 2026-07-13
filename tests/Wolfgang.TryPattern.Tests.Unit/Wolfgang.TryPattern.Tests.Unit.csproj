@@ -3,7 +3,10 @@
 	<PropertyGroup>
 		<TargetFrameworks>net462;net472;net48;net481;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- ImplicitUsings intentionally NOT enabled: test files declare
+		     `using` directives explicitly on all TFMs (net462 through
+		     net10.0) so InspectCode doesn't report them as redundant on
+		     TFMs where the SDK would have provided them implicitly. -->
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<Copyright>Copyright 2025 Chris Wolfgang</Copyright>

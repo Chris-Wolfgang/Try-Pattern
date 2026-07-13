@@ -21,6 +21,14 @@ dotnet_diagnostic.CA2007.severity = none           # .NET:      ConfigureAwait
 # (Thread.Sleep, etc.) that may be on the banned list.
 dotnet_diagnostic.RS0030.severity = none
 
+# RS0016 / RS0037: PublicApiAnalyzer — the analyzer is opt-in per project
+# via <AdditionalFiles Condition="Exists('PublicAPI.Shipped.txt')" /> in
+# Directory.Build.props. Benchmark projects have no PublicAPI.Shipped.txt.
+# MSBuild honors the Condition; InspectCode doesn't, so we silence
+# explicitly here.
+dotnet_diagnostic.RS0016.severity = none
+dotnet_diagnostic.RS0037.severity = none
+
 # Naming — BenchmarkDotNet method names follow Underscore_Style for chart
 # readability, conflicting with the usual PascalCase rule set.
 dotnet_diagnostic.SA1300.severity = none

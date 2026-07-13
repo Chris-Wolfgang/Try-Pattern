@@ -1,0 +1,24 @@
+<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+  <!--
+    Team-shared InspectCode / ReSharper severity profile.
+
+    Scope: SOLUTION-WIDE overrides only. Anything scoped to a single folder
+    (tests, benchmarks, examples) lives in that folder's `.editorconfig`
+    instead — see tests/.editorconfig, benchmarks/.editorconfig,
+    examples/VB.DotNet462.Example/VB.DotNet462.Example.vbproj <NoWarn>.
+
+    Only src/-facing suppressions belong here.
+  -->
+
+  <!-- CheckNamespace: src/Wolfgang.TryPattern/NotNullAttribute.cs
+       deliberately declares `internal sealed class NotNullAttribute`
+       inside `namespace System.Diagnostics.CodeAnalysis` so the compiler
+       treats it as the runtime polyfill on TFMs that lack the type
+       (net462 / netstandard2.0). Renaming the namespace would break the
+       polyfill. This is the only src/ file where CheckNamespace is a
+       false positive; the finding is silenced globally rather than
+       per-file because R# .DotSettings does not support file-scoped
+       severity overrides. -->
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CheckNamespace/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+
+</wpf:ResourceDictionary>
