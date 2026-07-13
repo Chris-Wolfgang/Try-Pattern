@@ -1,0 +1,81 @@
+<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+  <!--
+    Team-shared InspectCode / ReSharper severity profile.
+
+    Purpose: tune the noise floor for the InspectCode CI job so that a clean
+    main produces zero findings, and the first finding that survives after a
+    PR is always actionable.
+
+    Silences fall into three groups:
+
+      1. Rules already covered by MSBuild-time Roslyn analyzers
+         (Meziantou, Sonar, VSTHRD, PublicApiAnalyzer) — silenced here to
+         avoid double-reporting. The MSBuild analyzers remain the source of
+         truth; InspectCode only reports things they don't cover.
+
+      2. R#-native inspections that are false positives for this repo's
+         patterns:
+           - RedundantUsingDirective  — Try.cs / Result.cs / NotNullAttribute.cs
+             `using System;` etc. are needed on net462 / netstandard2.0 /
+             net5-7 where <ImplicitUsings> is either not enabled or not
+             defined; silencing globally is cheaper than #if-guarding every
+             using in every file.
+           - CheckNamespace           — NotNullAttribute.cs polyfill
+             deliberately declares `internal sealed class NotNullAttribute`
+             inside `namespace System.Diagnostics.CodeAnalysis` so the
+             compiler treats it as the runtime type on older TFMs;
+             renaming would break the polyfill.
+           - AccessToDisposedClosure  — cancellation-token tests capture a
+             CTS in a local function that is guaranteed to complete before
+             the `using` block exits. R# can't see the ordering.
+           - RedundantSuppressNullableWarningExpression — cosmetic.
+           - ReturnTypeCanBeNotNullable — style suggestion; some methods are
+             deliberately nullable-returning to exercise the pattern.
+
+      3. Test-only patterns already suppressed in tests/csproj <NoWarn>:
+         S2930 (CTS dispose), S1481 (unused local), MA0012 (NRE reserved),
+         MA0015 (paramName), S3928 (paramName), VSTHRD003 (external Task),
+         S2190 (recursion break), MA0003 (paramName in example).
+  -->
+
+  <!-- Group 1: covered by MSBuild analyzers (avoid double-reporting) -->
+
+  <!-- PublicApiAnalyzer (RS0016, RS0037) is opt-in per project via
+       AdditionalFiles gating in Directory.Build.props. R# InspectCode
+       doesn't honor that MSBuild gating, so it reports the analyzer as
+       active in test/benchmark projects where it shouldn't run at all. -->
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=RS0016/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=RS0037/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+
+  <!-- Meziantou / Sonar / VSTHRD test-only patterns already NoWarn'd in
+       tests csproj. Duplicating here for InspectCode. -->
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=S1481/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=S2190/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=S2930/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=S3928/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=MA0003/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=MA0012/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=MA0015/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=VSTHRD003/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+
+  <!-- Group 2: R#-native false positives for this repo's patterns -->
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=RedundantUsingDirective/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CheckNamespace/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=AccessToDisposedClosure/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=RedundantSuppressNullableWarningExpression/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+  <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ReturnTypeCanBeNotNullable/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+
+  <!-- Optional cosmetic: silence RedundantNameQualifier if it re-emerges as
+       false positive on generic attribute uses in the future. Currently
+       LEFT ON — the one existing instance in Result.cs L283 was fixed by
+       shortening the qualifier (using System.Diagnostics.CodeAnalysis;
+       already imports the type). If a real reason to keep a fully-
+       qualified attribute appears later, silence here rather than
+       inline-annotating every occurrence. -->
+
+  <!-- RS0030 (BannedSymbols) is INTENTIONALLY left visible so that any
+       future banned-API use lights up. The one existing example-project
+       hit is on net462, where sync IO is unavoidable; suppress in
+       examples/.editorconfig if it becomes a persistent noise source. -->
+
+</wpf:ResourceDictionary>
