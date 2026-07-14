@@ -19,6 +19,80 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [0.3.5] - 2026-07-14
+
+CI + tooling round. No public API or runtime behaviour change in
+`Wolfgang.TryPattern` itself; PATCH bump per SemVer. Notable in this
+release: the deployed docs site's version-picker dropdown now works
+on `/versions/latest/`, and the fleet-wide ReSharper InspectCode CI
+job is now live.
+
+### Fixed
+
+- **docs site (deployed)** — the version-picker `<select>` on
+  `https://chris-wolfgang.github.io/Try-Pattern/versions/latest/`
+  now shows a selected option. The old code had a dead URL-match
+  block trying to resolve `latest` against a concrete `vX.Y.Z`
+  URL — the URLs are structurally different by construction so the
+  match never succeeded, leaving the dropdown with no selected
+  option and no way to navigate. Kept `latest` as a first-class
+  option on `/versions/latest/`; still hidden on concrete-version
+  pages
+  ([#247](https://github.com/Chris-Wolfgang/Try-Pattern/pull/247),
+  closes #238).
+
+### Changed
+
+- **CI (InspectCode)** — added a JetBrains ReSharper InspectCode
+  job to `pr.yaml` running parallel to the test stages. Runs on
+  `windows-latest` so the .NET Framework 4.x reference assemblies
+  needed by the net462 examples resolve natively. SARIF uploads to
+  GitHub Code Scanning; job fails on any `level=error` finding
+  ([#245](https://github.com/Chris-Wolfgang/Try-Pattern/pull/245),
+  [#248](https://github.com/Chris-Wolfgang/Try-Pattern/pull/248)).
+  `"ReSharper InspectCode"` is now a required status check on the
+  `main`-branch ruleset.
+- **CI (docfx)** — synced `docfx.yaml` to the canonical repo-template
+  version ([#235](https://github.com/Chris-Wolfgang/Try-Pattern/pull/235)).
+
+### Chore
+
+- **hygiene for InspectCode noise floor**
+  ([#246](https://github.com/Chris-Wolfgang/Try-Pattern/pull/246)):
+  - Dropped `<ImplicitUsings>enable</ImplicitUsings>` from the src,
+    tests, and benchmarks csproj files. Every `.cs` file now
+    declares its `using` directives explicitly. Files that only had
+    conditional `#if !NET6_0_OR_GREATER using System; #endif`
+    guards now use unconditional file-scoped usings.
+  - Added folder-scoped `.editorconfig` suppressions for Roslyn
+    analyzer rules that only apply to `tests/` (S1481 / S2190 /
+    S2930 / S3928 / MA0012 / MA0015 / VSTHRD003) and `benchmarks/`
+    (RS0016 / RS0037), plus R#-native rules like
+    `access_to_disposed_closure`.
+  - Added a top-level `TryPattern.sln.DotSettings` for the one
+    solution-wide entry (`CheckNamespace` on the polyfill file).
+  - Scoped `RS0030` (banned sync IO) suppression to the
+    `VB.DotNet462.Example` vbproj — net462 has no async File API.
+  - Shortened `[System.Diagnostics.CodeAnalysis.SuppressMessage(...)]`
+    to `[SuppressMessage(...)]` in `Result.cs` (the using at the top
+    already imports the type).
+
+### Dependencies
+
+- `Meziantou.Analyzer` bumped from **3.0.115** → **3.0.122**
+  ([#239](https://github.com/Chris-Wolfgang/Try-Pattern/pull/239),
+  [#243](https://github.com/Chris-Wolfgang/Try-Pattern/pull/243)).
+- `Microsoft.CodeAnalysis.BannedApiAnalyzers` bumped from **4.14.0** →
+  **5.6.0**
+  ([#240](https://github.com/Chris-Wolfgang/Try-Pattern/pull/240)).
+- `Microsoft.CodeAnalysis.PublicApiAnalyzers` bumped from **3.3.4** →
+  **5.6.0**
+  ([#241](https://github.com/Chris-Wolfgang/Try-Pattern/pull/241)).
+- `SonarAnalyzer.CSharp` bumped from **10.27.0.140913** →
+  **10.29.0.143774**
+  ([#242](https://github.com/Chris-Wolfgang/Try-Pattern/pull/242),
+  [#244](https://github.com/Chris-Wolfgang/Try-Pattern/pull/244)).
+
 ## [0.3.4] - 2026-06-30
 
 Follow-up Tier-2 cleanup round surfaced by the v0.3.3 AI code-review
