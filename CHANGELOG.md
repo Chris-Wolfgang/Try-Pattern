@@ -39,6 +39,13 @@ job is now live.
   option on `/versions/latest/`; still hidden on concrete-version
   pages ([#247](https://github.com/Chris-Wolfgang/Try-Pattern/pull/247),
   closes #238).
+- **CI (InspectCode SLN detection)** — the `Run InspectCode` step's
+  `ls *.slnx 2>/dev/null | head -n1` idiom exited the whole step with
+  code 2 on Git Bash for Windows (the workflow's `pipefail` shell
+  propagated `ls`'s non-zero exit when no `*.slnx` files existed,
+  killing the step before the `*.sln` fallback ran). Replaced with a
+  direct `for candidate in *.slnx *.sln` glob loop — no pipe, no
+  pipefail interaction ([#250](https://github.com/Chris-Wolfgang/Try-Pattern/pull/250)).
 
 ### Changed
 
