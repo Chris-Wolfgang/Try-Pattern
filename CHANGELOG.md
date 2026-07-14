@@ -37,8 +37,7 @@ job is now live.
   match never succeeded, leaving the dropdown with no selected
   option and no way to navigate. Kept `latest` as a first-class
   option on `/versions/latest/`; still hidden on concrete-version
-  pages
-  ([#247](https://github.com/Chris-Wolfgang/Try-Pattern/pull/247),
+  pages ([#247](https://github.com/Chris-Wolfgang/Try-Pattern/pull/247),
   closes #238).
 
 ### Changed
