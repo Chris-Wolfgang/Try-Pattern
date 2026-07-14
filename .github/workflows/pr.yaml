@@ -252,7 +252,22 @@ jobs:
   # ============================================================================
   inspectcode:
     name: "ReSharper InspectCode"
-    runs-on: ubuntu-latest
+    # Runs on Windows so .NET Framework reference assemblies (System,
+    # System.Xml.Linq, etc.) resolve natively for any net462 / net472 / net48
+    # projects the solution includes. On ubuntu-latest InspectCode fails
+    # with 60+ MSB3245 assembly-resolution errors on Framework-target
+    # projects unless we install mono — Windows has them out of the box.
+    # The build + test stages parallel this on Linux/Windows/macOS, so the
+    # Windows load here is not additive to the wall-clock the way an extra
+    # test stage would be.
+    runs-on: windows-latest
+    # All step scripts below use bash syntax (process substitution, [[ ]],
+    # etc.) — pin the default shell so it works uniformly on windows-latest
+    # (which defaults to pwsh) and not accidentally on any future runner
+    # swap.
+    defaults:
+      run:
+        shell: bash
     needs: detect-projects
     if: github.repository != 'Chris-Wolfgang/repo-template' && needs.detect-projects.outputs.has-projects == 'true'
     timeout-minutes: 20
