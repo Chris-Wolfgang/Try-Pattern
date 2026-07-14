@@ -343,55 +343,16 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      # Same Linux-compatibility filter as Stage 1: exclude projects that ONLY
-      # target .NET Framework 4.x (e.g. examples/CSharp.DotNet462.Example).
-      # A repo-root `dotnet build` would fail on Ubuntu on those. Multi-
-      # targeting projects that also include a .NET 5+/Core/Standard TFM are
-      # kept, and built only on their Linux-compatible framework(s).
-      - name: Restore and build (exclude .NET Framework-only projects)
+      # Restore + build everything the solution knows about. On
+      # windows-latest .NET Framework 4.x reference assemblies are bundled,
+      # so net462 / net472 / net48 projects (e.g. examples/CSharp.DotNet462.Example)
+      # build natively alongside net5+ / netstandard / netcoreapp projects
+      # — no filter loop needed. InspectCode then reads the built outputs
+      # (with `--no-build`) for the whole solution.
+      - name: Restore and build
         run: |
-          echo "Finding .NET project files (skipping Framework-only projects)..."
-
-          projects=()
-          while IFS= read -r -d '' proj; do
-            # Match <TargetFramework> or <TargetFrameworks>; normalize newlines
-            # first so multi-line elements are captured.
-            if tr -d '\n\r' < "$proj" | grep -qE '<TargetFramework[s]?>.*(net(5\.0|6\.0|7\.0|8\.0|9\.0|10\.0)|netcoreapp|netstandard)'; then
-              projects+=("$proj")
-              echo "✓ Including: $proj"
-            else
-              echo "⊘ Excluding: $proj (Framework-only, incompatible with Linux)"
-            fi
-          done < <(find . -type f \( -name "*.csproj" -o -name "*.vbproj" -o -name "*.fsproj" \) -print0)
-
-          if [ ${#projects[@]} -eq 0 ]; then
-            echo "❌ No Linux-compatible .NET projects found."
-            exit 1
-          fi
-
-          for proj in "${projects[@]}"; do
-            echo "Restoring: $proj"
-            dotnet restore "$proj" || exit 1
-          done
-
-          for proj in "${projects[@]}"; do
-            # Pick the first Linux-compatible TFM (any is fine — InspectCode
-            # analyzes source, not runtime output). Falls back to a
-            # single-framework build for single-target projects.
-            tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFrameworks 2>/dev/null \
-              | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFrameworks[=:][[:space:]]*//' | tr -d '[:space:]')
-            if [ -z "$tfm_raw" ]; then
-              tfm_raw=$(dotnet msbuild "$proj" -noLogo -getProperty:TargetFramework 2>/dev/null \
-                | grep -v '^[[:space:]]*$' | tail -n1 | sed 's/^TargetFramework[=:][[:space:]]*//' | tr -d '[:space:]')
-            fi
-            fw=$(printf '%s' "$tfm_raw" | tr ';' '\n' | grep -E '^(net(5\.0|6\.0|7\.0|8\.0|9\.0|10\.0)|netcoreapp[0-9.]+|netstandard[0-9.]+)$' | head -n1)
-            if [ -z "$fw" ]; then
-              echo "  ⚠️  No Linux-compatible TFM in $proj — skipping"
-              continue
-            fi
-            echo "Building: $proj (framework: $fw)"
-            dotnet build "$proj" --no-restore --configuration Release --framework "$fw" || exit 1
-          done
+          dotnet restore
+          dotnet build -c Release --no-restore
 
       - name: Install JetBrains.ReSharper.GlobalTools
         run: dotnet tool install -g JetBrains.ReSharper.GlobalTools
@@ -421,16 +382,26 @@ jobs:
           sarif_file: inspect.sarif
 
       - name: Gate on error-severity findings
+        # PowerShell (native on windows-latest) so we don't depend on jq
+        # being preinstalled. Parses the SARIF via ConvertFrom-Json and
+        # counts results at level=error. Warnings still upload (visible in
+        # Security → Code scanning) but don't gate merge — raise to `error`
+        # later when the noise floor is acceptable.
+        shell: pwsh
         run: |
-          # SARIF level=error fails the job; warnings still upload (visible in
-          # Security → Code scanning) but don't gate merge — raise to `error`
-          # later when the noise floor is acceptable.
-          count=$(jq '[.runs[].results[] | select(.level=="error")] | length' inspect.sarif)
-          if [ "$count" -gt 0 ]; then
-            echo "::error::$count InspectCode error-severity finding(s) — see Security → Code scanning"
+          $sarif = Get-Content inspect.sarif -Raw | ConvertFrom-Json
+          $count = @(
+            foreach ($run in $sarif.runs) {
+              foreach ($result in $run.results) {
+                if ($result.level -eq 'error') { $result }
+              }
+            }
+          ).Count
+          if ($count -gt 0) {
+            Write-Host "::error::$count InspectCode error-severity finding(s) — see Security → Code scanning"
             exit 1
-          fi
-          echo "✅ No error-severity InspectCode findings."
+          }
+          Write-Host "✅ No error-severity InspectCode findings."
 
 
   # ============================================================================
