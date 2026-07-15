@@ -104,8 +104,11 @@ jobs:
           # pipefail, `ls` exits non-zero when the glob doesn't match
           # and pipefail kills the step BEFORE the `if [ -z ]` guard
           # runs. Same pattern as the SLN detection in the InspectCode
-          # job on pr.yaml, and same reason. Also side-steps
-          # shellcheck SC2012.
+          # job on pr.yaml, and same reason. Also side-steps SC2012.
+          # (Do NOT start this comment with "shellcheck" — that
+          #  string at the head of a comment is parsed as a shellcheck
+          #  directive by shellcheck itself, expects `disable=…` after,
+          #  and fails the actionlint job with SC1072/SC1073.)
           snupkg=""
           for candidate in ./sourcelink-packages/*.snupkg; do
             if [ -f "$candidate" ]; then
