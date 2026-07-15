@@ -100,7 +100,19 @@ jobs:
         # A .snupkg is a zip file with the same layout as a .nupkg
         # but containing lib/<tfm>/<assembly>.pdb instead of the DLLs.
         run: |
-          snupkg=$(ls ./sourcelink-packages/*.snupkg 2>/dev/null | head -n1)
+          # Direct glob loop (not `ls *.snupkg | head`) — under -e -o
+          # pipefail, `ls` exits non-zero when the glob doesn't match
+          # and pipefail kills the step BEFORE the `if [ -z ]` guard
+          # runs. Same pattern as the SLN detection in the InspectCode
+          # job on pr.yaml, and same reason. Also side-steps
+          # shellcheck SC2012.
+          snupkg=""
+          for candidate in ./sourcelink-packages/*.snupkg; do
+            if [ -f "$candidate" ]; then
+              snupkg="$candidate"
+              break
+            fi
+          done
           if [ -z "$snupkg" ]; then
             echo "::error::No .snupkg produced by dotnet pack. Check <IncludeSymbols> + <SymbolPackageFormat> in Directory.Build.props."
             exit 1
