@@ -1,0 +1,77 @@
+name: OSSF Scorecard
+
+# Automated security-posture scoring via https://github.com/ossf/scorecard.
+# Checks ~20 best practices (branch protection, pinned actions, signed
+# commits, dangerous-workflow patterns, vulnerability response time, …)
+# and produces a 0-10 score. Complementary to CodeQL / DevSkim, which
+# scan the CODE; Scorecard scans the REPO CONFIGURATION.
+#
+# Results are:
+#   - Uploaded as SARIF to GitHub Code Scanning (Security tab)
+#   - Sent to the OpenSSF public scorecard database (only from `main` runs)
+#     — this powers the README badge and enables consumers to check the
+#     score at https://api.securityscorecards.dev/projects/github.com/Chris-Wolfgang/Try-Pattern.
+#
+# Score-floor policy: any PR that drops the score below **7.5** must
+# explain the regression in the PR body and — after merge — add a line
+# to CHANGELOG.md's [Unreleased] Security section documenting the
+# accepted lower score. This is a soft gate (reviewer attention), not a
+# hard CI-blocking check, because Scorecard's rules are strict enough
+# that a single stale dependency can drop the score below floor while
+# a fix is in flight.
+
+on:
+  # Weekly scan on Monday 06:00 UTC — captures dependency drift + any
+  # externally-visible config changes over the past week.
+  schedule:
+    - cron: '0 6 * * 1'
+  # Also run on push to main so a change that affects the score shows up
+  # immediately, not up to a week later.
+  push:
+    branches: [main]
+  # Allow manual re-runs from the Actions tab for on-demand audits.
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # Required to upload SARIF to Code Scanning.
+      security-events: write
+      # Required to publish results to the OpenSSF public database via
+      # keyless signing (OIDC) — this is what makes the score appear
+      # in the badge + consumer-checkable API.
+      id-token: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Run OSSF Scorecard analysis
+        uses: ossf/scorecard-action@v2.4.2
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publish to the public OpenSSF database ONLY on main branch
+          # runs (schedule + push to main). PR runs stay local — we
+          # don't want in-flight PR scores polluting the badge.
+          publish_results: ${{ github.event_name != 'pull_request' }}
+
+      - name: Upload artifact (JSON copy)
+        uses: actions/upload-artifact@v7
+        with:
+          name: scorecard-results
+          path: results.sarif
+          retention-days: 30
+
+      - name: Upload results to Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif
