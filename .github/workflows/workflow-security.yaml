@@ -1,0 +1,110 @@
+name: Workflow Security
+
+# Lints the GitHub Actions workflow YAML for security anti-patterns
+# that CodeQL / DevSkim / SAST tools don't catch: untrusted-input
+# injection into `run:` blocks, missing / overly-permissive
+# `permissions:` blocks, secret leaks via expression-context
+# expansion, unpinned actions, dangerous triggers, etc.
+#
+# Two tools, complementary rule sets:
+#   - actionlint — https://github.com/rhysd/actionlint. Syntax +
+#     shellcheck + expression-syntax analysis. Fast.
+#   - zizmor     — https://github.com/woodruffw/zizmor. Security-
+#     focused audit rules (dangerous triggers, unpinned uses,
+#     template injection, artifact leakage, …). Configurable via
+#     `.github/zizmor.yml`.
+#
+# Gates on HIGH-severity zizmor findings (`--min-severity=high`) and
+# on any actionlint finding. The zizmor baseline
+# (`.github/zizmor.yml`) documents the accepted current-state
+# suppressions so the gate stays green on main today and fires only
+# on NEWLY-introduced findings.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      # Only run when workflow YAML actually changes. Everything else
+      # is a waste of CI minutes since neither tool inspects code.
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - '.github/zizmor.yml'
+      - '.github/workflows/workflow-security.yaml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - '.github/zizmor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install actionlint
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -version
+
+      - name: Run actionlint
+        # `-color` forces ANSI colour even under CI; GitHub renders it.
+        # Non-zero exit on any finding fails the step (default
+        # behaviour of actionlint — no explicit `--fail-on` needed).
+        run: ./actionlint -color
+
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Needed for SARIF upload to Code Scanning.
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install zizmor
+        run: pip install zizmor
+
+      - name: Run zizmor (SARIF)
+        # Emit SARIF for the Security tab upload. Uses the repo's
+        # `.github/zizmor.yml` config for baseline suppressions.
+        # `--min-severity=high` means the CLI itself only fails on
+        # HIGH or above; low/medium/informational findings still
+        # appear in the SARIF for review but don't gate merge.
+        run: |
+          zizmor --format=sarif --min-severity=high .github/workflows/ > zizmor.sarif || echo "zizmor exit=$?"
+
+      - name: Upload SARIF to Code Scanning
+        # Uploads even on the failing case so findings show up in
+        # Security → Code scanning where a reviewer can triage.
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: zizmor.sarif
+          category: zizmor
+
+      - name: Gate on HIGH-severity findings
+        # Re-runs zizmor without SARIF redirection so the exit code
+        # is authoritative. `--min-severity=high` means non-zero exit
+        # only if there's a HIGH or above finding not covered by
+        # `.github/zizmor.yml` baseline.
+        run: zizmor --min-severity=high .github/workflows/
