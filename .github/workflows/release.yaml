@@ -785,6 +785,55 @@ jobs:
       - name: Zip coverage report
         run: zip -r release-coverage.zip ./release-coverage
 
+      - name: Generate reproducible-build manifest
+        # Third-party verification manifest per issue #193. Attaches
+        # SHA-256 hashes for every shipped .nupkg / .snupkg + every
+        # lib/<tfm>/*.dll inside the .nupkgs. See docs/REPRODUCIBLE-BUILD.md
+        # for how consumers use this to verify what nuget.org served.
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag='${{ github.event.release.tag_name }}'
+          sdk="$(dotnet --version)"
+          {
+            printf '{\n'
+            printf '  "tag": "%s",\n' "$tag"
+            printf '  "commit": "%s",\n' "${{ github.sha }}"
+            printf '  "sdk": "%s",\n' "$sdk"
+            printf '  "generated_at": "%s",\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf '  "packages": [\n'
+            first_pkg=1
+            for pkg in ./nuget-packages/*.nupkg ./nuget-packages/*.snupkg; do
+              [ -f "$pkg" ] || continue
+              pkg_name="$(basename "$pkg")"
+              pkg_sha="$(sha256sum "$pkg" | awk '{ print $1 }')"
+              if [ $first_pkg -eq 0 ]; then printf ',\n'; fi
+              first_pkg=0
+              printf '    {\n'
+              printf '      "file": "%s",\n' "$pkg_name"
+              printf '      "sha256": "%s",\n' "$pkg_sha"
+              printf '      "contents": [\n'
+              # Extract to a temp dir + hash each lib/*/*.dll.
+              tmp="$(mktemp -d)"
+              unzip -q "$pkg" -d "$tmp" || true
+              first_dll=1
+              while IFS= read -r dll; do
+                dll_rel="${dll#$tmp/}"
+                dll_sha="$(sha256sum "$dll" | awk '{ print $1 }')"
+                if [ $first_dll -eq 0 ]; then printf ',\n'; fi
+                first_dll=0
+                printf '        { "path": "%s", "sha256": "%s" }' "$dll_rel" "$dll_sha"
+              done < <(find "$tmp" -type f -name '*.dll' | sort)
+              printf '\n      ]\n'
+              printf '    }'
+              rm -rf "$tmp"
+            done
+            printf '\n  ]\n'
+            printf '}\n'
+          } > ./nuget-packages/reproducible-build-manifest.json
+          echo '--- manifest preview ---'
+          cat ./nuget-packages/reproducible-build-manifest.json
+
       - name: Attach artifacts to release
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b  # v3.0.1
         with:
@@ -793,5 +842,6 @@ jobs:
             ./nuget-packages/*.nupkg
             ./nuget-packages/*.snupkg
             ./nuget-packages/*.bom.json
+            ./nuget-packages/reproducible-build-manifest.json
             release-coverage.zip
 
