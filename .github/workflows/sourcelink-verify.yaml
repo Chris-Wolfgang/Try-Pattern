@@ -1,0 +1,161 @@
+name: SourceLink verification
+
+# End-to-end SourceLink verification per issue #181.
+#
+# Each release ships a `.snupkg` (symbol package) whose embedded PDBs
+# should contain SourceLink metadata pointing at
+# https://raw.githubusercontent.com/Chris-Wolfgang/Try-Pattern/<commit>/<path>.
+# A consumer debugging into the library via F11 expects that URL to
+# return actual source content, not "decompiled assembly."
+#
+# This workflow verifies the LOCALLY-PRODUCED .snupkg (what the next
+# release WOULD publish), not what is currently on nuget.org. That's
+# on purpose:
+#
+#   1. Catches SourceLink breakage BEFORE it ships (vs after, when
+#      consumers are already stuck).
+#   2. Avoids depending on nuget.org's symbol-server flat container
+#      URL, which historically has not returned Try-Pattern's .snupkg
+#      files at the expected path (v0.3.0 through v0.3.4 all return
+#      404; the symbol push flow itself is under separate investigation).
+#
+# Runs on every PR that touches src/ or release-adjacent config, plus
+# weekly to catch drift (e.g. the GitHub raw URL becomes unreachable
+# because the repo was renamed / went private / archived).
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Directory.Build.props'
+      - '.github/workflows/sourcelink-verify.yaml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Directory.Build.props'
+      - '.github/workflows/sourcelink-verify.yaml'
+  schedule:
+    # Weekly Mon 07:00 UTC — catches external drift (repo rename /
+    # private / archive would break the raw URL after release without
+    # any code change on our side).
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify SourceLink URLs resolve
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          # Full history so the commit SHA embedded in the PDB (by
+          # SourceLink at pack time, driven by
+          # Microsoft.SourceLink.GitHub) matches a commit that the
+          # GitHub raw endpoint can actually resolve — a shallow
+          # checkout still works but full history is cheap and
+          # explicit.
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install sourcelink CLI tool
+        # Cameron Taggart's `sourcelink` tool — the canonical CLI for
+        # inspecting PDB SourceLink metadata. Last v3.1.1 (2019) but
+        # still the well-known name; the underlying protocol hasn't
+        # changed. If this tool ever breaks, `dotnet-symbol` +
+        # manual JSON parse is the fallback.
+        run: dotnet tool install -g sourcelink
+
+      - name: Restore + Build (Release)
+        # Release build so the CI-flag (Directory.Build.props sets
+        # `<ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</...>`)
+        # engages, producing deterministic + SourceLink-embedded PDBs
+        # that match what the release pipeline would produce.
+        run: |
+          dotnet restore src/Wolfgang.TryPattern
+          dotnet build src/Wolfgang.TryPattern -c Release --no-restore
+
+      - name: Pack (produces .nupkg + .snupkg)
+        # --no-build reuses the Release binaries from the previous
+        # step. Emits both .nupkg (assemblies + docs) and .snupkg
+        # (symbol package with PDBs) because Directory.Build.props
+        # sets `<IncludeSymbols>true</IncludeSymbols>` +
+        # `<SymbolPackageFormat>snupkg</SymbolPackageFormat>`.
+        run: |
+          mkdir -p ./sourcelink-packages
+          dotnet pack src/Wolfgang.TryPattern --no-build -c Release -o ./sourcelink-packages
+          ls -la ./sourcelink-packages/
+
+      - name: Extract PDBs from .snupkg
+        # A .snupkg is a zip file with the same layout as a .nupkg
+        # but containing lib/<tfm>/<assembly>.pdb instead of the DLLs.
+        run: |
+          snupkg=$(ls ./sourcelink-packages/*.snupkg 2>/dev/null | head -n1)
+          if [ -z "$snupkg" ]; then
+            echo "::error::No .snupkg produced by dotnet pack. Check <IncludeSymbols> + <SymbolPackageFormat> in Directory.Build.props."
+            exit 1
+          fi
+          echo "Extracting $snupkg"
+          mkdir -p ./sourcelink-extracted
+          unzip -q "$snupkg" -d ./sourcelink-extracted
+          echo ""
+          echo "PDBs found:"
+          find ./sourcelink-extracted -name '*.pdb' -print
+
+      - name: Verify SourceLink URLs resolve for every PDB
+        # `sourcelink test` walks the PDB's SourceLink JSON, computes
+        # the URL for every embedded document, HTTP GETs each one,
+        # and verifies the returned content's checksum matches the
+        # PDB's recorded document checksum.
+        #
+        # Non-zero exit on:
+        #   - PDB has no SourceLink metadata at all
+        #   - Any URL returns non-2xx
+        #   - Any returned content checksum mismatches the PDB record
+        #
+        # For a PR run, "URL returns non-2xx" is expected — the
+        # SourceLink URL points at the PR's commit SHA which isn't in
+        # main yet, so the raw endpoint may 404 until merge. Handle
+        # that case by softening the failure on PR events; keep the
+        # hard check for push-to-main and scheduled runs (which are
+        # where drift would silently ship).
+        run: |
+          set +e
+          any_failed=0
+          while IFS= read -r pdb; do
+            echo "=== $pdb ==="
+            sourcelink test "$pdb"
+            rc=$?
+            if [ "$rc" -ne 0 ]; then
+              any_failed=1
+              echo "::warning::sourcelink test exit=$rc on $pdb"
+            fi
+          done < <(find ./sourcelink-extracted -name '*.pdb')
+          set -e
+
+          if [ "$any_failed" -eq 0 ]; then
+            echo "✅ All PDBs verified — SourceLink URLs resolve correctly."
+            exit 0
+          fi
+
+          # On PR runs, a 404 is expected because the commit isn't on
+          # main yet. Soft-fail (warn but pass) so PRs aren't blocked
+          # on transient not-yet-merged commit URLs.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "::warning::PR event — SourceLink URL 404 is expected until merge (commit SHA not on main yet). Not failing the PR."
+            exit 0
+          fi
+
+          # push-to-main or schedule or workflow_dispatch — hard fail.
+          echo "::error::SourceLink verification failed on a main-facing event. Investigate before the next release."
+          exit 1
