@@ -1,0 +1,66 @@
+# zizmor configuration.
+# Docs: https://docs.zizmor.sh/configuration/
+
+rules:
+  unpinned-uses:
+    # DISABLED — see the "Rule status" section below for the plan to
+    # remove this suppression.
+    #
+    # Every action reference in this repo currently uses a tag ref
+    # (e.g. `actions/checkout@v7`) rather than a SHA-pinned ref
+    # (e.g. `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v7.0.0`).
+    # zizmor flags every one of them as a `high`-severity finding —
+    # ~48 across 8 workflow files today, so the gate would be red
+    # from day one.
+    #
+    # The fleet convention (`feedback_actions_sha_pin` memory) IS to
+    # SHA-pin every action, but Try-Pattern hasn't caught up yet.
+    # Rather than let that block the zizmor adoption, this rule is
+    # ignored fleet-wide via a wildcard until a dedicated SHA-pin
+    # PR (or fleet-wide bulk-repo-pr sweep) lands. That PR should:
+    #
+    #   1. Replace every `uses: <org>/<action>@<tag>` with
+    #      `uses: <org>/<action>@<40-char-sha>  # <tag>` (the trailing
+    #      comment is required per fleet convention so Dependabot can
+    #      still auto-bump).
+    #   2. Remove this `ignore: ["*"]` block from this file (delete
+    #      the entire `unpinned-uses:` section to re-enable the rule
+    #      at default severity).
+    #   3. Verify with `zizmor .github/workflows/` locally — the
+    #      finding count should drop from ~48 high → 0 high.
+    #
+    # Filed as a follow-up in issue #NEW (to be created by the same
+    # session that lands the SHA-pin campaign).
+    # zizmor's `ignore` requires specific workflow filenames (globs
+    # aren't accepted). Every workflow file in this repo is listed
+    # explicitly. When a new workflow is added, add its filename here
+    # too — it's a good forcing function to ask "should this new
+    # workflow SHA-pin the actions from day one instead of joining the
+    # deferred baseline?"
+    ignore:
+      - benchmarks.yaml
+      - build-all-versions.yaml
+      - codeql.yaml
+      - docfx.yaml
+      - pr.yaml
+      - release.yaml
+      - scorecard.yml
+      - stryker.yaml
+      - workflow-security.yaml
+
+  dangerous-triggers:
+    # ACCEPTED for `pr.yaml`. That workflow uses `pull_request_target`
+    # deliberately (rather than `pull_request`) so that the workflow
+    # YAML itself executes from the base branch (main), not from the
+    # PR branch — a malicious PR cannot modify the workflow logic that
+    # validates it. The design + mitigations (fetch-trusted-config
+    # step, `persist-credentials: false`, minimal permissions, config-
+    # files-change guard) are documented in
+    # `docs/WORKFLOW_SECURITY.md`.
+    #
+    # If a future refactor moves the InspectCode / test stages OFF
+    # `pull_request_target`, remove this suppression — zizmor's
+    # concern is legitimate for any pr.yaml that doesn't have the
+    # mitigations we do.
+    ignore:
+      - pr.yaml
