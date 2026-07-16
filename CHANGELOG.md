@@ -7,17 +7,113 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Thorough-review batch and repo hardening round. No runtime behaviour
+change in `Wolfgang.TryPattern` itself except for #273 (fix
+`Try.Run*` throwing on whitespace exception messages); everything
+else is CI / test infrastructure that raises the release-readiness
+bar. MINOR bump anticipated at release time (0.4.0) — new test
+surface, new CI signals, but no public API changes.
+
 ### Added
 
-### Changed
-
-### Deprecated
-
-### Removed
+- **CI (SLSA build-provenance)** — `release.yaml`'s
+  `pack-and-validate` job attests every shipped `.nupkg` / `.snupkg`
+  / `.bom.json` via `actions/attest-build-provenance@v2`. Consumers
+  verify with
+  `gh attestation verify Wolfgang.TryPattern.<v>.nupkg --repo Chris-Wolfgang/Try-Pattern`.
+  Closes #176.
+- **CI (Semgrep OSS SAST)** — new `semgrep-sast.yaml` runs
+  `p/csharp` + `p/security-audit` rulesets on PR / push-to-main /
+  weekly. SARIF ingest to Code Scanning; findings triaged in
+  `docs/SEMGREP-AUDIT.md`. Closes #172.
+- **CI (license audit)** — new `license-audit.yaml` using
+  `dotnet-project-licenses` 2.7.1 fails on any transitive licence
+  outside `.github/license/allowed-licenses.json`. Attaches
+  `THIRD-PARTY-NOTICES.md` per run. Closes #185.
+- **CI (ABI compat)** — new `api-compat.yaml` matrix over
+  net8.0/net10.0 runs `apicompat` against the latest published
+  version. Suppressions in `.github/api-compat/suppressions.xml`.
+  Closes #174.
+- **CI (Native AOT smoke)** — new `aot-smoke.yaml` publishes the
+  `tests/Wolfgang.TryPattern.AotSmoke` project with `PublishAot=true`
+  and runs the produced binary. Closes #180.
+- **CI (reproducible-build verification)** — new
+  `reproducible-build.yaml` builds on ubuntu + windows weekly and
+  diffs the produced `.dll` hashes. Advisory warning on divergence.
+  Closes #183.
+- **CI (reproducible-build manifest)** — `release.yaml` now attaches
+  a `reproducible-build-manifest.json` per release with SHA-256 of
+  every shipped `.nupkg` / `.snupkg` / `lib/<tfm>/*.dll`, SDK
+  version, and commit. Third-party verification procedure in
+  `docs/REPRODUCIBLE-BUILD.md`. Closes #193.
+- **CI (Stryker gate)** — `stryker.yaml` runs on PR (main + vNext)
+  in addition to weekly; `stryker-config.json` `thresholds.break`
+  bumped 0 → 60 as a conservative starting floor. Policy in
+  `docs/MUTATION-TESTING.md`. Closes #173.
+- **CI (PR benchmark regression gate)** — new `pr-benchmarks.yaml`
+  runs BDN on PR HEAD + base, posts an upserted delta comment,
+  fails on regressions beyond thresholds unless PR carries the
+  `perf-impact-acknowledged` label. Closes #192.
+- **CI (continuous fuzz)** — new `fuzz.yaml` runs FsCheck properties
+  at MaxTest = 100_000 weekly. Failure auto-files a `bug`-labelled
+  issue with the shrunk counter-example. Closes #170.
+- **CI (cross-platform × ARM64 differential)** — new
+  `cross-platform-differential.yaml` matrix over 6 (os, arch) rows,
+  diffs test outcomes. Closes #177.
+- **Tests (fuzz + property-based)** — new
+  `tests/Wolfgang.TryPattern.Tests.Unit/PropertyTests.cs` and
+  `FuzzTests.cs` cover the Try / Result surface with FsCheck.Xunit
+  2.16.6.
+- **Tests (Native AOT smoke)** — new
+  `tests/Wolfgang.TryPattern.AotSmoke/` compile+publish+run smoke
+  targeting every public API.
+- **Tests (globalization invariance)** — new
+  `GlobalizationInvarianceTests.cs` re-runs a representative slice
+  under en-US, tr-TR, de-DE, zh-CN, ar-SA, ja-JP. Closes #182.
+- **Tests (zero-alloc hot path)** — new `ZeroAllocationTests.cs`
+  enforces zero allocations on `Result.Success()` and
+  `Try.Run(Action)` success path via
+  `GC.GetAllocatedBytesForCurrentThread()`. Closes #184.
+- **Tests (XML doc example rot detection)** — new
+  `DocExampleCompilationTests.cs` compiles every `<example><code>`
+  block from the produced `Wolfgang.TryPattern.xml` through Roslyn.
+  Three example blocks added to `Try.cs`. Closes #179.
+- **docs** — new `SECURITY.md` "Release path & compromise scope"
+  appendix (#188), `docs/SUPPLY-CHAIN.md` (#176),
+  `docs/REPRODUCIBLE-BUILD.md` (#183, #193),
+  `docs/MUTATION-TESTING.md` (#173), `docs/SEMGREP-AUDIT.md` (#172).
 
 ### Fixed
 
-### Security
+- **Try.Run\* throw on whitespace exception message** — every
+  `Try.Run*` overload now coerces a null / empty / whitespace
+  exception message to `ex.GetType().Name` via a private
+  `SafeErrorMessage` helper before handing it to `Result.Failure`.
+  Previously an exception whose `Message` was whitespace-only made
+  `Try.Run` itself throw `ArgumentException` from inside its own
+  catch. Discovered by the fuzz property added in this batch.
+  Closes #273.
+
+### Chore
+
+- **benchmarks** — dropped `[SimpleJob(RuntimeMoniker.Net80)]` from
+  `TryBenchmarks`. BDN now uses the compile target's runtime
+  (net10.0 per the csproj) which is what most consumers actually
+  deploy. The pinned moniker had gone stale after the v0.3.4
+  net8 → net10 bump.
+
+### Notes
+
+- Bug #273 exists in every released version 0.3.5 and earlier; the
+  fix in this release restores the intended
+  never-throws-from-catch invariant.
+- The Stryker `break: 60` threshold is a conservative starting
+  floor; ratchet-up policy in `docs/MUTATION-TESTING.md`.
+- Two thorough-review issues closed as not-applicable:
+  #178 (Verify snapshot — no format-drift surface) and
+  #171 (production-traffic shadow — no observable side effects).
+  #175 (Coyote / concurrency stress) left open for future
+  consideration.
 
 ## [0.3.5] - 2026-07-14
 
