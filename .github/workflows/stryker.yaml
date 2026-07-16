@@ -10,17 +10,21 @@
 name: Stryker (mutation testing)
 
 on:
-  # PR gate per issue #173: any PR that would drop the mutation score
-  # below the `break` threshold in stryker-config.json fails the job.
-  # dotnet-stryker itself exits non-zero when observed < break, so the
-  # gating is just "run it on PR" — no extra step needed to fail.
-  pull_request:
-    branches: [main, vNext]
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'stryker-config.json'
-      - '.github/workflows/stryker.yaml'
+  # PR trigger per issue #173 is temporarily disabled: dotnet-stryker
+  # 4.15 and 4.16 both crash inside Buildalyzer with
+  # `System.TypeLoadException: Could not load type
+  # 'Roslyn.Utilities.IObjectWritable' from Microsoft.CodeAnalysis
+  # 5.6.0.0` — Stryker's bundled Buildalyzer targets an older
+  # Microsoft.CodeAnalysis than the 5.6 dragged in by the fleet
+  # analyzer bump in v0.3.5 (Meziantou 3.0.122, BannedApi 5.6,
+  # PublicApi 5.6, Sonar 10.29). Re-enable the `pull_request` trigger
+  # once a Stryker release with a compatible Buildalyzer/Roslyn stack
+  # ships (upstream tracking issue linked from #173).
+  #
+  # Meanwhile the weekly + workflow_dispatch triggers still run the
+  # tool. The `break: 60` threshold in stryker-config.json still
+  # applies; a regressing PR just doesn't get caught until the next
+  # weekly (or someone triggers workflow_dispatch after merging).
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 0' # weekly Sunday 06:00 UTC
