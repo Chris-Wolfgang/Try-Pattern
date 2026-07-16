@@ -76,7 +76,14 @@ jobs:
 
       - name: Install dotnet-stryker
         if: steps.check.outputs.found == 'true'
-        run: dotnet tool update -g dotnet-stryker || dotnet tool install -g dotnet-stryker
+        # Pinned to 4.16.0: earlier 4.15.0 crashes at initialisation with
+        # `System.TypeLoadException: Could not load type 'Roslyn.Utilities.IObjectWritable'`
+        # against the Microsoft.CodeAnalysis 5.6 the fleet analyzer bump
+        # (v0.3.5) drags in. 4.16.0 refreshed the Buildalyzer/Roslyn stack
+        # and is the current stable line.
+        run: |
+          dotnet tool update -g dotnet-stryker --version 4.16.0 \
+            || dotnet tool install -g dotnet-stryker --version 4.16.0
 
       - name: Run Stryker
         if: steps.check.outputs.found == 'true'
