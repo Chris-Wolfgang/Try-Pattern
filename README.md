@@ -135,7 +135,7 @@ var result = await Try.RunAsync(() =>
 |----------|-------------|
 | `Succeeded` | `true` if the operation completed successfully |
 | `Failed` | `true` if the operation failed (inverse of `Succeeded`) |
-| `ErrorMessage` | The error message if failed, empty string if succeeded |
+| `ErrorMessage` | The error message if failed, `null` if succeeded |
 | `Value` | (Generic only) The return value if succeeded, throws `InvalidOperationException` if failed |
 
 ---

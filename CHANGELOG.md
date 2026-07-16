@@ -7,9 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
 ### Changed
+
+- **BREAKING (runtime behaviour) — `Result.ErrorMessage` returns `null`
+  on success** (was `string.Empty`). The property type stays
+  `string?` — no compile-time signature change. Consumers who read
+  `ErrorMessage` before checking `Succeeded` / `Failed` may need to
+  add null-handling.
+
+  Migration:
+  - Correct code that checks `Failed` before reading `ErrorMessage`
+    is unchanged — `ErrorMessage` is still non-null on the failed
+    branch.
+  - `result.ErrorMessage.Length` on an unchecked result → NRE on
+    success. Add a null check, or use
+    `result.ErrorMessage?.Length ?? 0`, or fall back with
+    `result.ErrorMessage ?? string.Empty`.
+  - `string.IsNullOrEmpty(result.ErrorMessage)` continues to work
+    (returns `true` for both null and `""`).
+
+  Why: `string?` means "may or may not have a value"; success IS
+  "does not have a value". Returning `string.Empty` on success was
+  the null-object pattern applied to strings — a workaround from
+  pre-nullable-reference-types days that C# 8+ made unnecessary.
+  0.x is the right time to correct this before it locks in.
+
+### Added
 
 ### Deprecated
 

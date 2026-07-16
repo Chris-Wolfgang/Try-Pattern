@@ -34,8 +34,7 @@ public class RunAsyncFuncTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -59,8 +58,7 @@ public class RunAsyncFuncTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -84,7 +82,7 @@ public class RunAsyncFuncTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -194,8 +192,7 @@ public class RunAsyncFuncTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -222,8 +219,7 @@ public class RunAsyncFuncTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
@@ -250,7 +246,7 @@ public class RunAsyncFuncTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
         Assert.Equal(expectedValue, result.Value);
     }
 
