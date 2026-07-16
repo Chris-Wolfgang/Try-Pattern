@@ -45,7 +45,7 @@ public class PropertyTests
     [Property]
     public Property Try_Run_of_throwing_action_carries_message_round_trip(NonEmptyString message)
     {
-        ArgumentNullException.ThrowIfNull(message);
+        if (message is null) throw new ArgumentNullException(nameof(message));
         // NonEmptyString excludes only the empty string; Result.Failure
         // additionally rejects whitespace-only strings and there's a
         // latent bug (#273) that lets a whitespace exception message
@@ -97,7 +97,7 @@ public class PropertyTests
     [Property]
     public Property Flatten_of_all_successes_is_success(NonNegativeInt count)
     {
-        ArgumentNullException.ThrowIfNull(count);
+        if (count is null) throw new ArgumentNullException(nameof(count));
         // Bound the count so FsCheck doesn't allocate a huge array
         // just because it generated int.MaxValue.
         int n = Math.Min(count.Get, 64);

@@ -43,7 +43,7 @@ public class FuzzTests
     [Property(MaxTest = LongRunMaxTest)]
     public Property Fuzz_Try_Run_of_throwing_action_carries_message(NonEmptyString message)
     {
-        ArgumentNullException.ThrowIfNull(message);
+        if (message is null) throw new ArgumentNullException(nameof(message));
         string msg = message.Get;
         // Exclude whitespace-only strings — Result.Failure requires
         // non-whitespace and a whitespace exception message causes
