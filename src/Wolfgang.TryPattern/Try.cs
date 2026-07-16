@@ -20,6 +20,15 @@ public static class Try
     /// A <see cref="Result"/> that indicates if the action was successful.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
+    /// <example>
+    /// <code>
+    /// Result result = Try.Run(() => File.Delete("temp.txt"));
+    /// if (result.Failed)
+    /// {
+    ///     Console.WriteLine("Delete failed: " + result.ErrorMessage);
+    /// }
+    /// </code>
+    /// </example>
     public static Result Run([NotNull] Action? action)
     {
         if (action == null)
@@ -50,6 +59,15 @@ public static class Try
     /// <see cref="Result{T}"/> whose <see cref="Result.ErrorMessage"/> is the caught exception's message.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
+    /// <example>
+    /// <code>
+    /// Result&lt;int&gt; result = Try.Run(() => int.Parse("42"));
+    /// if (result.Succeeded)
+    /// {
+    ///     Console.WriteLine("Parsed: " + result.Value);
+    /// }
+    /// </code>
+    /// </example>
 #if NET5_0_OR_GREATER
     public static Result<T?> Run<T>([NotNull] Func<T>? function)
     {
@@ -108,8 +126,22 @@ public static class Try
     /// <exception cref="OperationCanceledException">
     /// Cancellation was observed via <paramref name="token"/> (either before
     /// <paramref name="action"/> started, or because <paramref name="action"/> itself observed
-    /// the token and threw).
-    /// </exception>
+    /// the token and threw).</exception>
+    /// <example>
+    /// <code>
+    /// using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+    /// Result result = await Try.RunAsync(
+    ///     () =>
+    ///     {
+    ///         foreach (int item in largeDataSet)
+    ///         {
+    ///             cts.Token.ThrowIfCancellationRequested();
+    ///             Process(item);
+    ///         }
+    ///     },
+    ///     cts.Token);
+    /// </code>
+    /// </example>
     public static async Task<Result> RunAsync([NotNull] Action? action, CancellationToken token = default)
     {
         if (action == null)
