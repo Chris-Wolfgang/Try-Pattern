@@ -1,0 +1,88 @@
+name: Semgrep SAST
+
+# Static application security testing beyond CodeQL per issue #172.
+#
+# CodeQL (`codeql.yaml`, security-extended query pack) covers the
+# OSS-grade SAST baseline. This workflow adds Semgrep OSS
+# (semgrep.dev/p/csharp + semgrep.dev/p/security-audit) as a
+# complementary scanner. Zero-account: Semgrep OSS pulls its rulesets
+# from the public registry over HTTPS, no API key required.
+#
+# Findings are uploaded as SARIF to GitHub Code Scanning where they
+# appear as PR annotations and in the Security tab, alongside CodeQL
+# findings. On main-facing events (push to main, weekly schedule),
+# every finding shows up as a Code Scanning alert. On PR events, only
+# NEW findings introduced by the PR annotate — the baseline of
+# already-known findings does not, so PR reviewers see only the
+# delta.
+
+on:
+  pull_request:
+    branches: [main, vNext]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'benchmarks/**'
+      - '.github/workflows/semgrep-sast.yaml'
+  push:
+    branches: [main]
+  schedule:
+    - cron: '30 6 * * 1'   # Mondays 06:30 UTC — catches drift from
+                            # public-registry ruleset changes even
+                            # without a code push.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write   # required for upload-sarif.
+
+jobs:
+  semgrep:
+    name: Semgrep OSS scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install Semgrep
+        # Pinned to a specific version so a ruleset-parser change in a
+        # future Semgrep release doesn't silently flip PR status
+        # without any repo change.
+        run: python -m pip install semgrep==1.144.0
+
+      - name: Run Semgrep with C# + security-audit rulesets
+        # `--sarif` for GitHub Code Scanning ingest. `--config` accepts
+        # multiple registry paths — `p/csharp` (C# language rules) and
+        # `p/security-audit` (general security patterns).
+        # Non-zero exit only on tool error, not on findings — findings
+        # are reported via SARIF and gated by Code Scanning severity
+        # rules on the repo side, not by this workflow's exit code.
+        run: |
+          semgrep scan \
+            --config=p/csharp \
+            --config=p/security-audit \
+            --sarif --output=semgrep.sarif \
+            --error --disable-version-check --metrics=off \
+            src tests benchmarks || rc=$?
+          # Semgrep exits 1 when it finds anything (rc=1). We don't
+          # fail the workflow on findings — Code Scanning handles
+          # severity gating. Only propagate real tool errors (rc>=2).
+          if [ "${rc:-0}" -ge 2 ]; then
+            echo "::error::Semgrep exited with status ${rc} — tool error, not findings."
+            exit "${rc}"
+          fi
+
+      - name: Upload SARIF to Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@27d1e8c7db9c6dabdd57f00cae67e2fbb9d5ce3e # v4.31.4
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep-oss
