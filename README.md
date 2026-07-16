@@ -392,6 +392,14 @@ dotnet format --verify-no-changes
 
 ---
 
+## 🔐 Verify the build
+
+Every release attaches a `reproducible-build-manifest.json` listing the SHA-256 of every shipped `.nupkg`, `.snupkg`, and the `lib/<tfm>/*.dll` files inside them, plus the SDK version and commit SHA. Any third party can rebuild from source at the release tag and confirm the produced binaries match what NuGet.org served.
+
+See [`docs/REPRODUCIBLE-BUILD.md`](docs/REPRODUCIBLE-BUILD.md) for the guarantee we make, the step-by-step verification procedure, and how to file a reproducibility-discrepancy report.
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the
