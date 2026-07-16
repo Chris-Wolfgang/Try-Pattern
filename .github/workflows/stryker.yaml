@@ -10,6 +10,17 @@
 name: Stryker (mutation testing)
 
 on:
+  # PR gate per issue #173: any PR that would drop the mutation score
+  # below the `break` threshold in stryker-config.json fails the job.
+  # dotnet-stryker itself exits non-zero when observed < break, so the
+  # gating is just "run it on PR" — no extra step needed to fail.
+  pull_request:
+    branches: [main, vNext]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'stryker-config.json'
+      - '.github/workflows/stryker.yaml'
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 0' # weekly Sunday 06:00 UTC
