@@ -95,14 +95,22 @@ jobs:
 
       - name: Normalize TRX → outcome list
         shell: bash
-        # PYTHONIOENCODING=utf-8 is required: xUnit truncates long
-        # parameter values in the test-name column with U+22EF
-        # (MIDLINE HORIZONTAL ELLIPSIS `···`). Python's default stdout
-        # encoding on Windows is cp1252, which cannot represent U+22EF
-        # and either replaces it with U+FFFD or raises. That produced
-        # a false-positive cross-platform diff between the Windows and
-        # Linux/macOS outcome files (same tests, different encoded
-        # bytes). Forcing UTF-8 emits identical bytes on every runner.
+        # Two cross-platform encoding gotchas the diff caught, one
+        # after the other:
+        #
+        # 1. `PYTHONIOENCODING=utf-8` — xUnit truncates long parameter
+        #    values in the test-name column with U+22EF (MIDLINE
+        #    HORIZONTAL ELLIPSIS `···`). Python's default stdout
+        #    encoding on Windows is cp1252, which cannot represent
+        #    U+22EF and mangles those bytes to U+FFFD. UTF-8 fixes it.
+        #
+        # 2. Line endings — even with UTF-8 encoding, Python's stdout
+        #    on Windows opens in text mode with `newline` translation,
+        #    so every `\n` in the printed buffer is written as `\r\n`.
+        #    Linux/macOS write literal `\n`. Same 144-test file
+        #    weighs 18740 bytes on Windows vs 18596 on Linux (144-byte
+        #    delta = one CR per line). Writing to a binary file with
+        #    an explicit LF avoids the translation.
         env:
           PYTHONIOENCODING: utf-8
         run: |
@@ -117,7 +125,7 @@ jobs:
             echo "::error::No TRX produced."
             exit 1
           fi
-          python3 - <<'PY' "$trx" > "./outcomes/${{ matrix.label }}.txt"
+          python3 - "$trx" "./outcomes/${{ matrix.label }}.txt" <<'PY'
           import re, sys, xml.etree.ElementTree as ET
           tree = ET.parse(sys.argv[1])
           root = tree.getroot()
@@ -128,7 +136,10 @@ jobs:
               outcome = r.attrib.get('outcome', '?')
               out.append(f'{name}\t{outcome}')
           out.sort()
-          print('\n'.join(out))
+          # Binary write with explicit LF — bypasses stdout's text-mode
+          # newline translation which produces CRLF on Windows.
+          with open(sys.argv[2], 'wb') as f:
+              f.write(('\n'.join(out) + '\n').encode('utf-8'))
           PY
           echo "== ${{ matrix.label }} =="
           wc -l ./outcomes/${{ matrix.label }}.txt
