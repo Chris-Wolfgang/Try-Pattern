@@ -8,19 +8,25 @@ public class ResultTests
 
 
 
-    [Fact]
-    public void Ctor_when_passed_true_and_empty_string_does_not_throw_Exception()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void Ctor_when_passed_true_and_null_or_empty_does_not_throw_Exception(string? message)
     {
-        var unused = new TestResult(succeeded: true, string.Empty);
+        // Both null and "" are valid inputs on success — the ctor
+        // canonicalizes them to null-valued ErrorMessage.
+        var result = new TestResult(succeeded: true, message);
+
+        Assert.True(result.Succeeded);
+        Assert.Null(result.ErrorMessage);
     }
 
 
 
     [Theory]
-    [InlineData(null)]
     [InlineData(" ")]
     [InlineData("Test error")]
-    public void Ctor_when_passed_true_and_non_empty_string_throws_ArgumentException(string? message)
+    public void Ctor_when_passed_true_and_non_empty_string_throws_ArgumentException(string message)
     {
         var ex = Assert.Throws<ArgumentException>(() => new TestResult(succeeded: true, message));
         Assert.Equal("errorMessage", ex.ParamName);
@@ -58,7 +64,7 @@ public class ResultTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -301,8 +307,7 @@ public class ResultTests
 
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -314,8 +319,7 @@ public class ResultTests
 
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -331,8 +335,7 @@ public class ResultTests
 
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
     }
 
 

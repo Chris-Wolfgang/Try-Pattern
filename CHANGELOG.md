@@ -7,12 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Thorough-review batch and repo hardening round. No runtime behaviour
-change in `Wolfgang.TryPattern` itself except for #273 (fix
-`Try.Run*` throwing on whitespace exception messages); everything
+Thorough-review batch and repo hardening round. Two runtime behaviour
+changes in `Wolfgang.TryPattern` itself: #273 (fix `Try.Run*` throwing
+on whitespace exception messages) and the `Result.ErrorMessage`
+null-on-success semantic cleanup (see `### Changed` below). Everything
 else is CI / test infrastructure that raises the release-readiness
 bar. MINOR bump anticipated at release time (0.4.0) — new test
-surface, new CI signals, but no public API changes.
+surface, new CI signals, and the null-on-success behaviour change is
+signature-preserving so a 0.x MINOR remains SemVer-compliant.
+
+### Changed
+
+- **BREAKING (runtime behaviour) — `Result.ErrorMessage` returns `null`
+  on success** (was `string.Empty`). The property type stays
+  `string?` — no compile-time signature change. Consumers who read
+  `ErrorMessage` before checking `Succeeded` / `Failed` may need to
+  add null-handling.
+
+  Migration:
+  - Correct code that checks `Failed` before reading `ErrorMessage`
+    is unchanged — `ErrorMessage` is still non-null on the failed
+    branch.
+  - `result.ErrorMessage.Length` on an unchecked result → NRE on
+    success. Add a null check, or use
+    `result.ErrorMessage?.Length ?? 0`, or fall back with
+    `result.ErrorMessage ?? string.Empty`.
+  - `string.IsNullOrEmpty(result.ErrorMessage)` continues to work
+    (returns `true` for both null and `""`).
+
+  Why: `string?` means "may or may not have a value"; success IS
+  "does not have a value". Returning `string.Empty` on success was
+  the null-object pattern applied to strings — a workaround from
+  pre-nullable-reference-types days that C# 8+ made unnecessary.
+  0.x is the right time to correct this before it locks in.
 
 ### Added
 
@@ -46,10 +73,12 @@ surface, new CI signals, but no public API changes.
   every shipped `.nupkg` / `.snupkg` / `lib/<tfm>/*.dll`, SDK
   version, and commit. Third-party verification procedure in
   `docs/REPRODUCIBLE-BUILD.md`. Closes #193.
-- **CI (Stryker gate)** — `stryker.yaml` runs on PR (main + vNext)
-  in addition to weekly; `stryker-config.json` `thresholds.break`
-  bumped 0 → 60 as a conservative starting floor. Policy in
-  `docs/MUTATION-TESTING.md`. Closes #173.
+- **CI (Stryker gate)** — `stryker.yaml` runs on weekly + dispatch
+  triggers; `stryker-config.json` `thresholds.break` bumped 0 → 60
+  as a conservative starting floor. Policy in
+  `docs/MUTATION-TESTING.md`. The intended `pull_request` trigger
+  is deferred pending Stryker/Buildalyzer compatibility with
+  Microsoft.CodeAnalysis 5.6 (tracked in #281). Closes #173.
 - **CI (PR benchmark regression gate)** — new `pr-benchmarks.yaml`
   runs BDN on PR HEAD + base, posts an upserted delta comment,
   fails on regressions beyond thresholds unless PR carries the

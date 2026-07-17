@@ -25,8 +25,10 @@ public class Result
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
     /// <param name="errorMessage">Error message associated with the result.</param>
     /// <remarks>
-    /// If the operation was successful, <paramref name="errorMessage"/> must be an empty string. If the operation failed,
-    /// <paramref name="errorMessage"/> must not be null, empty, or whitespace.
+    /// If the operation was successful, <paramref name="errorMessage"/> must be null or an empty
+    /// string; both canonicalize to <see langword="null"/> on the constructed instance's
+    /// <see cref="ErrorMessage"/>. If the operation failed, <paramref name="errorMessage"/> must
+    /// not be null, empty, or whitespace.
     /// </remarks>
     protected Result
     (
@@ -34,16 +36,23 @@ public class Result
         string? errorMessage
     )
     {
-        if (succeeded && errorMessage != string.Empty)
+        if (succeeded)
         {
-            throw new ArgumentException
-            (
-                "A successful result cannot have an error message.",
-                nameof(errorMessage)
-            );
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                throw new ArgumentException
+                (
+                    "A successful result cannot have an error message.",
+                    nameof(errorMessage)
+                );
+            }
+
+            Succeeded = true;
+            ErrorMessage = null;
+            return;
         }
 
-        if (!succeeded && string.IsNullOrWhiteSpace(errorMessage))
+        if (string.IsNullOrWhiteSpace(errorMessage))
         {
             throw new ArgumentException
             (
@@ -52,7 +61,7 @@ public class Result
             );
         }
 
-        Succeeded = succeeded;
+        Succeeded = false;
         ErrorMessage = errorMessage;
     }
 
@@ -71,7 +80,7 @@ public class Result
 
 
 
-    private static readonly Result _successInstance = new(succeeded: true, string.Empty);
+    private static readonly Result _successInstance = new(succeeded: true, errorMessage: null);
 
 
 
@@ -108,8 +117,14 @@ public class Result
 
 
     /// <summary>
-    /// Gets the error message describing why the operation failed, or an empty string if the operation succeeded.
+    /// Gets the error message describing why the operation failed, or <see langword="null"/> if the
+    /// operation succeeded.
     /// </summary>
+    /// <remarks>
+    /// Non-null and non-whitespace whenever <see cref="Failed"/> is <see langword="true"/>; always
+    /// <see langword="null"/> when <see cref="Succeeded"/> is <see langword="true"/>. Callers that
+    /// need "empty string on success" can use <c>result.ErrorMessage ?? string.Empty</c>.
+    /// </remarks>
     public string? ErrorMessage { get; }
 
 
@@ -343,9 +358,9 @@ public class Result<T> : Result
     /// <param name="value">The value produced by the operation.</param>
     /// <returns>A successful <see cref="Result{T}"/> whose <see cref="Value"/> is <paramref name="value"/>.</returns>
 #if NET5_0_OR_GREATER
-    public static Result<T?> Success(T? value) => new(succeeded: true, string.Empty, value);
+    public static Result<T?> Success(T? value) => new(succeeded: true, errorMessage: null, value);
 #else
-    public static Result<T> Success(T value) => new(succeeded: true, string.Empty, value);
+    public static Result<T> Success(T value) => new(succeeded: true, errorMessage: null, value);
 #endif
 
 

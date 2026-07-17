@@ -36,8 +36,7 @@ public class RunAsyncActionTests
         Assert.True(executed);
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
 
     }
 
@@ -151,8 +150,7 @@ public class RunAsyncActionTests
         Assert.True(executed);
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.Empty(result.ErrorMessage);
+        Assert.Null(result.ErrorMessage);
 
     }
 
