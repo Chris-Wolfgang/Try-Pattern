@@ -7,14 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-17
+
 Thorough-review batch and repo hardening round. Two runtime behaviour
 changes in `Wolfgang.TryPattern` itself: #273 (fix `Try.Run*` throwing
 on whitespace exception messages) and the `Result.ErrorMessage`
 null-on-success semantic cleanup (see `### Changed` below). Everything
 else is CI / test infrastructure that raises the release-readiness
-bar. MINOR bump anticipated at release time (0.4.0) — new test
-surface, new CI signals, and the null-on-success behaviour change is
-signature-preserving so a 0.x MINOR remains SemVer-compliant.
+bar. MINOR bump — new test surface, new CI signals, and the
+null-on-success behaviour change is signature-preserving so a 0.x
+MINOR remains SemVer-compliant.
 
 ### Changed
 
