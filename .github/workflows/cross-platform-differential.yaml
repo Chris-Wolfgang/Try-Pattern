@@ -95,6 +95,16 @@ jobs:
 
       - name: Normalize TRX → outcome list
         shell: bash
+        # PYTHONIOENCODING=utf-8 is required: xUnit truncates long
+        # parameter values in the test-name column with U+22EF
+        # (MIDLINE HORIZONTAL ELLIPSIS `···`). Python's default stdout
+        # encoding on Windows is cp1252, which cannot represent U+22EF
+        # and either replaces it with U+FFFD or raises. That produced
+        # a false-positive cross-platform diff between the Windows and
+        # Linux/macOS outcome files (same tests, different encoded
+        # bytes). Forcing UTF-8 emits identical bytes on every runner.
+        env:
+          PYTHONIOENCODING: utf-8
         run: |
           # `xmllint --xpath` returns each UnitTestResult on its own
           # `sort`-able line. Filter to the pieces we care about: the
