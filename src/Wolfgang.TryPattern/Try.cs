@@ -43,7 +43,7 @@ public static class Try
         }
         catch (Exception ex)
         {
-            return Result.Failure(ex.Message);
+            return Result.Failure(SafeErrorMessage(ex));
         }
     }
 
@@ -82,7 +82,7 @@ public static class Try
         }
         catch (Exception ex)
         {
-            return Result<T?>.Failure(ex.Message);
+            return Result<T?>.Failure(SafeErrorMessage(ex));
         }
     }
 #else
@@ -99,7 +99,7 @@ public static class Try
         }
         catch (Exception ex)
         {
-            return Result<T>.Failure(ex.Message);
+            return Result<T>.Failure(SafeErrorMessage(ex));
         }
     }
 #endif
@@ -160,7 +160,7 @@ public static class Try
         }
         catch (Exception ex)
         {
-            return Result.Failure(ex.Message);
+            return Result.Failure(SafeErrorMessage(ex));
         }
     }
 
@@ -215,7 +215,7 @@ public static class Try
         }
         catch (Exception ex)
         {
-            return Result<T?>.Failure(ex.Message);
+            return Result<T?>.Failure(SafeErrorMessage(ex));
         }
     }
 #else
@@ -243,8 +243,23 @@ public static class Try
         }
         catch (Exception ex)
         {
-            return Result<T>.Failure(ex.Message);
+            return Result<T>.Failure(SafeErrorMessage(ex));
         }
     }
 #endif
+
+
+
+    // Coerce an exception message that Result.Failure would reject
+    // (null / empty / whitespace) into a usable fallback so Try.Run
+    // itself never throws from inside its catch block. Fixes #273:
+    // consumers of exceptions with whitespace-only Message (or the
+    // parameterless-ctor variants of some framework exceptions) were
+    // getting an ArgumentException out of Try.Run rather than a
+    // Failed Result.
+    private static string SafeErrorMessage(Exception ex)
+    {
+        string message = ex.Message;
+        return string.IsNullOrWhiteSpace(message) ? ex.GetType().Name : message;
+    }
 }

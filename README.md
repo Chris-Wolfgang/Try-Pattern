@@ -172,7 +172,11 @@ if (Result.AnyFailed(r1, r2, r3))
 Wrap database calls to get a clean `Result` instead of scattered try/catch:
 
 ```csharp
-public async Task<Result<Customer>> GetCustomerByIdAsync(int id, CancellationToken token = default)
+// On .NET 5+ Try.RunAsync<T> returns Result<T?> (the nullable-context signature),
+// so this method's return type is Result<Customer?>. On net462 / netstandard2.0
+// it's Result<Customer> instead. Callers use `result.Value!` after checking
+// `result.Succeeded` — the Value is non-null on the success path by contract.
+public async Task<Result<Customer?>> GetCustomerByIdAsync(int id, CancellationToken token = default)
 {
     return await Try.RunAsync(async () =>
     {
@@ -198,7 +202,7 @@ public async Task<Result<Customer>> GetCustomerByIdAsync(int id, CancellationTok
 var result = await GetCustomerByIdAsync(42);
 if (result.Succeeded)
 {
-    Console.WriteLine($"Found: {result.Value.Name}");
+    Console.WriteLine($"Found: {result.Value!.Name}");
 }
 else
 {
@@ -209,7 +213,8 @@ else
 ### Async query returning a list
 
 ```csharp
-public async Task<Result<List<Order>>> GetRecentOrdersAsync(int customerId, CancellationToken token = default)
+// Same nullable-context signature — Result<List<Order>?> on .NET 5+.
+public async Task<Result<List<Order>?>> GetRecentOrdersAsync(int customerId, CancellationToken token = default)
 {
     return await Try.RunAsync(async () =>
     {
@@ -226,9 +231,12 @@ public async Task<Result<List<Order>>> GetRecentOrdersAsync(int customerId, Canc
 `Result` and `Result<T>` work well as return types from repositories and service layers. You don't need `Try.Run()` to create them -- use the static factory methods directly:
 
 ```csharp
+// On .NET 5+ Result<T>.Success / Failure return Result<T?>; declare
+// the method return type accordingly. On net462 / netstandard2.0
+// the same code compiles with Result<Customer>.
 public class CustomerRepository
 {
-    public Result<Customer> GetById(int id)
+    public Result<Customer?> GetById(int id)
     {
         var customer = dbContext.Customers.Find(id);
 
@@ -282,7 +290,7 @@ public class CustomersController : ControllerBase
         var result = _repository.GetById(id);
 
         return result.Succeeded
-            ? Ok(result.Value)
+            ? Ok(result.Value!)
             : NotFound(new { error = result.ErrorMessage });
     }
 
@@ -293,10 +301,10 @@ public class CustomersController : ControllerBase
         if (lookup.Failed)
             return NotFound(new { error = lookup.ErrorMessage });
 
-        lookup.Value.Name = dto.Name;
-        lookup.Value.Email = dto.Email;
+        lookup.Value!.Name = dto.Name;
+        lookup.Value!.Email = dto.Email;
 
-        var saveResult = _repository.Save(lookup.Value);
+        var saveResult = _repository.Save(lookup.Value!);
 
         return saveResult.Succeeded
             ? NoContent()
@@ -318,7 +326,9 @@ public class CustomersController : ControllerBase
 ### Chaining operations with validation
 
 ```csharp
-public Result<Order> PlaceOrder(OrderRequest request)
+// Result<Order?> on .NET 5+, Result<Order> on legacy TFMs — see the
+// database example above for the nullable-context rationale.
+public Result<Order?> PlaceOrder(OrderRequest request)
 {
     // Validate
     var validation = Result.Flatten(
@@ -328,7 +338,7 @@ public Result<Order> PlaceOrder(OrderRequest request)
     );
 
     if (validation.Failed)
-        return Result<Order>.Failure(validation.ErrorMessage);
+        return Result<Order>.Failure(validation.ErrorMessage!);
 
     // Execute
     return Try.Run(() =>

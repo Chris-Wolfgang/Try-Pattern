@@ -1,0 +1,66 @@
+name: Native AOT smoke
+
+# Trim + Native AOT smoke test per issue #180. Publishes a tiny consumer
+# console app (tests/Wolfgang.TryPattern.AotSmoke) with PublishAot +
+# PublishTrimmed and runs the native binary. Two failure modes:
+#
+#   1. Trim / AOT analyzers warn on the library's public surface —
+#      TreatWarningsAsErrors in the smoke csproj promotes it to a build
+#      failure. Catches reflection or dynamic-code paths that would break
+#      silently under AOT.
+#   2. The published native binary exits non-zero — the smoke's Program.cs
+#      exercises every public API and asserts the observed count matches
+#      the expected count, so a trimmed-away member manifests as an exit
+#      code, not a silent no-op.
+
+on:
+  pull_request:
+    branches: [main, vNext]
+    paths:
+      - 'src/**'
+      - 'tests/Wolfgang.TryPattern.AotSmoke/**'
+      - '.github/workflows/aot-smoke.yaml'
+      - 'Directory.Build.props'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/Wolfgang.TryPattern.AotSmoke/**'
+      - '.github/workflows/aot-smoke.yaml'
+      - 'Directory.Build.props'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aot-smoke:
+    name: Publish + run Native AOT binary
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish Native AOT (trim + AOT analyzers gate the build)
+        run: dotnet publish tests/Wolfgang.TryPattern.AotSmoke -c Release -r linux-x64
+
+      - name: Run the published native binary
+        # The published binary lives at
+        # tests/Wolfgang.TryPattern.AotSmoke/bin/Release/net10.0/linux-x64/publish/Wolfgang.TryPattern.AotSmoke
+        # `find` used to be resilient to TFM / RID moves.
+        run: |
+          BIN=$(find tests/Wolfgang.TryPattern.AotSmoke/bin -type f -name 'Wolfgang.TryPattern.AotSmoke' -path '*publish*' | head -n1)
+          if [ -z "$BIN" ]; then
+            echo "::error::Native AOT binary not produced."
+            exit 1
+          fi
+          echo "Running: $BIN"
+          "$BIN"

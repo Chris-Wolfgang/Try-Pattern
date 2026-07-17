@@ -2,12 +2,16 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
 
 namespace Wolfgang.TryPattern.Benchmarks;
 
+// No [SimpleJob(RuntimeMoniker.NetXY)] — BDN uses the compile target
+// (net10.0 per this csproj's TargetFramework), which is the runtime
+// most consumers actually deploy. Pinning to a specific moniker
+// silently breaks when the csproj TargetFramework moves without the
+// attribute being updated (as happened when v0.3.4 bumped net8→net10
+// but the moniker stayed Net80).
 [ExcludeFromCodeCoverage(Justification = "This is for benchmarking the code")]
-[SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class TryBenchmarks
 {

@@ -1,0 +1,222 @@
+name: PR benchmarks
+
+# Per-PR BDN perf-regression gate per issue #192.
+#
+# Complements benchmarks.yaml — that workflow graphs the BDN trend
+# after merges to main (backward-looking). This one is the
+# forward-looking signal: run BDN on the PR's HEAD, on its base's
+# tip, diff, and comment the delta on the PR. Fails the workflow if
+# any per-benchmark regression exceeds the configured threshold AND
+# the PR does NOT carry the `perf-impact-acknowledged` label.
+#
+# The comment is UPSERTED (found by marker string, edited in place)
+# so successive pushes to the PR replace the top comment rather than
+# stacking new ones.
+
+on:
+  pull_request:
+    branches: [main, vNext]
+    paths:
+      - 'src/**'
+      - 'benchmarks/**'
+      - '.github/workflows/pr-benchmarks.yaml'
+
+permissions:
+  contents: read
+  pull-requests: write   # Post / edit the delta comment.
+
+# One in-flight run per PR — a push mid-run cancels the older one so
+# the final comment reflects HEAD, not a stale interim commit.
+concurrency:
+  group: pr-benchmarks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # Regression thresholds. Comment table always shows all deltas;
+  # these numbers gate the workflow's exit status.
+  TIME_REGRESSION_PCT: '20'
+  ALLOC_REGRESSION_PCT: '50'
+  BENCHMARK_MARKER: '<!-- pr-benchmarks-report -->'
+
+jobs:
+  pr-benchmarks:
+    name: Run BDN on HEAD + base and diff
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout PR HEAD
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+          # Full history so we can `git checkout <base-sha>` later without
+          # re-fetching.
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Run BDN — PR HEAD
+        working-directory: benchmarks/Wolfgang.TryPattern.Benchmarks
+        run: |
+          dotnet run -c Release -- --filter "*" --job short --memory --exporters json
+          mkdir -p /tmp/pr-benchmarks
+          cp BenchmarkDotNet.Artifacts/results/*-report-full-compressed.json /tmp/pr-benchmarks/head.raw.json || true
+
+      - name: Merge HEAD reports
+        run: |
+          shopt -s nullglob
+          reports=(/tmp/pr-benchmarks/*.raw.json)
+          if [ ${#reports[@]} -eq 0 ]; then
+            echo "::error::No BDN report produced from HEAD run."
+            exit 1
+          fi
+          jq -s '{ Benchmarks: [.[].Benchmarks[]] }' /tmp/pr-benchmarks/head.raw.json > /tmp/pr-benchmarks/head.json
+          # Clean the raw for the second run.
+          rm -rf benchmarks/Wolfgang.TryPattern.Benchmarks/BenchmarkDotNet.Artifacts
+
+      - name: Checkout PR base
+        # Use the PR's base SHA (the merge target's tip at the time of PR
+        # creation / last sync), not `base.ref` which drifts as main /
+        # vNext receives new commits after the PR opens.
+        run: |
+          git checkout '${{ github.event.pull_request.base.sha }}'
+
+      - name: Run BDN — PR base
+        working-directory: benchmarks/Wolfgang.TryPattern.Benchmarks
+        # `|| true` — if base branch doesn't have benchmarks (new
+        # project on the PR), the diff step surfaces it as a note
+        # rather than a hard fail.
+        run: |
+          dotnet run -c Release -- --filter "*" --job short --memory --exporters json || true
+          if [ -d BenchmarkDotNet.Artifacts/results ]; then
+            cp BenchmarkDotNet.Artifacts/results/*-report-full-compressed.json /tmp/pr-benchmarks/base.raw.json || true
+          fi
+
+      - name: Merge base reports
+        run: |
+          if [ ! -f /tmp/pr-benchmarks/base.raw.json ]; then
+            echo "No base BDN reports — this must be a first-of-kind PR that adds benchmarks."
+            echo '{ "Benchmarks": [] }' > /tmp/pr-benchmarks/base.json
+          else
+            jq -s '{ Benchmarks: [.[].Benchmarks[]] }' /tmp/pr-benchmarks/base.raw.json > /tmp/pr-benchmarks/base.json
+          fi
+
+      - name: Compute delta + build comment
+        id: diff
+        env:
+          MARKER: ${{ env.BENCHMARK_MARKER }}
+          T_PCT: ${{ env.TIME_REGRESSION_PCT }}
+          A_PCT: ${{ env.ALLOC_REGRESSION_PCT }}
+          COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' /tmp/pr-benchmarks/base.json /tmp/pr-benchmarks/head.json /tmp/pr-benchmarks/comment.md /tmp/pr-benchmarks/verdict.txt
+          import json, os, sys
+
+          base_path, head_path, comment_path, verdict_path = sys.argv[1:5]
+          marker = os.environ['MARKER']
+          t_thresh = float(os.environ['T_PCT'])
+          a_thresh = float(os.environ['A_PCT'])
+          commit = os.environ.get('COMMIT', '?')[:12]
+
+          def index(path):
+              with open(path) as f:
+                  data = json.load(f)
+              out = {}
+              for b in data.get('Benchmarks', []):
+                  key = b.get('FullName') or b.get('DisplayInfo') or b.get('Method')
+                  if not key:
+                      continue
+                  stats = b.get('Statistics') or {}
+                  mean = stats.get('Mean')
+                  memory = b.get('Memory') or {}
+                  alloc = memory.get('BytesAllocatedPerOperation')
+                  out[key] = (mean, alloc)
+              return out
+
+          base, head = index(base_path), index(head_path)
+          keys = sorted(set(base) | set(head))
+          rows = []
+          regressions = []
+          for k in keys:
+              b_mean, b_alloc = base.get(k, (None, None))
+              h_mean, h_alloc = head.get(k, (None, None))
+              def delta(new, old):
+                  if new is None:
+                      return ('n/a', None)
+                  if old is None or old == 0:
+                      return (f'{new:g} (new)', None)
+                  pct = (new - old) / old * 100
+                  return (f'{pct:+.1f}%', pct)
+              t_str, t_pct = delta(h_mean, b_mean)
+              a_str, a_pct = delta(h_alloc, b_alloc)
+              rows.append((k, t_str, a_str))
+              if t_pct is not None and t_pct > t_thresh:
+                  regressions.append((k, 'time', t_pct, t_thresh))
+              if a_pct is not None and a_pct > a_thresh:
+                  regressions.append((k, 'alloc', a_pct, a_thresh))
+
+          with open(comment_path, 'w') as f:
+              f.write(marker + '\n')
+              f.write(f'## PR benchmarks vs base ({commit})\n\n')
+              f.write(f'Thresholds: **time > +{t_thresh:g}%** or **allocations > +{a_thresh:g}%** trigger a gate failure (label `perf-impact-acknowledged` overrides).\n\n')
+              if not rows:
+                  f.write('_No benchmarks executed._\n')
+              else:
+                  f.write('| Benchmark | Δ time | Δ alloc |\n')
+                  f.write('|---|---|---|\n')
+                  for k, t, a in rows:
+                      short = k.rsplit('.', 1)[-1]
+                      f.write(f'| `{short}` | {t} | {a} |\n')
+              if regressions:
+                  f.write('\n**Regressions exceeding threshold:**\n')
+                  for k, kind, pct, thresh in regressions:
+                      f.write(f'- `{k.rsplit(".", 1)[-1]}` — {kind} +{pct:.1f}% (> +{thresh:g}%)\n')
+
+          with open(verdict_path, 'w') as f:
+              f.write('regressed' if regressions else 'clean')
+          PY
+
+          echo "verdict=$(cat /tmp/pr-benchmarks/verdict.txt)" >> "$GITHUB_OUTPUT"
+          cat /tmp/pr-benchmarks/comment.md
+
+      - name: Upsert comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MARKER: ${{ env.BENCHMARK_MARKER }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          body="$(cat /tmp/pr-benchmarks/comment.md)"
+          # Find an existing comment with our marker (via jq); if
+          # present, PATCH it; else POST a new one.
+          existing=$(gh api "/repos/$REPO/issues/$PR/comments" --paginate \
+            --jq "map(select(.body | startswith(\"$MARKER\"))) | .[0].id // empty")
+          if [ -n "$existing" ]; then
+            gh api --method PATCH \
+              "/repos/$REPO/issues/comments/$existing" \
+              -f body="$body" > /dev/null
+            echo "Updated comment $existing"
+          else
+            gh api --method POST \
+              "/repos/$REPO/issues/$PR/comments" \
+              -f body="$body" > /dev/null
+            echo "Posted new comment"
+          fi
+
+      - name: Enforce gate
+        env:
+          VERDICT: ${{ steps.diff.outputs.verdict }}
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -euo pipefail
+          ack=$(echo "$LABELS" | jq -r 'index("perf-impact-acknowledged") // empty')
+          if [ "$VERDICT" = "regressed" ] && [ -z "$ack" ]; then
+            echo "::error::Perf regression detected. Add label \`perf-impact-acknowledged\` to override."
+            exit 1
+          fi
+          echo "Gate OK (verdict=$VERDICT, ack=$ack)."

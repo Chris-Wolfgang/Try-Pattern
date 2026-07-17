@@ -698,6 +698,9 @@ jobs:
               [ -z "$fw" ] && continue
               echo "Testing framework: $fw"
               
+              # `Category!=Fuzz` excludes the long-run FsCheck properties
+              # (FuzzTests.cs) — those run in .github/workflows/fuzz.yaml
+              # on a weekly schedule at 100,000 cases per property.
               dotnet test "$test_proj" \
                 --configuration Release \
                 --framework "$fw" \
@@ -705,6 +708,7 @@ jobs:
                 --collect:"XPlat Code Coverage" \
                 --settings coverlet.runsettings \
                 --results-directory "./TestResults" \
+                --filter "Category!=Fuzz" \
                 --logger "console;verbosity=minimal" || exit 1
             done <<< "$frameworks"
             echo ""
@@ -988,6 +992,9 @@ jobs:
             foreach ($fw in $frameworks) {
               Write-Host "Testing framework: $fw" -ForegroundColor Yellow
 
+              # `Category!=Fuzz` excludes the long-run FsCheck properties
+              # (FuzzTests.cs) — those run in fuzz.yaml on a weekly
+              # schedule at 100,000 cases per property.
               if ($fw -match '^net([5-9]|[1-9][0-9]+)\.') {
                 dotnet test $testProj.FullName `
                   --configuration Release `
@@ -996,12 +1003,14 @@ jobs:
                   --collect:"XPlat Code Coverage" `
                   --settings coverlet.runsettings `
                   --results-directory "./TestResults" `
+                  --filter "Category!=Fuzz" `
                   --logger "console;verbosity=normal"
               } else {
                 dotnet test $testProj.FullName `
                   --configuration Release `
                   --framework $fw `
                   --no-build --no-restore `
+                  --filter "Category!=Fuzz" `
                   --logger "console;verbosity=normal"
               }
 
@@ -1395,6 +1404,7 @@ jobs:
               [ -z "$fw" ] && continue
               echo "Testing framework: $fw"
 
+              # See the Linux stage for why Category!=Fuzz.
               dotnet test "$test_proj" \
                 --configuration Release \
                 --framework "$fw" \
@@ -1402,6 +1412,7 @@ jobs:
                 --collect:"XPlat Code Coverage" \
                 --settings coverlet.runsettings \
                 --results-directory "./TestResults" \
+                --filter "Category!=Fuzz" \
                 --logger "console;verbosity=normal" || exit 1
             done <<< "$frameworks"
             echo ""

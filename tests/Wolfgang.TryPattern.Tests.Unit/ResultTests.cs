@@ -235,6 +235,24 @@ public class ResultTests
 
 
     [Fact]
+    public void Flatten_when_null_appears_after_first_failure_throws_ArgumentException()
+    {
+        // Regression test for the second null-check inside Flatten's
+        // tail loop (Result.cs:172). The pre-existing test covers a
+        // null seen before the first failure (head loop). This one
+        // covers a null seen AFTER the first failure — the tail loop
+        // must keep validating elements even after firstFailureIndex
+        // is set, else a trailing null would silently ride along
+        // into the flattened Result.
+        var ex = Assert.Throws<ArgumentException>(() =>
+            Result.Flatten(Result.Failure("first"), null!, Result.Success()));
+        Assert.Equal("results", ex.ParamName);
+        Assert.Contains("index 1", ex.Message, StringComparison.Ordinal);
+    }
+
+
+
+    [Fact]
     public void AllSucceeded_when_array_contains_null_element_throws_ArgumentException()
     {
         var ex = Assert.Throws<ArgumentException>(() =>
