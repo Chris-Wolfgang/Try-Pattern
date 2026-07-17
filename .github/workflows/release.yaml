@@ -350,6 +350,10 @@ jobs:
     name: Pack & Validate NuGet
     needs: validate-release
     runs-on: windows-latest
+    permissions:
+      contents: read
+      id-token: write        # SLSA build-provenance attestation (OIDC)
+      attestations: write    # SLSA build-provenance attestation
     outputs:
       has-packages: ${{ steps.check-packages.outputs.has-packages }}
     steps:
@@ -560,6 +564,25 @@ jobs:
             }
           }
 
+
+      # SLSA build-provenance attestation: cryptographically links each .nupkg to
+      # this repo + commit + workflow run, so a consumer can verify (via
+      # `gh attestation verify <nupkg> --repo Chris-Wolfgang/Try-Pattern`)
+      # that the package was built here and not injected downstream. Complements
+      # the SBOM (already generated above) + reproducible-build manifest (added
+      # in #193). Author code-signing with a certificate remains a separate,
+      # cost-gated follow-up — see docs/SUPPLY-CHAIN.md for consumer verification
+      # of the SBOM + provenance + hash chain.
+      - name: Attest build provenance (SLSA)
+        if: steps.check-packages.outputs.has-packages == 'true'
+        uses: actions/attest-build-provenance@v2
+        with:
+          # Attest every shipped artifact: the packages, their symbol packages,
+          # and the CycloneDX SBOMs generated above.
+          subject-path: |
+            nuget-packages/*.nupkg
+            nuget-packages/*.snupkg
+            nuget-packages/*.bom.json
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v7
@@ -785,6 +808,66 @@ jobs:
       - name: Zip coverage report
         run: zip -r release-coverage.zip ./release-coverage
 
+      - name: Generate reproducible-build manifest
+        # Third-party verification manifest per issue #193. Attaches
+        # SHA-256 hashes for every shipped .nupkg / .snupkg + every
+        # lib/<tfm>/*.dll inside the .nupkgs. See docs/REPRODUCIBLE-BUILD.md
+        # for how consumers use this to verify what nuget.org served.
+        shell: bash
+        # `github.event.release.tag_name` is chosen by whoever creates
+        # the Release, so it is attacker-controllable input. Passing
+        # via `env:` (which puts the value in $TAG at process-launch
+        # time) instead of interpolating `${{ }}` directly into the
+        # bash source keeps a hostile tag out of the shell parser.
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          sdk="$(dotnet --version)"
+          {
+            printf '{\n'
+            printf '  "tag": "%s",\n' "$TAG"
+            printf '  "commit": "%s",\n' "$COMMIT"
+            printf '  "sdk": "%s",\n' "$sdk"
+            printf '  "generated_at": "%s",\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf '  "packages": [\n'
+            first_pkg=1
+            for pkg in ./nuget-packages/*.nupkg ./nuget-packages/*.snupkg; do
+              [ -f "$pkg" ] || continue
+              pkg_name="$(basename "$pkg")"
+              pkg_sha="$(sha256sum "$pkg" | awk '{ print $1 }')"
+              if [ $first_pkg -eq 0 ]; then printf ',\n'; fi
+              first_pkg=0
+              printf '    {\n'
+              printf '      "file": "%s",\n' "$pkg_name"
+              printf '      "sha256": "%s",\n' "$pkg_sha"
+              printf '      "contents": [\n'
+              # Extract to a temp dir + hash each lib/*/*.dll.
+              tmp="$(mktemp -d)"
+              unzip -q "$pkg" -d "$tmp" || true
+              first_dll=1
+              while IFS= read -r dll; do
+                # `"$tmp"` explicitly quoted inside the parameter
+                # expansion — SC2295 asks for it so the prefix isn't
+                # interpreted as a glob pattern when $tmp contains
+                # metacharacters.
+                dll_rel="${dll#"$tmp"/}"
+                dll_sha="$(sha256sum "$dll" | awk '{ print $1 }')"
+                if [ $first_dll -eq 0 ]; then printf ',\n'; fi
+                first_dll=0
+                printf '        { "path": "%s", "sha256": "%s" }' "$dll_rel" "$dll_sha"
+              done < <(find "$tmp" -type f -name '*.dll' | sort)
+              printf '\n      ]\n'
+              printf '    }'
+              rm -rf "$tmp"
+            done
+            printf '\n  ]\n'
+            printf '}\n'
+          } > ./nuget-packages/reproducible-build-manifest.json
+          echo '--- manifest preview ---'
+          cat ./nuget-packages/reproducible-build-manifest.json
+
       - name: Attach artifacts to release
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b  # v3.0.1
         with:
@@ -793,5 +876,6 @@ jobs:
             ./nuget-packages/*.nupkg
             ./nuget-packages/*.snupkg
             ./nuget-packages/*.bom.json
+            ./nuget-packages/reproducible-build-manifest.json
             release-coverage.zip
 

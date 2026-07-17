@@ -1,0 +1,123 @@
+name: ABI compatibility
+
+# Microsoft.DotNet.ApiCompat gate per issue #174. PublicApiAnalyzers
+# (RS0016 / RS0017 tracked in PublicAPI.Shipped.txt) catches added or
+# removed public signatures — it does NOT catch behavioural ABI breaks
+# like default-value changes, nullability annotation flips, or the
+# binary-layout shifts that a compiled consumer's assembly would trip
+# over at runtime.
+#
+# This workflow builds the HEAD commit for net8.0 + net10.0 and diffs
+# each produced .dll against the same .dll extracted from the most
+# recently published NuGet version. Any incompatibility not present in
+# .github/api-compat/suppressions.xml fails the run.
+#
+# On a MAJOR-version bump PR, intentional breaks are recorded in
+# suppressions.xml as part of the release PR — that's how the "set of
+# intentional breaks is recorded" AC is satisfied.
+
+on:
+  pull_request:
+    branches: [main, vNext]
+    paths:
+      - 'src/**'
+      - '.github/api-compat/**'
+      - '.github/workflows/api-compat.yaml'
+      - 'Directory.Build.props'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - '.github/api-compat/**'
+      - '.github/workflows/api-compat.yaml'
+      - 'Directory.Build.props'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api-compat:
+    name: Compare HEAD .dll vs latest NuGet version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        tfm: [ net8.0, net10.0 ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Install Microsoft.DotNet.ApiCompat.Tool
+        # Global .NET tool exposing the `apicompat` CLI. Pinned to the
+        # shipping SDK 10 line so a future runner-image bump doesn't
+        # silently change the compat model.
+        run: dotnet tool install --global Microsoft.DotNet.ApiCompat.Tool --version 10.0.302
+
+      - name: Build HEAD .dll for ${{ matrix.tfm }}
+        run: dotnet build src/Wolfgang.TryPattern -c Release -f ${{ matrix.tfm }} --nologo
+
+      - name: Determine latest published NuGet version
+        id: nuget
+        shell: bash
+        run: |
+          # nuget.org v3-flatcontainer index endpoint returns the full
+          # version list as JSON. Take the highest non-prerelease.
+          index=$(curl -fsSL https://api.nuget.org/v3-flatcontainer/wolfgang.trypattern/index.json)
+          latest=$(echo "$index" | python3 -c "
+          import json, sys
+          j = json.load(sys.stdin)
+          versions = [v for v in j.get('versions', []) if '-' not in v]
+          versions.sort(key=lambda v: [int(p) for p in v.split('.')])
+          print(versions[-1] if versions else '')
+          ")
+          if [ -z "$latest" ]; then
+            echo "::error::Could not determine latest published Wolfgang.TryPattern version."
+            exit 1
+          fi
+          echo "Latest published: $latest"
+          echo "version=$latest" >> "$GITHUB_OUTPUT"
+
+      - name: Download previous .nupkg + extract
+        shell: bash
+        run: |
+          set -euo pipefail
+          v='${{ steps.nuget.outputs.version }}'
+          mkdir -p ./previous
+          curl -fsSL "https://api.nuget.org/v3-flatcontainer/wolfgang.trypattern/$v/wolfgang.trypattern.$v.nupkg" \
+            -o "./previous/wolfgang.trypattern.$v.nupkg"
+          unzip -q "./previous/wolfgang.trypattern.$v.nupkg" -d ./previous/unpacked
+
+      - name: Run apicompat for ${{ matrix.tfm }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          prev="./previous/unpacked/lib/${{ matrix.tfm }}/Wolfgang.TryPattern.dll"
+          curr="./src/Wolfgang.TryPattern/bin/Release/${{ matrix.tfm }}/Wolfgang.TryPattern.dll"
+          if [ ! -f "$prev" ]; then
+            echo "::warning::Previous package has no lib/${{ matrix.tfm }}/*.dll — new TFM, no ABI baseline to compare against."
+            exit 0
+          fi
+          if [ ! -f "$curr" ]; then
+            echo "::error::HEAD build produced no .dll at $curr — build step must have failed."
+            exit 1
+          fi
+          echo "Comparing previous ($prev) → current ($curr)"
+          # --left = baseline (previous shipped version), --right =
+          # candidate (HEAD build). Any incompatibility from left to
+          # right that isn't listed in suppressions.xml fails the run.
+          apicompat \
+            --suppression-file .github/api-compat/suppressions.xml \
+            --left "$prev" \
+            --right "$curr"

@@ -1,0 +1,109 @@
+name: Continuous fuzz (FsCheck)
+
+# Long-run property-based fuzzing per issue #170. Executes only the
+# tests tagged `[Trait("Category", "Fuzz")]` in
+# tests/Wolfgang.TryPattern.Tests.Unit/FuzzTests.cs — 100,000
+# randomized cases per property, ~2–5 min wall-clock on ubuntu.
+#
+# On any failure, opens a `kind:fuzz-finding` issue with the failing
+# seed + counter-example pulled from the test output so a maintainer
+# can reproduce with the exact input FsCheck shrunk to.
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'   # Mondays 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write   # File a kind:fuzz-finding issue on failure.
+
+concurrency:
+  group: fuzz
+  cancel-in-progress: false
+
+jobs:
+  fuzz:
+    name: Long-run FsCheck fuzz
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Run fuzz-tagged properties
+        id: fuzz
+        # `--filter "Category=Fuzz"` selects only the FuzzTests class
+        # (marked with [Trait("Category", "Fuzz")]). Modern TFM only —
+        # net10.0 — since the fuzz semantics don't vary by TFM and
+        # running the matrix would just multiply wall-clock.
+        run: |
+          set -o pipefail
+          mkdir -p ./fuzz-output
+          dotnet test tests/Wolfgang.TryPattern.Tests.Unit \
+            -c Release \
+            -f net10.0 \
+            --filter "Category=Fuzz" \
+            --logger "console;verbosity=detailed" \
+            2>&1 | tee ./fuzz-output/log.txt
+
+      - name: Extract failing seeds
+        if: failure() && steps.fuzz.outcome == 'failure'
+        # FsCheck prints "Falsifiable, after N tests" + "Original:" +
+        # "Shrunk:" lines on failure. Grep those out so the auto-issue
+        # can carry a compact reproducer.
+        run: |
+          # shellcheck disable=SC2016
+          # The backticks below are literal Markdown formatting for
+          # the auto-filed issue body, not shell command substitution.
+          # Single quotes are intentional.
+          {
+            echo '## Failing seeds and shrunk counter-examples'
+            echo
+            echo 'Extracted from `fuzz-output/log.txt`:'
+            echo
+            echo '```'
+            grep -E 'Falsifiable|Original:|Shrunk:|with seed' ./fuzz-output/log.txt || echo '(no matches — check full log artifact)'
+            echo '```'
+          } > ./fuzz-output/summary.md
+          cat ./fuzz-output/summary.md
+
+      - name: Upload fuzz output
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fuzz-output-${{ github.run_id }}
+          path: ./fuzz-output/
+          retention-days: 60
+
+      - name: File fuzz-finding issue on failure
+        if: failure() && steps.fuzz.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          summary=$(cat ./fuzz-output/summary.md 2>/dev/null || echo "See workflow log.")
+          gh issue create \
+            --repo "$REPO" \
+            --title "Fuzz finding on $(date -u +%Y-%m-%d): FsCheck property refuted" \
+            --label kind:fuzz-finding \
+            --body "$(cat <<EOF
+          The scheduled fuzz workflow refuted at least one property. See the run for the full log + shrunk counter-example.
+
+          - Run: $RUN_URL
+          - Artifact: \`fuzz-output-${{ github.run_id }}\` (attached to the run)
+
+          $summary
+
+          _Filed automatically by \`.github/workflows/fuzz.yaml\`._
+          EOF
+          )"
