@@ -17,7 +17,14 @@ name: Cross-platform differential
 #   windows-x64    windows-latest
 #   windows-arm64  windows-11-arm
 #   macos-arm64    macos-latest       (Apple Silicon; latest points to macos-14+)
-#   macos-x64      macos-13
+#
+# macos-x64 (macos-13) is intentionally OMITTED. GitHub's Intel-macOS
+# hosted-runner capacity is starved — jobs sit queued for 12+ hours on
+# public-repo tier — so keeping that row in the matrix effectively
+# holds every PR merge-gate open indefinitely. macos-arm64 covers the
+# macOS side of the differential; managed-IL is architecture-invariant,
+# so the arm/x64 x64/x64 pairing across the other three OSes still
+# catches any real cross-OS behaviour drift.
 #
 # Each row produces a normalized outcome file listing test names +
 # pass/fail/skip. A `diff` job compares all 6 files pairwise and fails
@@ -55,7 +62,8 @@ jobs:
           - { os: windows-latest,   label: windows-x64 }
           - { os: windows-11-arm,   label: windows-arm64 }
           - { os: macos-latest,     label: macos-arm64 }
-          - { os: macos-13,         label: macos-x64 }
+          # macos-x64 removed: see the header comment. GitHub Intel
+          # macOS runner capacity is unusable for merge-gating today.
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
