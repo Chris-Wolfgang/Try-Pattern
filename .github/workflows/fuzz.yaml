@@ -60,6 +60,10 @@ jobs:
         # "Shrunk:" lines on failure. Grep those out so the auto-issue
         # can carry a compact reproducer.
         run: |
+          # shellcheck disable=SC2016
+          # The backticks below are literal Markdown formatting for
+          # the auto-filed issue body, not shell command substitution.
+          # Single quotes are intentional.
           {
             echo '## Failing seeds and shrunk counter-examples'
             echo

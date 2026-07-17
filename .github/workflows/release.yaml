@@ -814,14 +814,21 @@ jobs:
         # lib/<tfm>/*.dll inside the .nupkgs. See docs/REPRODUCIBLE-BUILD.md
         # for how consumers use this to verify what nuget.org served.
         shell: bash
+        # `github.event.release.tag_name` is chosen by whoever creates
+        # the Release, so it is attacker-controllable input. Passing
+        # via `env:` (which puts the value in $TAG at process-launch
+        # time) instead of interpolating `${{ }}` directly into the
+        # bash source keeps a hostile tag out of the shell parser.
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
-          tag='${{ github.event.release.tag_name }}'
           sdk="$(dotnet --version)"
           {
             printf '{\n'
-            printf '  "tag": "%s",\n' "$tag"
-            printf '  "commit": "%s",\n' "${{ github.sha }}"
+            printf '  "tag": "%s",\n' "$TAG"
+            printf '  "commit": "%s",\n' "$COMMIT"
             printf '  "sdk": "%s",\n' "$sdk"
             printf '  "generated_at": "%s",\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             printf '  "packages": [\n'
@@ -841,7 +848,11 @@ jobs:
               unzip -q "$pkg" -d "$tmp" || true
               first_dll=1
               while IFS= read -r dll; do
-                dll_rel="${dll#$tmp/}"
+                # `"$tmp"` explicitly quoted inside the parameter
+                # expansion — SC2295 asks for it so the prefix isn't
+                # interpreted as a glob pattern when $tmp contains
+                # metacharacters.
+                dll_rel="${dll#"$tmp"/}"
                 dll_sha="$(sha256sum "$dll" | awk '{ print $1 }')"
                 if [ $first_dll -eq 0 ]; then printf ',\n'; fi
                 first_dll=0
