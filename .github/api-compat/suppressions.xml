@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Microsoft.DotNet.ApiCompat suppressions file for Wolfgang.TryPattern.
+
+    Every entry here represents an INTENTIONAL ABI break — meaning:
+    (a) the difference IS a break per SemVer (not a false positive), and
+    (b) the change is being shipped in a MAJOR version bump where it is allowed.
+
+    Suppressions carry the version they were introduced in so they can be
+    culled when we cut the next major and re-audit the surface.
+
+    Schema per https://github.com/dotnet/sdk/blob/main/documentation/general/apicompat/README.md.
+-->
+<Suppressions>
+</Suppressions>
