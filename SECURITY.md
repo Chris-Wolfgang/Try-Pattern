@@ -21,3 +21,13 @@ We will acknowledge your report within 48 hours and provide an estimated timelin
 
 Your help is greatly appreciated!
 Responsible disclosure of security vulnerabilities helps protect our entire community.
+
+## Release path & compromise scope
+
+Facts a maintainer would need at 2am if the release identity is compromised. Generic incident-response steps (rotating credentials, revoking OAuth apps, publishing advisories, unlisting NuGet packages) are not duplicated here — GitHub's and NuGet's own docs update faster than a checked-in runbook.
+
+- **Release path**: OIDC / NuGet Trusted Publishing via `NuGet/login@v1` in `.github/workflows/release.yaml`. The workflow mints an ephemeral push token per run via OIDC — the release path does not depend on a long-lived API key stored in GitHub secrets or on the NuGet account. During an incident, check the NuGet account for any long-lived API keys anyway (they can be created outside of CI) and delete anything you don't recognize.
+- **Fallback**: none. If Trusted Publishing is compromised, the incident is at the GitHub-account level (the OIDC identity is `Chris-Wolfgang/Try-Pattern`).
+- **Owner**: @Chris-Wolfgang.
+- **Downstream consumers**: known Wolfgang.* dependent is [Wolfgang.D20.Dice](https://github.com/Chris-Wolfgang/D20-Dice) (`PackageReference` in `src/Wolfgang.D20.Dice/Wolfgang.D20.Dice.csproj`). Unknown external consumers may exist on nuget.org — see download count on the package page.
+- **Package coordinates for unlisting**: `Wolfgang.TryPattern` on nuget.org — https://www.nuget.org/packages/Wolfgang.TryPattern/.

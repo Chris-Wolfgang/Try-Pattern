@@ -19,7 +19,7 @@ public class ResultOfTTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Equal(expectedValue, result.Value);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -56,7 +56,7 @@ public class ResultOfTTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Equal(expectedValue, result.Value);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -95,7 +95,7 @@ public class ResultOfTTests
         Assert.Equal(value, result.Value);
         Assert.Equal("John", result.Value!.FirstName);
         Assert.Equal("Doe", result.Value!.LastName);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -112,7 +112,7 @@ public class ResultOfTTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Null( result.Value);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -131,7 +131,7 @@ public class ResultOfTTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Equal(value, result.Value);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -150,7 +150,7 @@ public class ResultOfTTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Equal(value, result.Value);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
@@ -169,7 +169,7 @@ public class ResultOfTTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Equal(value, result.Value);
-        Assert.Empty(result.ErrorMessage!);
+        Assert.Null(result.ErrorMessage);
     }
 
 
