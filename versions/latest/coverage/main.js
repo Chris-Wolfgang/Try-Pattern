@@ -290,9 +290,9 @@ var assemblies = [
   {
     "name": "Wolfgang.TryPattern",
     "classes": [
-      { "name": "Wolfgang.TryPattern.Result", "rp": "Wolfgang.TryPattern_Result.html", "cl": 64, "ucl": 1, "cal": 65, "tl": 370, "cb": 46, "tb": 48, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Wolfgang.TryPattern.Result\u003CT\u003E", "rp": "Wolfgang.TryPattern_Result_1.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 370, "cb": 3, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Wolfgang.TryPattern.Try", "rp": "Wolfgang.TryPattern_Try.html", "cl": 28, "ucl": 0, "cal": 28, "tl": 218, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Wolfgang.TryPattern.Result", "rp": "Wolfgang.TryPattern_Result.html", "cl": 69, "ucl": 0, "cal": 69, "tl": 385, "cb": 46, "tb": 46, "cm": 0, "fcm": 0, "tm": 0, "lch": [100], "bch": [100], "mch": [], "mfch": [], "hc": [{ "et": "7/18/2026 - 12:59:17 AM", "cl": 69, "ucl": 0, "cal": 69, "tl": 385, "lcq": 100, "cb": 46, "tb": 46, "bcq": 100, "cm": 0, "fcm": 0, "tm": 0, "mcq": 0, "mfcq": 0 }], "metrics": { } },
+      { "name": "Wolfgang.TryPattern.Result\u003CT\u003E", "rp": "Wolfgang.TryPattern_Result_1.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 385, "cb": 3, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [100], "bch": [75], "mch": [], "mfch": [], "hc": [{ "et": "7/18/2026 - 12:59:17 AM", "cl": 8, "ucl": 0, "cal": 8, "tl": 385, "lcq": 100, "cb": 3, "tb": 4, "bcq": 75, "cm": 0, "fcm": 0, "tm": 0, "mcq": 0, "mfcq": 0 }], "metrics": { } },
+      { "name": "Wolfgang.TryPattern.Try", "rp": "Wolfgang.TryPattern_Try.html", "cl": 30, "ucl": 0, "cal": 30, "tl": 265, "cb": 10, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [100], "bch": [100], "mch": [], "mfch": [], "hc": [{ "et": "7/18/2026 - 12:59:17 AM", "cl": 30, "ucl": 0, "cal": 30, "tl": 265, "lcq": 100, "cb": 10, "tb": 10, "bcq": 100, "cm": 0, "fcm": 0, "tm": 0, "mcq": 0, "mfcq": 0 }], "metrics": { } },
     ]},
 ];
 
@@ -307,7 +307,7 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "Wolfgang.TryPattern", "class": "Wolfgang.TryPattern.Result", "reportPath": "Wolfgang.TryPattern_Result.html", "methodName": "Flatten(Wolfgang.TryPattern.Result[])", "methodShortName": "Flatten(...)", "fileIndex": 0, "line": 133,
+    "assembly": "Wolfgang.TryPattern", "class": "Wolfgang.TryPattern.Result", "reportPath": "Wolfgang.TryPattern_Result.html", "methodName": "Flatten(Wolfgang.TryPattern.Result[])", "methodShortName": "Flatten(...)", "fileIndex": 0, "line": 148,
     "metrics": [
       { "value": 22, "exceeded": false },
       { "value": 22, "exceeded": true },

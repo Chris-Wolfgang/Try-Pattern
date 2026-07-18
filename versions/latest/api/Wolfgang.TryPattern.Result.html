@@ -16,7 +16,7 @@
       <meta name="docfx:rel" content="../">
       
       
-      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/Try-Pattern/new/v0.3.4/apiSpec/new?filename=Wolfgang_TryPattern_Result.md&amp;value=---%0Auid%3A%20Wolfgang.TryPattern.Result%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
+      <meta name="docfx:docurl" content="https://github.com/Chris-Wolfgang/Try-Pattern/new/v0.4.0/apiSpec/new?filename=Wolfgang_TryPattern_Result.md&amp;value=---%0Auid%3A%20Wolfgang.TryPattern.Result%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">
       <meta name="loc:inThisArticle" content="In this article">
       <meta name="loc:searchResultsCount" content="{count} results for &quot;{query}&quot;">
       <meta name="loc:searchNoResults" content="No results for &quot;{query}&quot;">
@@ -75,7 +75,7 @@
 
 
   <h1 id="Wolfgang_TryPattern_Result" data-uid="Wolfgang.TryPattern.Result" class="text-break">
-Class Result  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L18"><i class="bi bi-code-slash"></i></a>
+Class Result  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L18"><i class="bi bi-code-slash"></i></a>
   </h1>
 
   <div class="facts text-secondary">
@@ -155,7 +155,7 @@ from validation helpers, repository methods, and other service-layer code.</p>
 
   <h3 id="Wolfgang_TryPattern_Result__ctor_System_Boolean_System_String_" data-uid="Wolfgang.TryPattern.Result.#ctor(System.Boolean,System.String)">
   Result(bool, string?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L31"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L33"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Initializes a new instance of the Result class with the specified success status and
@@ -186,8 +186,10 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
 
   <h4 class="section" id="Wolfgang_TryPattern_Result__ctor_System_Boolean_System_String__remarks">Remarks</h4>
-  <div class="markdown level1 remarks"><p>If the operation was successful, <code class="paramref">errorMessage</code> must be an empty string. If the operation failed,
-<code class="paramref">errorMessage</code> must not be null, empty, or whitespace.</p>
+  <div class="markdown level1 remarks"><p>If the operation was successful, <code class="paramref">errorMessage</code> must be null or an empty
+string; both canonicalize to <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null">null</a> on the constructed instance's
+<a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_ErrorMessage">ErrorMessage</a>. If the operation failed, <code class="paramref">errorMessage</code> must
+not be null, empty, or whitespace.</p>
 </div>
 
 
@@ -201,10 +203,11 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_ErrorMessage" data-uid="Wolfgang.TryPattern.Result.ErrorMessage">
   ErrorMessage
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L113"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L128"><i class="bi bi-code-slash"></i></a>
   </h3>
 
-  <div class="markdown level1 summary"><p>Gets the error message describing why the operation failed, or an empty string if the operation succeeded.</p>
+  <div class="markdown level1 summary"><p>Gets the error message describing why the operation failed, or <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null">null</a> if the
+operation succeeded.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
 
@@ -225,6 +228,11 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
 
 
+  <h4 class="section" id="Wolfgang_TryPattern_Result_ErrorMessage_remarks">Remarks</h4>
+  <div class="markdown level1 remarks"><p>Non-null and non-whitespace whenever <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_Failed">Failed</a> is <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool">true</a>; always
+<a href="https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null">null</a> when <a class="xref" href="Wolfgang.TryPattern.Result.html#Wolfgang_TryPattern_Result_Succeeded">Succeeded</a> is <a href="https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool">true</a>. Callers that
+need &quot;empty string on success&quot; can use <code>result.ErrorMessage ?? string.Empty</code>.</p>
+</div>
 
 
 
@@ -233,7 +241,7 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_Failed" data-uid="Wolfgang.TryPattern.Result.Failed">
   Failed
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L106"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L115"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Gets a value indicating whether the operation failed.</p>
@@ -269,7 +277,7 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_Succeeded" data-uid="Wolfgang.TryPattern.Result.Succeeded">
   Succeeded
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L97"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L106"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Gets a value indicating whether the operation completed successfully.</p>
@@ -309,7 +317,7 @@ if the operation was successful; otherwise, <a href="https://learn.microsoft.com
 
   <h3 id="Wolfgang_TryPattern_Result_AllSucceeded_Wolfgang_TryPattern_Result___" data-uid="Wolfgang.TryPattern.Result.AllSucceeded(Wolfgang.TryPattern.Result[])">
   AllSucceeded(params Result[]?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L245"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L260"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Returns true if all the specified <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>s indicate success.</p>
@@ -359,7 +367,7 @@ element has already failed.</p>
 
   <h3 id="Wolfgang_TryPattern_Result_AnyFailed_Wolfgang_TryPattern_Result___" data-uid="Wolfgang.TryPattern.Result.AnyFailed(Wolfgang.TryPattern.Result[])">
   AnyFailed(params Result[]?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L207"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L222"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Returns true if any of the specified <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>s indicate a failure.
@@ -410,7 +418,7 @@ element has already failed.</p>
 
   <h3 id="Wolfgang_TryPattern_Result_Failure_System_String_" data-uid="Wolfgang.TryPattern.Result.Failure(System.String)">
   Failure(string)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L67"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L76"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Creates a failed <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a> with the specified error message.</p>
@@ -455,7 +463,7 @@ element has already failed.</p>
 
   <h3 id="Wolfgang_TryPattern_Result_Flatten_Wolfgang_TryPattern_Result___" data-uid="Wolfgang.TryPattern.Result.Flatten(Wolfgang.TryPattern.Result[])">
   Flatten(params Result[]?)
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L131"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L146"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Takes zero or more <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>s and flattens them into a single <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>.</p>
@@ -506,7 +514,7 @@ is a successful <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a
 
   <h3 id="Wolfgang_TryPattern_Result_Success" data-uid="Wolfgang.TryPattern.Result.Success">
   Success()
-  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L88"><i class="bi bi-code-slash"></i></a>
+  <a class="header-action link-secondary" title="View source" href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L97"><i class="bi bi-code-slash"></i></a>
   </h3>
 
   <div class="markdown level1 summary"><p>Creates a successful <a class="xref" href="Wolfgang.TryPattern.Result.html">Result</a>.</p>
@@ -545,7 +553,7 @@ returns the same object, so two successful results will be reference-equal.</p>
 </article>
 
         <div class="contribution d-print-none">
-          <a href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.3.4/src/Wolfgang.TryPattern/Result.cs/#L18" class="edit-link">Edit this page</a>
+          <a href="https://github.com/Chris-Wolfgang/Try-Pattern/blob/v0.4.0/src/Wolfgang.TryPattern/Result.cs/#L18" class="edit-link">Edit this page</a>
         </div>
 
 

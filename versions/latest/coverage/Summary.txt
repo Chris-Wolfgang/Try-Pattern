@@ -1,25 +1,25 @@
 Summary
-  Generated on: 6/30/2026 - 1:46:50 AM
-  Coverage date: 6/30/2026 - 1:46:46 AM
+  Generated on: 7/18/2026 - 12:59:18 AM
+  Coverage date: 7/18/2026 - 12:59:14 AM
   Parser: Cobertura
   Assemblies: 1
   Classes: 3
   Files: 2
-  Line coverage: 99%
-  Covered lines: 100
-  Uncovered lines: 1
-  Coverable lines: 101
-  Total lines: 588
-  Branch coverage: 95% (57 of 60)
-  Covered branches: 57
+  Line coverage: 100%
+  Covered lines: 107
+  Uncovered lines: 0
+  Coverable lines: 107
+  Total lines: 650
+  Branch coverage: 98.3% (59 of 60)
+  Covered branches: 59
   Total branches: 60
-  Method coverage: 100% (18 of 18)
-  Full method coverage: 94.4% (17 of 18)
-  Covered methods: 18
-  Fully covered methods: 17
-  Total methods: 18
+  Method coverage: 100% (19 of 19)
+  Full method coverage: 100% (19 of 19)
+  Covered methods: 19
+  Fully covered methods: 19
+  Total methods: 19
 
-Wolfgang.TryPattern                 99%
-  Wolfgang.TryPattern.Result      98.4%
+Wolfgang.TryPattern                100%
+  Wolfgang.TryPattern.Result       100%
   Wolfgang.TryPattern.Result<T>    100%
   Wolfgang.TryPattern.Try          100%
