@@ -2,7 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/Wolfgang.TryPattern.svg?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Wolfgang.TryPattern)
 [![NuGet downloads](https://img.shields.io/nuget/dt/Wolfgang.TryPattern.svg?logo=nuget&label=downloads)](https://www.nuget.org/packages/Wolfgang.TryPattern)
-[![PR build](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/Try-Pattern/pr.yaml?branch=main&label=PR%20build&logo=github)](https://github.com/Chris-Wolfgang/Try-Pattern/actions/workflows/pr.yaml)
+[![PR build](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/Try-Pattern/pr.yaml?event=pull_request_target&label=PR%20build&logo=github)](https://github.com/Chris-Wolfgang/Try-Pattern/actions/workflows/pr.yaml)
 [![Release](https://img.shields.io/github/actions/workflow/status/Chris-Wolfgang/Try-Pattern/release.yaml?label=release&logo=github)](https://github.com/Chris-Wolfgang/Try-Pattern/actions/workflows/release.yaml)
 [![OSSF Scorecard](https://api.scorecard.dev/projects/github.com/Chris-Wolfgang/Try-Pattern/badge)](https://scorecard.dev/viewer/?uri=github.com/Chris-Wolfgang/Try-Pattern)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
