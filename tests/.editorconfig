@@ -108,3 +108,17 @@ resharper_redundant_suppress_nullable_warning_expression_highlighting = none
 # ReturnTypeCanBeNotNullable: style suggestion. Some test helpers
 # deliberately return nullable to exercise the wrapped pattern.
 resharper_return_type_can_be_not_nullable_highlighting = none
+
+# ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract: FsCheck's
+# property runner can supply null for parameters typed as non-null
+# (e.g. `bool[]`, `int[]`, `NonEmptyString`) — the defensive `is null`
+# guards in Fuzz / Property tests are intentional. Stripping them per
+# the analyzer's advice would trip NREs during the weekly fuzz run.
+resharper_condition_is_always_true_or_false_according_to_nullable_api_contract_highlighting = none
+
+# S8969: Result<T>.Value is typed `T?` on net5+ (see Result.cs) so
+# `result.Value!.FirstName` in tests is required for the compiler,
+# even after `Assert.True(result.Succeeded)`. Sonar sees the assert
+# and infers non-null, but that inference doesn't propagate to the
+# multi-TFM build's older targets where Value is typed T.
+dotnet_diagnostic.S8969.severity = none
