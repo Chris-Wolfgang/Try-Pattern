@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -49,9 +48,8 @@ public class DocExampleCompilationTests
         string xmlPath = Path.ChangeExtension(LibraryAssembly.Location, ".xml");
         if (!File.Exists(xmlPath))
         {
-            // Test harness will surface this as "no examples found";
-            // fixed by ensuring <GenerateDocumentationFile>True in
-            // the src csproj (already set at repo level).
+            // Missing XML doc: repo-level GenerateDocumentationFile is required.
+            // Test harness will surface this as "no examples found".
             yield break;
         }
 
@@ -59,7 +57,7 @@ public class DocExampleCompilationTests
         int index = 0;
         foreach (XElement member in doc.Descendants("member"))
         {
-            string? memberName = member.Attribute("name")?.Value ?? "?";
+            string memberName = member.Attribute("name")?.Value ?? "?";
             foreach (XElement example in member.Descendants("example"))
             {
                 foreach (XElement code in example.Descendants("code"))

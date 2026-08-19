@@ -76,13 +76,16 @@ public class ReadmeExampleCompilationTests
         string content = File.ReadAllText(readmePath);
         // Matches ```csharp\n...content...\n``` — the ``` opener/closer
         // must be at the start of its own line. `Singleline` lets `.`
-        // cross newlines; the inner (.*?) is non-greedy to stop at the
-        // nearest closing fence.
-        var regex = new Regex(@"^```csharp\s*\r?\n(.*?)\r?\n```", RegexOptions.Multiline | RegexOptions.Singleline);
+        // cross newlines; the inner named group is non-greedy to stop
+        // at the nearest closing fence. NonBacktracking + ExplicitCapture
+        // keep the regex ReDoS-safe on hostile inputs.
+        var regex = new Regex(
+            @"^```csharp\s*\r?\n(?<snippet>.*?)\r?\n```",
+            RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.NonBacktracking);
         int index = 0;
         foreach (Match m in regex.Matches(content))
         {
-            string snippet = m.Groups[1].Value;
+            string snippet = m.Groups["snippet"].Value;
             if (string.IsNullOrWhiteSpace(snippet))
             {
                 continue;
@@ -98,7 +101,7 @@ public class ReadmeExampleCompilationTests
             // using-directives (only using-statements with an
             // initializer). Left-over `using` lines are re-added
             // implicitly by the preamble's imports.
-            snippet = Regex.Replace(snippet, @"^\s*using\s+[\w.]+\s*;\s*\r?\n", "", RegexOptions.Multiline);
+            snippet = Regex.Replace(snippet, @"^\s*using\s+[\w.]+\s*;\s*\r?\n", "", RegexOptions.Multiline | RegexOptions.NonBacktracking);
             yield return new object[] { index++, snippet };
         }
     }
