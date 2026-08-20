@@ -11,6 +11,16 @@
          the actual release version. -->
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>$([System.Text.RegularExpressions.Regex]::Replace("$(Version)", "[-+].*$", "")).0</FileVersion>
+    <!-- Package validation: `dotnet pack` runs Microsoft.DotNet.ApiCompat
+         against the last-published NuGet version so accidental ABI breaks
+         (removed / renamed / type-changed public members) fail pack instead
+         of shipping. Baseline must be bumped to the newest published version
+         after every release — this is the "post-deploy baseline bump PR"
+         step in the per-repo release flow. Complements api-compat.yaml,
+         which runs the same validation dynamically on PRs; this baseline
+         catches the same breaks at pack time, which release.yaml exercises. -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>0.4.1</PackageValidationBaselineVersion>
     <Title>$(AssemblyName)</Title>
     <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
     <PackageTags>try;result;error-handling;exception-handling;functional;railway-oriented;dotnet</PackageTags>
