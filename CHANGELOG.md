@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-08-20
+
+Security and CI-hardening PATCH round. Zero runtime behaviour changes to
+`Wolfgang.TryPattern` — every diff is workflow YAML, analyzer packages,
+or test-only files. Ships the fixes for the fleet-wide 2026-08-13
+code-scanning audit ([#309](https://github.com/Chris-Wolfgang/Try-Pattern/issues/309)).
+
+### Security
+
+- **CI (SHA-pin workflow actions)** — nine workflows
+  (`benchmarks`, `build-all-versions`, `codeql`, `docfx`, `pr`,
+  `release`, `scorecard`, `stryker`, `workflow-security`) had actions
+  pinned by `@vN` tag; they now use the fleet-standard commit SHAs
+  matching this repo's already-pinned workflows, each carrying a
+  `# vN` comment so Dependabot can continue to bump. Closes 61 open
+  Scorecard `PinnedDependenciesID` alerts. See
+  [#315](https://github.com/Chris-Wolfgang/Try-Pattern/pull/315).
+- **CI (narrow SARIF-upload permissions in `semgrep-sast.yaml`)** —
+  `security-events: write` moved from top-level to the `semgrep` job
+  where SARIF upload actually happens; top-level stays
+  `contents: read`. Closes 1 open Scorecard `TokenPermissionsID`
+  alert. See [#315](https://github.com/Chris-Wolfgang/Try-Pattern/pull/315).
+- **CI (durable Scorecard SARIF filter)** — new `jq` step in
+  `scorecard.yml` strips `DangerousWorkflowID` (7 alerts on the
+  intentional `pull_request_target` design in `pr.yaml`) and CLI-command
+  `PinnedDependenciesID` (9 alerts on `pipCommand` / `nugetCommand` /
+  `downloadThenRun` invocations that can't be SHA-pinned) findings
+  BEFORE upload to Code Scanning. Fixes the dismissal-decay problem
+  (per-alert `gh api ... -X PATCH` dismissals don't persist across
+  weekly re-runs because SARIF fingerprints drift). Raw unfiltered
+  SARIF still uploaded as workflow artifact for audit. See
+  [#316](https://github.com/Chris-Wolfgang/Try-Pattern/pull/316) and
+  [#318](https://github.com/Chris-Wolfgang/Try-Pattern/pull/318).
+
+### Changed
+
+- **InspectCode triage (tests + one example)** — 11 real InspectCode
+  findings fixed in code (unused usings removed, README-fence-parser
+  regexes gained `RegexOptions.NonBacktracking` + `ExplicitCapture`,
+  `GetWordCount(content: null)` for MA0003 readability); 5 findings
+  suppressed at `tests/.editorconfig` with justification
+  (`ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract` on
+  Fuzz/Property tests where FsCheck supplies null despite NRT
+  annotations; `S8969` where `Result<T>.Value!.FirstName` is required
+  by the multi-TFM compiler even after `Assert.True(result.Succeeded)`).
+  See [#315](https://github.com/Chris-Wolfgang/Try-Pattern/pull/315).
+
+### Dependencies
+
+- Bump `SonarAnalyzer.CSharp` from 10.31.0.145097 to 10.32.0.713
+  ([#314](https://github.com/Chris-Wolfgang/Try-Pattern/pull/314)).
+- Bump `Microsoft.SourceLink.GitHub` from 10.0.301 to 10.0.400
+  ([#312](https://github.com/Chris-Wolfgang/Try-Pattern/pull/312)).
+- Bump `Meziantou.Analyzer` from 3.0.125 to 3.0.156
+  ([#311](https://github.com/Chris-Wolfgang/Try-Pattern/pull/311)).
+
 ## [0.4.0] - 2026-07-17
 
 Thorough-review batch and repo hardening round. Two runtime behaviour
