@@ -64,7 +64,48 @@ jobs:
           # don't want in-flight PR scores polluting the badge.
           publish_results: ${{ github.event_name != 'pull_request' }}
 
-      - name: Upload artifact (JSON copy)
+      - name: Filter SARIF (durable suppression of decided-not-fixed findings)
+        # Scorecard's per-alert dismissals via `gh api ... -X PATCH
+        # /code-scanning/alerts/<n>` do not persist across weekly re-runs
+        # because SARIF fingerprints drift each run (session memory:
+        # reference_scorecard_dismissal_not_durable). This step strips
+        # findings we've explicitly decided not to fix from the SARIF
+        # BEFORE upload, so they never enter Code Scanning in the first
+        # place. Rationale for each filter is inline below.
+        #
+        # Preserves the raw unfiltered SARIF in the "scorecard-results"
+        # artifact for audit — only the Code Scanning ingest is filtered.
+        run: |
+          jq '
+            .runs[].results |= map(select(
+              # DangerousWorkflowID: pr.yaml uses pull_request_target with
+              # refs/pull/*/head by intentional design. The untrusted
+              # checkout is safely contained by the "Fetch trusted config
+              # from main" step, persist-credentials:false, and a
+              # top-level contents:read permission. Documented at pr.yaml
+              # header. Scorecard flags the pattern; we do not fix.
+              (.ruleId != "DangerousWorkflowID")
+              and
+              # PinnedDependenciesID for pipCommand / nugetCommand /
+              # downloadThenRun: these are CLI invocations inside `run:`
+              # steps (e.g. `pip install semgrep==...`, `dotnet tool
+              # install ...`, `curl ... | bash`). They are already pinned
+              # by version at the command line where meaningful, and
+              # SHA-pinning is not applicable to arbitrary CLI subcommands.
+              # PinnedDependenciesID findings for actual GitHub Actions
+              # (which CAN be SHA-pinned) still flow through — those are
+              # not filtered out.
+              (
+                .ruleId != "PinnedDependenciesID"
+                or (.message.text | test("pipCommand|nugetCommand|downloadThenRun") | not)
+              )
+            ))
+          ' results.sarif > results-filtered.sarif
+          before=$(jq '[.runs[].results[]] | length' results.sarif)
+          after=$(jq '[.runs[].results[]] | length' results-filtered.sarif)
+          echo "Filtered SARIF: ${before} → ${after} findings ($((before - after)) suppressed)."
+
+      - name: Upload artifact (raw SARIF, for audit)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: scorecard-results
@@ -74,4 +115,4 @@ jobs:
       - name: Upload results to Code Scanning
         uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v4
         with:
-          sarif_file: results.sarif
+          sarif_file: results-filtered.sarif
