@@ -35,7 +35,7 @@ namespace CSharp.DotNet462.Example
             }
 
             // Try counting words in the file content
-            wordCountResult = Try.Run(() => GetWordCount(null));
+            wordCountResult = Try.Run(() => GetWordCount(content: null));
 
             // If word count failed, print the error message
             if (wordCountResult.Failed)
