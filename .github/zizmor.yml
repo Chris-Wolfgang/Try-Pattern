@@ -44,7 +44,7 @@ rules:
       - docfx.yaml
       - pr.yaml
       - release.yaml
-      - scorecard.yml
+      - scorecard.yaml
       - stryker.yaml
       - workflow-security.yaml
 

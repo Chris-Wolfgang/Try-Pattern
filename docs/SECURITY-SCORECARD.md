@@ -6,7 +6,7 @@ signed commits, pinned dependencies, dangerous-workflow patterns, etc.
 — on a 0-10 scale. This document captures the baseline score and the
 policy for handling regressions.
 
-Workflow: [`.github/workflows/scorecard.yml`](../.github/workflows/scorecard.yml)
+Workflow: [`.github/workflows/scorecard.yaml`](../.github/workflows/scorecard.yaml)
 Results: [Security → Code scanning](https://github.com/Chris-Wolfgang/Try-Pattern/security/code-scanning)
 Public score: <https://scorecard.dev/viewer/?uri=github.com/Chris-Wolfgang/Try-Pattern>
 
