@@ -1,6 +1,6 @@
 # Semgrep audit log
 
-Findings from `.github/workflows/semgrep-sast.yaml` (Semgrep OSS with
+Findings from `.github/workflows/semgrep.yaml` (formerly `semgrep-sast.yaml`) (Semgrep OSS with
 the `p/csharp` and `p/security-audit` rulesets) are triaged here.
 Each finding gets a decision — **fixed**, **false-positive**, or
 **accepted-risk** — with a one-line rationale and the commit / PR
