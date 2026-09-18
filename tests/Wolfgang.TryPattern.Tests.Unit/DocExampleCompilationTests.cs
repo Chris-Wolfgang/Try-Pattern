@@ -150,13 +150,11 @@ public class DocExampleCompilationTests
 
         if (errors.Count > 0)
         {
-            string errorList = string.Join(Environment.NewLine, errors.Select(e => $"  {e}"));
-            string reproHint = string.Join(Environment.NewLine, snippet.Split('\n').Select(l => $"    {l.TrimEnd()}"));
-            Assert.Fail(
-                $"XML doc example on `{memberName}` (example index {index}) failed to compile.{Environment.NewLine}" +
-                $"Errors:{Environment.NewLine}{errorList}{Environment.NewLine}" +
-                $"Snippet:{Environment.NewLine}{reproHint}{Environment.NewLine}" +
-                $"Fix the snippet in the source XML doc, or if it needs an additional using, add it inline in the `<code>` block.");
+            Assert.Fail(CompileFailureMessage.Format(
+                $"XML doc example on `{memberName}` (example index {index}) failed to compile.",
+                errors,
+                snippet,
+                "Fix the snippet in the source XML doc, or if it needs an additional using, add it inline in the `<code>` block."));
         }
     }
 }

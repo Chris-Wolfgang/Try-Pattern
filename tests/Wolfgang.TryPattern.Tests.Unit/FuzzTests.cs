@@ -13,12 +13,17 @@
 // pulled from the test output.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
 
 namespace Wolfgang.TryPattern.Tests.Unit;
 
+// Never executed by the PR gate (`--filter "Category!=Fuzz"`), only by the
+// scheduled fuzz.yaml run, so the instrumented test assembly would score it
+// at 0% on every PR. The same properties ARE measured through PropertyTests.
+[ExcludeFromCodeCoverage]
 [Trait("Category", "Fuzz")]
 public class FuzzTests
 {
