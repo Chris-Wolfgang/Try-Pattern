@@ -111,10 +111,7 @@ public class ReadmeExampleCompilationTests
     [MemberData(nameof(AllReadmeFences))]
     public void Readme_fence_compiles(int index, string snippet)
     {
-        if (snippet is null)
-        {
-            throw new ArgumentNullException(nameof(snippet));
-        }
+        _ = snippet ?? throw new ArgumentNullException(nameof(snippet));
 
         // Wrap in an async method body so `await` / free-standing
         // statements both compile. Async is superset — synchronous
@@ -165,13 +162,11 @@ public class ReadmeExampleCompilationTests
 
         if (errors.Count > 0)
         {
-            string errorList = string.Join(Environment.NewLine, errors.Select(e => $"  {e}"));
-            string reproHint = string.Join(Environment.NewLine, snippet.Split('\n').Select(l => $"    {l.TrimEnd()}"));
-            Assert.Fail(
-                $"README fence #{index} failed to compile.{Environment.NewLine}" +
-                $"Errors:{Environment.NewLine}{errorList}{Environment.NewLine}" +
-                $"Snippet:{Environment.NewLine}{reproHint}{Environment.NewLine}" +
-                $"Fix the fence in README.md, or if it uses framework types the test project doesn't reference (SqlConnection, ASP.NET Core, EF dbContext), add a marker string to ReadmeExampleCompilationTests.SkipMarkers.");
+            Assert.Fail(CompileFailureMessage.Format(
+                $"README fence #{index} failed to compile.",
+                errors,
+                snippet,
+                "Fix the fence in README.md, or if it uses framework types the test project doesn't reference (SqlConnection, ASP.NET Core, EF dbContext), add a marker string to ReadmeExampleCompilationTests.SkipMarkers."));
         }
     }
 
