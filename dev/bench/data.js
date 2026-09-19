@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782594874237,
+  "lastUpdate": 1789844250584,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -120,6 +120,78 @@ window.BENCHMARK_DATA = {
             "value": 21830051.927083332,
             "unit": "ns",
             "range": "± 130646.3942251359"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ccee1a04b5f9921f6d38670976451dfcc9b52eaf",
+          "message": "chore(deps): bump benchmark-action/github-action-benchmark (#356)\n\nBumps the github-actions group with 1 update: [benchmark-action/github-action-benchmark](https://github.com/benchmark-action/github-action-benchmark).\n\n\nUpdates `benchmark-action/github-action-benchmark` from 1.22.1 to 1.22.2\n- [Release notes](https://github.com/benchmark-action/github-action-benchmark/releases)\n- [Changelog](https://github.com/benchmark-action/github-action-benchmark/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/benchmark-action/github-action-benchmark/compare/52576c92bccf6ac60c8223ec7eb2565637cae9ba...4322e5726e6334590d251fc4f92bec0efafc45dc)\n\n---\nupdated-dependencies:\n- dependency-name: benchmark-action/github-action-benchmark\n  dependency-version: 1.22.2\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: github-actions\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-09-19T14:51:59-04:00",
+          "tree_id": "9487a8eff0fdca821e90c97d1d720e8604ed8f2b",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/ccee1a04b5f9921f6d38670976451dfcc9b52eaf"
+        },
+        "date": 1789844248992,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 2505.0413773854575,
+            "unit": "ns",
+            "range": "± 4.997865684808362"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 2382824.3515625,
+            "unit": "ns",
+            "range": "± 7114.141441793392"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 581995.4389648438,
+            "unit": "ns",
+            "range": "± 2548.5763729793794"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 13282958.364583334,
+            "unit": "ns",
+            "range": "± 246191.1046360991"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 7347.305088043213,
+            "unit": "ns",
+            "range": "± 45.00821461289807"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 2242174.2356770835,
+            "unit": "ns",
+            "range": "± 8428.398021100598"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 40036.07860310873,
+            "unit": "ns",
+            "range": "± 137.9290213581013"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 4965281.717447917,
+            "unit": "ns",
+            "range": "± 43356.09256580377"
           }
         ]
       }
