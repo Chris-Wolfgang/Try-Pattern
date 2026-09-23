@@ -90,9 +90,13 @@ jobs:
 
       - name: Download previous .nupkg + extract
         shell: bash
+        # The resolved version arrives through env rather than template expansion, so a step
+        # output is never spliced into the script body (zizmor template-injection).
+        env:
+          PREV_VERSION: ${{ steps.nuget.outputs.version }}
         run: |
           set -euo pipefail
-          v='${{ steps.nuget.outputs.version }}'
+          v="$PREV_VERSION"
           mkdir -p ./previous
           curl -fsSL "https://api.nuget.org/v3-flatcontainer/wolfgang.trypattern/$v/wolfgang.trypattern.$v.nupkg" \
             -o "./previous/wolfgang.trypattern.$v.nupkg"
