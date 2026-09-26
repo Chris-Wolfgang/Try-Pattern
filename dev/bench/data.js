@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789844250584,
+  "lastUpdate": 1790458625280,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -192,6 +192,78 @@ window.BENCHMARK_DATA = {
             "value": 4965281.717447917,
             "unit": "ns",
             "range": "± 43356.09256580377"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8e98767b8a0580131061bed44b4d55b8c7ee7d5b",
+          "message": "build: mark the net8.0+ assemblies IsAotCompatible and IsTrimmable (#371)\n\nBaseline item 18. Set in the src csproj under a net8.0-or-later\ncondition (the analyzers only exist there); the Release build with\nTreatWarningsAsErrors reports no IL2xxx/IL3xxx findings.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-26T17:32:41-04:00",
+          "tree_id": "ea911acf7a8fadf1db9c5f6d0a39d26376de6e2c",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/8e98767b8a0580131061bed44b4d55b8c7ee7d5b"
+        },
+        "date": 1790458623373,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1371.810043970744,
+            "unit": "ns",
+            "range": "± 10.015463789124155"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1230497.3645833333,
+            "unit": "ns",
+            "range": "± 9398.46080860814"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 273967.1217447917,
+            "unit": "ns",
+            "range": "± 9783.38363052222"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 5798058.390625,
+            "unit": "ns",
+            "range": "± 10419.381315849128"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 3916.771194458008,
+            "unit": "ns",
+            "range": "± 56.3744753432902"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1222671.7659505208,
+            "unit": "ns",
+            "range": "± 6958.839057895006"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 18428.712412516277,
+            "unit": "ns",
+            "range": "± 277.41502419460704"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 2597007.4973958335,
+            "unit": "ns",
+            "range": "± 5940.490404431063"
           }
         ]
       }
