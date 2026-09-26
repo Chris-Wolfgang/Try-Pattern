@@ -39,10 +39,11 @@
 		<PackageReference Include="xunit" Version="2.9.3" />
 		<PackageReference Include="xunit.assert" Version="2.9.3" />
 		<PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
-		<!-- FsCheck property-based fuzzing (issue #170). 2.x line targets
-		     xunit v2 which is what this project uses (xunit 2.9.3 core).
-		     The FsCheck.Xunit.v3 package is for xunit v3 only. -->
-		<PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
+		<!-- FsCheck property-based fuzzing (issue #170). FsCheck.Xunit 3.x
+		     still targets xunit v2, which is what this project uses (xunit
+		     2.9.3 core); FsCheck.Xunit.v3 is the xunit v3 package. C# callers
+		     need `using FsCheck.Fluent;` for Prop / ToProperty (#303). -->
+		<PackageReference Include="FsCheck.Xunit" Version="3.4.0" />
 	</ItemGroup>
 
 	<!-- .NET Framework 4.6.2 - 4.8.1 specific packages -->

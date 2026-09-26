@@ -23,6 +23,12 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
+    ignore:
+      # The FsCheck.Xunit 3.x migration is done (#303). Hold *future major*
+      # bumps (4.x+) so the next breaking API refactor is taken as a
+      # deliberate migration, not auto-proposed. Minor/patch still flow.
+      - dependency-name: "FsCheck.Xunit"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "nuget"
     directory: "/benchmarks"
