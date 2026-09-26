@@ -34,6 +34,14 @@
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
+  <!-- Trim / Native AOT analyzers. Only net8.0+ ships the analyzers, so the
+       older slices would just warn NETSDK1210. IsAotCompatible implies
+       IsTrimmable; both are set so the baseline audit sees them explicitly. -->
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
   <!--
     ImplicitUsings intentionally NOT enabled. Every source file declares its
     own `using` directives explicitly so the compiler treats them as required
