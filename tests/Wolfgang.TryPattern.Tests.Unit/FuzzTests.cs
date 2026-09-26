@@ -16,7 +16,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using FsCheck;
 using FsCheck.Xunit;
-using Xunit;
 
 namespace Wolfgang.TryPattern.Tests.Unit;
 
