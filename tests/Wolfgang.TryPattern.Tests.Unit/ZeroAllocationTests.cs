@@ -28,7 +28,6 @@
 //     framework's own bookkeeping if any) would show up as N-multiplied.
 
 using System;
-using Xunit;
 
 namespace Wolfgang.TryPattern.Tests.Unit;
 
