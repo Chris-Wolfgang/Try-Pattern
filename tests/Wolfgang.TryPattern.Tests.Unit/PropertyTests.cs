@@ -20,6 +20,7 @@
 
 using System;
 using FsCheck;
+using FsCheck.Fluent;
 using FsCheck.Xunit;
 
 namespace Wolfgang.TryPattern.Tests.Unit;
