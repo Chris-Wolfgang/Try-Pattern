@@ -1,8 +1,8 @@
 # Stryker mutation testing
 #
 # Runs the Stryker.NET mutation tester against the repo's test projects to
-# measure mutation score. Mutation runs are slow — triggered manually
-# (workflow_dispatch) and on a weekly schedule, not on every PR.
+# measure mutation score. Runs on PRs that touch src/ or tests/ (the
+# `break` threshold gates them), on dispatch, and weekly.
 #
 # The workflow looks for a stryker-config.json at the repo root or under
 # tests/**/. If none is present the run is a no-op (Stryker setup is a
@@ -10,21 +10,18 @@
 name: Stryker (mutation testing)
 
 on:
-  # PR trigger per issue #173 is temporarily disabled: dotnet-stryker
-  # 4.15 and 4.16 both crash inside Buildalyzer with
-  # `System.TypeLoadException: Could not load type
-  # 'Roslyn.Utilities.IObjectWritable' from Microsoft.CodeAnalysis
-  # 5.6.0.0` — Stryker's bundled Buildalyzer targets an older
-  # Microsoft.CodeAnalysis than the 5.6 dragged in by the fleet
-  # analyzer bump in v0.3.5 (Meziantou 3.0.122, BannedApi 5.6,
-  # PublicApi 5.6, Sonar 10.29). Re-enable the `pull_request` trigger
-  # once a Stryker release with a compatible Buildalyzer/Roslyn stack
-  # ships (upstream tracking issue linked from #173).
-  #
-  # Meanwhile the weekly + workflow_dispatch triggers still run the
-  # tool. The `break: 60` threshold in stryker-config.json still
-  # applies; a regressing PR just doesn't get caught until the next
-  # weekly (or someone triggers workflow_dispatch after merging).
+  # PR gate per #173, re-enabled in #281. It had been off because every
+  # run crashed with `TypeLoadException: Roslyn.Utilities.IObjectWritable`.
+  # The cause was solution mode: run from the repo root, Stryker analysed
+  # examples/VB.*.vbproj with a VB parser older than the SDK's Roslyn
+  # (stryker-mutator/stryker-net#3666). The config now lives in
+  # tests/Wolfgang.TryPattern.Tests.Unit/ and the Run step cds there.
+  pull_request:
+    branches: [main, vNext]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/stryker.yaml'
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 0' # weekly Sunday 06:00 UTC
@@ -80,14 +77,11 @@ jobs:
 
       - name: Install dotnet-stryker
         if: steps.check.outputs.found == 'true'
-        # Pinned to 4.16.0: earlier 4.15.0 crashes at initialisation with
-        # `System.TypeLoadException: Could not load type 'Roslyn.Utilities.IObjectWritable'`
-        # against the Microsoft.CodeAnalysis 5.6 the fleet analyzer bump
-        # (v0.3.5) drags in. 4.16.0 refreshed the Buildalyzer/Roslyn stack
-        # and is the current stable line.
+        # Pinned to 5.0.0, the version repo-template's tool manifest pins and
+        # the one verified against this repo (#281: 147 mutants, 92.66%).
         run: |
-          dotnet tool update -g dotnet-stryker --version 4.16.0 \
-            || dotnet tool install -g dotnet-stryker --version 4.16.0
+          dotnet tool update -g dotnet-stryker --version 5.0.0 \
+            || dotnet tool install -g dotnet-stryker --version 5.0.0
 
       - name: Run Stryker
         if: steps.check.outputs.found == 'true'
