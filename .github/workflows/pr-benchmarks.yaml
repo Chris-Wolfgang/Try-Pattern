@@ -36,6 +36,19 @@ env:
   # these numbers gate the workflow's exit status.
   TIME_REGRESSION_PCT: '20'
   ALLOC_REGRESSION_PCT: '50'
+  # Absolute floors: a benchmark fails only when it breaches the percentage
+  # AND moved by at least this much, so scheduling noise on the smallest
+  # benchmark cannot trip the gate on its own (#326).
+  # Time: the benchmarks span ~2.5 us (Action_Success) to ~13 ms. Across 8
+  # PR runs (2026-07-17 .. 2026-09-17) the largest noise swing was +16.1%
+  # on Action_Success, about 400 ns. 1000 ns is ~2.5x that and only matters
+  # for the sub-5 us benchmarks; 20% of every larger one already exceeds it.
+  TIME_REGRESSION_FLOOR_NS: '1000'
+  # Allocations are deterministic (observed deltas 0.0% / -0.1%), and the
+  # smallest real managed allocation is 24 B, so 16 B filters rounding
+  # without masking a new object. This floor also gates a benchmark whose
+  # base allocated 0 B, which the percentage cannot express.
+  ALLOC_REGRESSION_FLOOR_BYTES: '16'
   BENCHMARK_MARKER: '<!-- pr-benchmarks-report -->'
 
 jobs:
@@ -110,6 +123,8 @@ jobs:
           MARKER: ${{ env.BENCHMARK_MARKER }}
           T_PCT: ${{ env.TIME_REGRESSION_PCT }}
           A_PCT: ${{ env.ALLOC_REGRESSION_PCT }}
+          T_FLOOR: ${{ env.TIME_REGRESSION_FLOOR_NS }}
+          A_FLOOR: ${{ env.ALLOC_REGRESSION_FLOOR_BYTES }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
@@ -120,6 +135,8 @@ jobs:
           marker = os.environ['MARKER']
           t_thresh = float(os.environ['T_PCT'])
           a_thresh = float(os.environ['A_PCT'])
+          t_floor = float(os.environ['T_FLOOR'])
+          a_floor = float(os.environ['A_FLOOR'])
           commit = os.environ.get('COMMIT', '?')[:12]
 
           def index(path):
@@ -154,15 +171,17 @@ jobs:
               t_str, t_pct = delta(h_mean, b_mean)
               a_str, a_pct = delta(h_alloc, b_alloc)
               rows.append((k, t_str, a_str))
-              if t_pct is not None and t_pct > t_thresh:
-                  regressions.append((k, 'time', t_pct, t_thresh))
-              if a_pct is not None and a_pct > a_thresh:
-                  regressions.append((k, 'alloc', a_pct, a_thresh))
+              if t_pct is not None and t_pct > t_thresh and h_mean - b_mean >= t_floor:
+                  regressions.append((k, 'time', f'+{t_pct:.1f}% / +{h_mean - b_mean:,.0f} ns'))
+              if a_pct is not None and a_pct > a_thresh and h_alloc - b_alloc >= a_floor:
+                  regressions.append((k, 'alloc', f'+{a_pct:.1f}% / +{h_alloc - b_alloc:,.0f} B'))
+              elif b_alloc == 0 and h_alloc is not None and h_alloc >= a_floor:
+                  regressions.append((k, 'alloc', f'0 B -> {h_alloc:,.0f} B'))
 
           with open(comment_path, 'w') as f:
               f.write(marker + '\n')
               f.write(f'## PR benchmarks vs base ({commit})\n\n')
-              f.write(f'Thresholds: **time > +{t_thresh:g}%** or **allocations > +{a_thresh:g}%** trigger a gate failure (label `perf-impact-acknowledged` overrides).\n\n')
+              f.write(f'Thresholds: **time > +{t_thresh:g}% and ≥ +{t_floor:g} ns** or **allocations > +{a_thresh:g}% and ≥ +{a_floor:g} B** (or any allocation ≥ {a_floor:g} B where the base allocated none) trigger a gate failure (label `perf-impact-acknowledged` overrides).\n\n')
               if not rows:
                   f.write('_No benchmarks executed._\n')
               else:
@@ -173,8 +192,8 @@ jobs:
                       f.write(f'| `{short}` | {t} | {a} |\n')
               if regressions:
                   f.write('\n**Regressions exceeding threshold:**\n')
-                  for k, kind, pct, thresh in regressions:
-                      f.write(f'- `{k.rsplit(".", 1)[-1]}` — {kind} +{pct:.1f}% (> +{thresh:g}%)\n')
+                  for k, kind, detail in regressions:
+                      f.write(f'- `{k.rsplit(".", 1)[-1]}` — {kind} {detail}\n')
 
           with open(verdict_path, 'w') as f:
               f.write('regressed' if regressions else 'clean')
