@@ -45,14 +45,9 @@ public class DocExampleCompilationTests
 
     public static IEnumerable<object[]> AllDocExamples()
     {
+        // A missing XML doc file (GenerateDocumentationFile off) throws
+        // FileNotFoundException from Load, naming the path.
         string xmlPath = Path.ChangeExtension(LibraryAssembly.Location, ".xml");
-        if (!File.Exists(xmlPath))
-        {
-            // Missing XML doc: repo-level GenerateDocumentationFile is required.
-            // Test harness will surface this as "no examples found".
-            yield break;
-        }
-
         XDocument doc = XDocument.Load(xmlPath);
         int index = 0;
         foreach (XElement member in doc.Descendants("member"))
@@ -148,14 +143,19 @@ public class DocExampleCompilationTests
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .ToList();
 
-        if (errors.Count > 0)
-        {
-            Assert.Fail(CompileFailureMessage.Format(
+        // Unconditional so the message builder runs on a pass too (a
+        // failure-only branch can never reach the 100% test-coverage gate).
+        Assert.True
+        (
+            errors.Count == 0,
+            CompileFailureMessage.Format
+            (
                 $"XML doc example on `{memberName}` (example index {index}) failed to compile.",
                 errors,
                 snippet,
-                "Fix the snippet in the source XML doc, or if it needs an additional using, add it inline in the `<code>` block."));
-        }
+                "Fix the snippet in the source XML doc, or if it needs an additional using, add it inline in the `<code>` block."
+            )
+        );
     }
 }
 

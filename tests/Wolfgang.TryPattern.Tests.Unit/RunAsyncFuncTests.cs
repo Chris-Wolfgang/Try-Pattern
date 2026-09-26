@@ -339,11 +339,15 @@ public class RunAsyncFuncTests
         using var cts = new CancellationTokenSource();
         var functionStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        async Task<int> Function()
+        // Never completes on its own: the only way out is the token, so
+        // there is no unreachable `return` after an infinite delay.
+        var pending = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var registration = cts.Token.Register(() => pending.TrySetCanceled(cts.Token));
+
+        Task<int> Function()
         {
             functionStarted.TrySetResult(true);
-            await Task.Delay(Timeout.Infinite, cts.Token);
-            return 42;
+            return pending.Task;
         }
 
         var task = Try.RunAsync((Func<Task<int>>)Function, cts.Token);
@@ -374,6 +378,11 @@ public class RunAsyncFuncTests
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(() => Try.RunAsync((Func<Task<int>>)Function, cts.Token));
         Assert.False(wasInvoked, "function should not be invoked when the token is already canceled");
+
+        // Positive control: the probe does flip when the function runs, so
+        // the assertion above is not vacuous.
+        await Function();
+        Assert.True(wasInvoked);
     }
 
 
@@ -395,5 +404,10 @@ public class RunAsyncFuncTests
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(() => Try.RunAsync((Func<Task<int?>>)Function, cts.Token));
         Assert.False(wasInvoked, "function should not be invoked when the token is already canceled");
+
+        // Positive control: the probe does flip when the function runs, so
+        // the assertion above is not vacuous.
+        await Function();
+        Assert.True(wasInvoked);
     }
 }

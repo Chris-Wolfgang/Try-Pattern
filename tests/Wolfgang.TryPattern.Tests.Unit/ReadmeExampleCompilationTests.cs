@@ -67,12 +67,9 @@ public class ReadmeExampleCompilationTests
 
     public static IEnumerable<object[]> AllReadmeFences()
     {
+        // LocateReadme returns a non-existent path when nothing is found,
+        // so ReadAllText throws FileNotFoundException naming it.
         string readmePath = LocateReadme();
-        if (!File.Exists(readmePath))
-        {
-            yield break;
-        }
-
         string content = File.ReadAllText(readmePath);
         // Matches ```csharp\n...content...\n``` — the ``` opener/closer
         // must be at the start of its own line. `Singleline` lets `.`
@@ -160,14 +157,19 @@ public class ReadmeExampleCompilationTests
             .Where(d => d.Severity == DiagnosticSeverity.Error)
             .ToList();
 
-        if (errors.Count > 0)
-        {
-            Assert.Fail(CompileFailureMessage.Format(
+        // Unconditional so the message builder runs on a pass too (a
+        // failure-only branch can never reach the 100% test-coverage gate).
+        Assert.True
+        (
+            errors.Count == 0,
+            CompileFailureMessage.Format
+            (
                 $"README fence #{index} failed to compile.",
                 errors,
                 snippet,
-                "Fix the fence in README.md, or if it uses framework types the test project doesn't reference (SqlConnection, ASP.NET Core, EF dbContext), add a marker string to ReadmeExampleCompilationTests.SkipMarkers."));
-        }
+                "Fix the fence in README.md, or if it uses framework types the test project doesn't reference (SqlConnection, ASP.NET Core, EF dbContext), add a marker string to ReadmeExampleCompilationTests.SkipMarkers."
+            )
+        );
     }
 
 
@@ -177,16 +179,11 @@ public class ReadmeExampleCompilationTests
         // README.md. On CI the test runs from bin/Release/net10.0/,
         // so the repo root is a few levels up.
         string? dir = AppContext.BaseDirectory;
-        for (int depth = 0; depth < 10 && dir is not null; depth++)
+        while (dir is not null && !File.Exists(Path.Combine(dir, "README.md")))
         {
-            string candidate = Path.Combine(dir, "README.md");
-            if (File.Exists(candidate))
-            {
-                return candidate;
-            }
             dir = Path.GetDirectoryName(dir);
         }
-        return "README.md";  // last-ditch, caller checks Exists
+        return Path.Combine(dir ?? AppContext.BaseDirectory, "README.md");
     }
 }
 

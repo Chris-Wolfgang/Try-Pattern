@@ -45,18 +45,13 @@ public class PropertyTests
     public Property Try_Run_of_throwing_action_carries_message_round_trip(NonEmptyString message)
     {
         if (message is null) throw new ArgumentNullException(nameof(message));
-        // NonEmptyString excludes only the empty string; Result.Failure
-        // additionally rejects whitespace-only strings and there's a
-        // latent bug (#273) that lets a whitespace exception message
-        // escape from Try.Run. Skip that case so the fast-path
-        // property is well-formed vs the current API.
+        // NonEmptyString can still be whitespace-only. Since #273 Try.Run
+        // reports such a message as the exception's type name, because
+        // Result.Failure rejects whitespace.
         string msg = message.Get;
-        if (string.IsNullOrWhiteSpace(msg))
-        {
-            return true.ToProperty();
-        }
+        string expected = string.IsNullOrWhiteSpace(msg) ? nameof(InvalidOperationException) : msg;
         Result r = Try.Run(() => throw new InvalidOperationException(msg));
-        return (r.Failed && string.Equals(r.ErrorMessage, msg, StringComparison.Ordinal)).ToProperty();
+        return (r.Failed && string.Equals(r.ErrorMessage, expected, StringComparison.Ordinal)).ToProperty();
     }
 
 
