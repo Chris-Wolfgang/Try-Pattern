@@ -20,7 +20,7 @@
          which runs the same validation dynamically on PRs; this baseline
          catches the same breaks at pack time, which release.yaml exercises. -->
     <EnablePackageValidation>true</EnablePackageValidation>
-    <PackageValidationBaselineVersion>0.4.1</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>0.5.0</PackageValidationBaselineVersion>
     <Title>$(AssemblyName)</Title>
     <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
     <PackageTags>try;result;error-handling;exception-handling;functional;railway-oriented;dotnet</PackageTags>
