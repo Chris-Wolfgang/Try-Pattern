@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-27
+
+MINOR for the trim / Native AOT annotation. The public API is unchanged
+(no PublicAPI baseline edits), and `AssemblyVersion` stays `1.0.0.0`, so the
+upgrade needs no rebuild or binding redirect.
+
+### Added
+
+- The net8.0 and net10.0 assemblies are now marked trim- and Native AOT-compatible (`IsAotCompatible` / `IsTrimmable`), so trimming consumers no longer see the library as unannotated. (#371)
+
 ## [0.4.1] - 2026-08-20
 
 Security and CI-hardening PATCH round. Zero runtime behaviour changes to
