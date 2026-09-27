@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<coverage version="1.0" date="2026-09-27_20-08-03" tag="">
+  <assembly name="Wolfgang.TryPattern">
+    <class name="Wolfgang.TryPattern.Result" coveredlines="69" coverablelines="69" totallines="385" coveredbranches="46" totalbranches="46" coveredcodeelements="10" fullcoveredcodeelements="10" totalcodeelements="10" />
+    <class name="Wolfgang.TryPattern.Result`1" coveredlines="8" coverablelines="8" totallines="385" coveredbranches="3" totalbranches="4" coveredcodeelements="4" fullcoveredcodeelements="4" totalcodeelements="4" />
+    <class name="Wolfgang.TryPattern.Try" coveredlines="30" coverablelines="30" totallines="265" coveredbranches="10" totalbranches="10" coveredcodeelements="5" fullcoveredcodeelements="5" totalcodeelements="5" />
+  </assembly>
+  <assembly name="Wolfgang.TryPattern.Tests.Concurrency">
+    <class name="Wolfgang.TryPattern.Tests.Concurrency.ConcurrencyStressTests" coveredlines="106" coverablelines="106" totallines="212" coveredbranches="41" totalbranches="58" coveredcodeelements="12" fullcoveredcodeelements="12" totalcodeelements="12" />
+  </assembly>
+  <assembly name="Wolfgang.TryPattern.Tests.Unit">
+    <class name="Wolfgang.TryPattern.Tests.Unit.AotSmokeCoverageTests" coveredlines="34" coverablelines="34" totallines="95" coveredbranches="11" totalbranches="12" coveredcodeelements="4" fullcoveredcodeelements="4" totalcodeelements="4" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.CompileFailureMessage" coveredlines="7" coverablelines="7" totallines="34" coveredbranches="0" totalbranches="0" coveredcodeelements="1" fullcoveredcodeelements="1" totalcodeelements="1" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.CompileFailureMessageTests" coveredlines="14" coverablelines="14" totallines="32" coveredbranches="0" totalbranches="0" coveredcodeelements="1" fullcoveredcodeelements="1" totalcodeelements="1" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.DocExampleCompilationTests" coveredlines="67" coverablelines="67" totallines="162" coveredbranches="15" totalbranches="20" coveredcodeelements="3" fullcoveredcodeelements="3" totalcodeelements="3" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.GlobalizationInvarianceTests" coveredlines="90" coverablelines="90" totallines="170" coveredbranches="4" totalbranches="4" coveredcodeelements="9" fullcoveredcodeelements="9" totalcodeelements="9" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.PropertyTests" coveredlines="44" coverablelines="44" totallines="136" coveredbranches="25" totalbranches="32" coveredcodeelements="6" fullcoveredcodeelements="6" totalcodeelements="6" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.ReadmeExampleCompilationTests" coveredlines="80" coverablelines="80" totallines="190" coveredbranches="14" totalbranches="20" coveredcodeelements="4" fullcoveredcodeelements="4" totalcodeelements="4" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.ResultOfTTests" coveredlines="61" coverablelines="61" totallines="180" coveredbranches="0" totalbranches="0" coveredcodeelements="9" fullcoveredcodeelements="9" totalcodeelements="9" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.ResultTests" coveredlines="128" coverablelines="128" totallines="379" coveredbranches="7" totalbranches="14" coveredcodeelements="31" fullcoveredcodeelements="31" totalcodeelements="31" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.RunActionTests" coveredlines="37" coverablelines="37" totallines="110" coveredbranches="2" totalbranches="4" coveredcodeelements="11" fullcoveredcodeelements="11" totalcodeelements="11" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.RunAsyncActionTests" coveredlines="93" coverablelines="93" totallines="272" coveredbranches="0" totalbranches="0" coveredcodeelements="24" fullcoveredcodeelements="24" totalcodeelements="24" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.RunAsyncFuncTests/&lt;&lt;RunAsync_Func_CancellationToken_int_when_exception_is_thrown_returns_failed_Result_with_correct_properties&gt;g__Function|11_0&gt;d" coveredlines="158" coverablelines="158" totallines="413" coveredbranches="12" totalbranches="12" coveredcodeelements="32" fullcoveredcodeelements="32" totalcodeelements="32" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.RunFuncTests" coveredlines="75" coverablelines="75" totallines="182" coveredbranches="3" totalbranches="6" coveredcodeelements="16" fullcoveredcodeelements="16" totalcodeelements="16" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.TryRunWhitespaceMessageTests" coveredlines="20" coverablelines="20" totallines="75" coveredbranches="1" totalbranches="2" coveredcodeelements="5" fullcoveredcodeelements="5" totalcodeelements="5" />
+    <class name="Wolfgang.TryPattern.Tests.Unit.ZeroAllocationTests" coveredlines="25" coverablelines="25" totallines="85" coveredbranches="4" totalbranches="4" coveredcodeelements="3" fullcoveredcodeelements="3" totalcodeelements="3" />
+  </assembly>
+</coverage>

@@ -1,25 +1,45 @@
 Summary
-  Generated on: 8/20/2026 - 1:34:04 PM
-  Coverage date: 8/20/2026 - 1:34:00 PM
-  Parser: Cobertura
-  Assemblies: 1
-  Classes: 3
-  Files: 2
+  Generated on: 9/27/2026 - 8:08:03 PM
+  Coverage date: 9/27/2026 - 8:07:51 PM - 9/27/2026 - 8:07:59 PM
+  Parser: MultiReport (2x Cobertura)
+  Assemblies: 3
+  Classes: 19
+  Files: 18
   Line coverage: 100%
-  Covered lines: 107
+  Covered lines: 1146
   Uncovered lines: 0
-  Coverable lines: 107
-  Total lines: 650
-  Branch coverage: 98.3% (59 of 60)
-  Covered branches: 59
-  Total branches: 60
-  Method coverage: 100% (19 of 19)
-  Full method coverage: 100% (19 of 19)
-  Covered methods: 19
-  Fully covered methods: 19
-  Total methods: 19
+  Coverable lines: 1146
+  Total lines: 3377
+  Branch coverage: 79.8% (198 of 248)
+  Covered branches: 198
+  Total branches: 248
+  Method coverage: 100% (190 of 190)
+  Full method coverage: 100% (190 of 190)
+  Covered methods: 190
+  Fully covered methods: 190
+  Total methods: 190
 
-Wolfgang.TryPattern                100%
-  Wolfgang.TryPattern.Result       100%
-  Wolfgang.TryPattern.Result<T>    100%
-  Wolfgang.TryPattern.Try          100%
+Wolfgang.TryPattern                                               100%
+  Wolfgang.TryPattern.Result                                      100%
+  Wolfgang.TryPattern.Result<T>                                   100%
+  Wolfgang.TryPattern.Try                                         100%
+
+Wolfgang.TryPattern.Tests.Concurrency                             100%
+  Wolfgang.TryPattern.Tests.Concurrency.ConcurrencyStressTests    100%
+
+Wolfgang.TryPattern.Tests.Unit                                    100%
+  Wolfgang.TryPattern.Tests.Unit.AotSmokeCoverageTests            100%
+  Wolfgang.TryPattern.Tests.Unit.CompileFailureMessage            100%
+  Wolfgang.TryPattern.Tests.Unit.CompileFailureMessageTests       100%
+  Wolfgang.TryPattern.Tests.Unit.DocExampleCompilationTests       100%
+  Wolfgang.TryPattern.Tests.Unit.GlobalizationInvarianceTests     100%
+  Wolfgang.TryPattern.Tests.Unit.PropertyTests                    100%
+  Wolfgang.TryPattern.Tests.Unit.ReadmeExampleCompilationTests    100%
+  Wolfgang.TryPattern.Tests.Unit.ResultOfTTests                   100%
+  Wolfgang.TryPattern.Tests.Unit.ResultTests                      100%
+  Wolfgang.TryPattern.Tests.Unit.RunActionTests                   100%
+  Wolfgang.TryPattern.Tests.Unit.RunAsyncActionTests              100%
+  Wolfgang.TryPattern.Tests.Unit.RunAsyncFuncTests                100%
+  Wolfgang.TryPattern.Tests.Unit.RunFuncTests                     100%
+  Wolfgang.TryPattern.Tests.Unit.TryRunWhitespaceMessageTests     100%
+  Wolfgang.TryPattern.Tests.Unit.ZeroAllocationTests              100%
