@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790539099585,
+  "lastUpdate": 1790541396893,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -336,6 +336,78 @@ window.BENCHMARK_DATA = {
             "value": 4803217.6328125,
             "unit": "ns",
             "range": "± 27772.94611725449"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cd79172fbcf5471d00394384bb1e73e760fb0355",
+          "message": "build: PackageValidation baseline 0.4.1 -> 0.5.0 (#395)\n\nPost-release step for v0.5.0: 0.5.0 is indexed on the NuGet flatcontainer, so pack now validates against it.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-27T16:35:05-04:00",
+          "tree_id": "0e30e20731f92902cf21910e2c2a295d98f40de7",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/cd79172fbcf5471d00394384bb1e73e760fb0355"
+        },
+        "date": 1790541394530,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 2193.6394627889,
+            "unit": "ns",
+            "range": "± 8.436801594853687"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 2283327.5494791665,
+            "unit": "ns",
+            "range": "± 8968.909383803957"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 566970.2900390625,
+            "unit": "ns",
+            "range": "± 11483.91513173369"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 10788043.625,
+            "unit": "ns",
+            "range": "± 134371.38907295067"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 6632.555899302165,
+            "unit": "ns",
+            "range": "± 65.08725011912189"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 2253538.95703125,
+            "unit": "ns",
+            "range": "± 21128.541169989447"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 35937.77854410807,
+            "unit": "ns",
+            "range": "± 818.5343934262241"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 4878522.276041667,
+            "unit": "ns",
+            "range": "± 14253.971755204831"
           }
         ]
       }
