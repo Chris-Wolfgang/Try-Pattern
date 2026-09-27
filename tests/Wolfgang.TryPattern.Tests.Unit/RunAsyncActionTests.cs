@@ -245,26 +245,19 @@ public class RunAsyncActionTests
         var actionStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         var cancellationObserved = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
+        // Straight-line, ending in an unconditional `throw`, so every line runs in
+        // every interleaving and the compiler emits no normal-exit sequence point.
+        // A polling loop left a line (the first delay, later the loop-back)
+        // uncovered whenever a fast runner cancelled early, and a trailing
+        // ThrowIfCancellationRequested left the closing brace uncovered; either
+        // fails the 100% test-assembly gate. WaitOne returns true only once the
+        // token is cancelled; the timeout turns a cancellation that never
+        // arrives into a failed assertion instead of a hang.
         void Action()
         {
-            try
-            {
-                // Signal "started" only after a full pass of the loop body, so
-                // every line runs before the test can cancel. Signalling first
-                // let a fast runner cancel before the first delay, leaving that
-                // line uncovered on some runs (97.9% on macOS ARM64).
-                while (true)
-                {
-                    Task.Delay(10).Wait();
-                    actionStarted.TrySetResult(true);
-                    cts.Token.ThrowIfCancellationRequested();
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                cancellationObserved.TrySetResult(true);
-                throw;
-            }
+            actionStarted.TrySetResult(true);
+            cancellationObserved.TrySetResult(cts.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(10)));
+            throw new OperationCanceledException(cts.Token);
         }
 
         var task = Try.RunAsync(Action, cts.Token);
@@ -274,7 +267,6 @@ public class RunAsyncActionTests
         cts.Cancel();
 
         await Assert.ThrowsAsync<OperationCanceledException>(() => task);
-        var completedTask = await Task.WhenAny(cancellationObserved.Task, Task.Delay(1000));
-        Assert.Same(cancellationObserved.Task, completedTask);
+        Assert.True(await cancellationObserved.Task, "the action never observed the cancellation");
     }
 }

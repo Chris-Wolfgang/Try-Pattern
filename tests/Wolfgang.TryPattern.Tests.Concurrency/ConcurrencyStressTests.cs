@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -130,12 +131,15 @@ public sealed class ConcurrencyStressTests
         for (var round = 0; round < StressIterations; round++)
         {
             using var cts = new CancellationTokenSource();
-            var runs = 0;
+            // A box, not a local int: the closure captures a reference that never
+            // changes, and the count itself is only touched through Interlocked/Volatile.
+            var runs = new StrongBox<int>();
             var cancel = Task.Run(cts.Cancel);
 
-            var call = Try.RunAsync(() => Interlocked.Increment(ref runs), cts.Token);
-            var thrown = await Record.ExceptionAsync(() => call);
+            var call = Try.RunAsync(() => Interlocked.Increment(ref runs.Value), cts.Token);
+            var thrown = await Record.ExceptionAsync(async () => await call);
             await cancel;
+            Result? result = thrown is null ? await call : null;
 
             // Exactly two legal outcomes: canceled before Task.Run started the
             // action (OperationCanceledException, action never ran), or the
@@ -143,9 +147,9 @@ public sealed class ConcurrencyStressTests
             Assert.True
             (
                 thrown is OperationCanceledException
-                    ? Volatile.Read(ref runs) == 0
-                    : thrown is null && call.Result.Succeeded && Volatile.Read(ref runs) == 1,
-                $"round {round}: thrown={thrown?.GetType().Name ?? "none"}, runs={runs}"
+                    ? Volatile.Read(ref runs.Value) == 0
+                    : result is { Succeeded: true } && Volatile.Read(ref runs.Value) == 1,
+                $"round {round}: thrown={thrown?.GetType().Name ?? "none"}, runs={Volatile.Read(ref runs.Value)}"
             );
             canceled += thrown is null ? 0 : 1;
         }
@@ -162,20 +166,21 @@ public sealed class ConcurrencyStressTests
         for (var round = 0; round < StressIterations; round++)
         {
             using var cts = new CancellationTokenSource();
-            var invocations = 0;
+            var invocations = new StrongBox<int>();
             var cancel = Task.Run(cts.Cancel);
 
             var call = Try.RunAsync
             (
                 () =>
                 {
-                    Interlocked.Increment(ref invocations);
+                    Interlocked.Increment(ref invocations.Value);
                     return Task.FromResult(42);
                 },
                 cts.Token
             );
-            var thrown = await Record.ExceptionAsync(() => call);
+            var thrown = await Record.ExceptionAsync(async () => await call);
             await cancel;
+            Result<int>? result = thrown is null ? await call : null;
 
             // Canceled before the token check: OperationCanceledException and the
             // function was never invoked. Otherwise it was invoked exactly once and
@@ -183,9 +188,9 @@ public sealed class ConcurrencyStressTests
             Assert.True
             (
                 thrown is OperationCanceledException
-                    ? Volatile.Read(ref invocations) == 0
-                    : thrown is null && call.Result.Succeeded && call.Result.Value == 42 && Volatile.Read(ref invocations) == 1,
-                $"round {round}: thrown={thrown?.GetType().Name ?? "none"}, invocations={invocations}"
+                    ? Volatile.Read(ref invocations.Value) == 0
+                    : result is { Succeeded: true, Value: 42 } && Volatile.Read(ref invocations.Value) == 1,
+                $"round {round}: thrown={thrown?.GetType().Name ?? "none"}, invocations={Volatile.Read(ref invocations.Value)}"
             );
             canceled += thrown is null ? 0 : 1;
         }
