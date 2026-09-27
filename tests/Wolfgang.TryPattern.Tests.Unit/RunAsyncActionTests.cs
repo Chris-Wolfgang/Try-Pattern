@@ -247,14 +247,17 @@ public class RunAsyncActionTests
 
         void Action()
         {
-            actionStarted.TrySetResult(true);
-
             try
             {
+                // Signal "started" only after a full pass of the loop body, so
+                // every line runs before the test can cancel. Signalling first
+                // let a fast runner cancel before the first delay, leaving that
+                // line uncovered on some runs (97.9% on macOS ARM64).
                 while (true)
                 {
-                    cts.Token.ThrowIfCancellationRequested();
                     Task.Delay(10).Wait();
+                    actionStarted.TrySetResult(true);
+                    cts.Token.ThrowIfCancellationRequested();
                 }
             }
             catch (OperationCanceledException)
