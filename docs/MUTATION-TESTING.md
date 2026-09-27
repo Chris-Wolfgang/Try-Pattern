@@ -12,13 +12,13 @@ not detect — an unenforced piece of behaviour.
 `.github/workflows/stryker.yaml` runs Stryker on:
 
 - **`pull_request`** targeting `main` or `vNext` (paths-filtered to
-  `src/`, `tests/`, `stryker-config.json`, and the workflow itself) —
+  `src/`, `tests/`, and the workflow itself) —
   **this is the release gate**.
 - Manual `workflow_dispatch`.
 - Weekly Sunday 06:00 UTC (drift catch — external analyzers or SDK
   updates can change the mutant set even with no code change).
 
-`stryker-config.json` sets `thresholds.break` — the mutation score
+`tests/Wolfgang.TryPattern.Tests.Unit/stryker-config.json` sets `thresholds.break` — the mutation score
 percentage below which `dotnet stryker` itself exits non-zero. A PR
 that regresses below the break threshold fails the workflow and blocks
 merge.
@@ -54,12 +54,17 @@ justification comment.
 
 ```bash
 dotnet tool install -g dotnet-stryker
-dotnet stryker --config-file stryker-config.json
+cd tests/Wolfgang.TryPattern.Tests.Unit
+dotnet stryker
 ```
 
-Report lands under `StrykerOutput/<timestamp>/reports/mutation-report.html`.
+Run it **from the test project directory**, where it picks up
+`stryker-config.json` automatically. Report lands under
+`tests/Wolfgang.TryPattern.Tests.Unit/StrykerOutput/<timestamp>/reports/mutation-report.html`.
 
-If Stryker crashes at initialisation with
-`VisualBasicCommandLineParser` type-init errors, that is a known
-Buildalyzer / Stryker 4.15 interaction issue on certain SDK
-combinations. Run in CI to observe the score.
+Do not run it from the repository root. With `TryPattern.sln` in the
+working directory Stryker switches to solution mode and analyses every
+project, including `examples/VB.*.vbproj`. Stryker's Buildalyzer ships an
+older `Microsoft.CodeAnalysis.VisualBasic` than the .NET 10 SDK's Roslyn,
+so the VB parser fails with `TypeLoadException: Roslyn.Utilities.IObjectWritable`
+(stryker-mutator/stryker-net#3666, #281 here).
