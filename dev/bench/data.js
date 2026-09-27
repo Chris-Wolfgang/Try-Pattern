@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790458625280,
+  "lastUpdate": 1790539099585,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -264,6 +264,78 @@ window.BENCHMARK_DATA = {
             "value": 2597007.4973958335,
             "unit": "ns",
             "range": "± 5940.490404431063"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f2ab716e4dfd7b77561e92718cb574f23a9f29e5",
+          "message": "release: v0.5.0 — trim / Native AOT-compatible (#393)\n\nMINOR: the net8.0+ assemblies are now marked IsAotCompatible/IsTrimmable (#371), new consumer-facing behavior. Public API unchanged (no PublicAPI baseline edits); AssemblyVersion stays 1.0.0.0. CHANGELOG assembled from changelog/unreleased by scripts/changelog.ps1.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-09-27T15:56:49-04:00",
+          "tree_id": "2b9afda20c502a26a5389a45b286782b23c7841d",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/f2ab716e4dfd7b77561e92718cb574f23a9f29e5"
+        },
+        "date": 1790539097593,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 2504.333938598633,
+            "unit": "ns",
+            "range": "± 5.006534296503212"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 2344363.482421875,
+            "unit": "ns",
+            "range": "± 45366.48860780495"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 624271.3974609375,
+            "unit": "ns",
+            "range": "± 11342.026172614636"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 11994410.25,
+            "unit": "ns",
+            "range": "± 203228.30107247294"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 6807.361012776692,
+            "unit": "ns",
+            "range": "± 65.2547580968393"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 2295457.1067708335,
+            "unit": "ns",
+            "range": "± 9403.398251986375"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 36078.33190917969,
+            "unit": "ns",
+            "range": "± 796.1308551689518"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 4803217.6328125,
+            "unit": "ns",
+            "range": "± 27772.94611725449"
           }
         ]
       }
