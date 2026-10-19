@@ -25,8 +25,20 @@ internal static class Program
             return;
         }
 
+        // Synchronous work goes through Try.Run; see CountWords.
+        CountWords(fileReadResult.Value);
+        Console.ResetColor();
+    }
+
+
+
+    // Try.Run is the synchronous counterpart of Try.RunAsync. It lives in a
+    // non-async method so the example shows it the way a caller would use it:
+    // for synchronous work, without blocking inside an async method.
+    private static void CountWords(string? content)
+    {
         // Get the word count from the file content
-        var wordCountResult = Try.Run(() => GetWordCount(fileReadResult.Value));
+        var wordCountResult = Try.Run(() => GetWordCount(content));
         if (wordCountResult.Succeeded)
         {
             Console.WriteLine($"The file contains {wordCountResult.Value} words.");
@@ -42,8 +54,8 @@ internal static class Program
             Console.WriteLine("An error occurred while attempting to count words.");
             Console.WriteLine(wordCountResult.ErrorMessage);
         }
-        Console.ResetColor();
     }
+
 
 
     private static int GetWordCount(string? content) =>
