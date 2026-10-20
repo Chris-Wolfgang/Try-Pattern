@@ -1210,6 +1210,14 @@ jobs:
 
           $testProjects = @(Get-ChildItem -Path './tests/*' -Recurse -File -Include '*.csproj','*.vbproj','*.fsproj')
 
+          # Assemblies that ran tests under a coverage-collecting TFM (net5.0+). The
+          # coverage steps below require a coverage row for each one, so a test project
+          # whose coverage is never collected fails the gate instead of silently dropping
+          # out of it. net4x and netcoreapp3.1 are tested without the XPlat collector by
+          # design, so they never enter the ledger.
+          $ranAssembliesFile = Join-Path $env:RUNNER_TEMP 'stage2-ran-test-assemblies.txt'
+          Set-Content -Path $ranAssembliesFile -Value $null
+
           if (@($testProjects).Count -eq 0) {
             if ($srcHasProjects) {
               Write-Error "❌ No test projects under ./tests but ./src contains projects — refusing to silently skip the coverage gate."
@@ -1306,6 +1314,23 @@ jobs:
                 Write-Error "Tests failed for $fw in $($testProj.Name)"
                 exit 1
               }
+
+              # Record only projects that really run tests: tests/ also holds an AOT smoke
+              # executable that `dotnet test` runs nothing in, and it can have no coverage row.
+              if ($fw -match '^net([5-9]|[1-9][0-9]+)\.') {
+                $isTestProject = $false
+                if ((dotnet msbuild $testProj.FullName -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getProperty:IsTestProject 2>$null) -match '^true$') {
+                  $isTestProject = $true
+                }
+                elseif ((dotnet msbuild $testProj.FullName -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getItem:PackageReference 2>$null) -match '"Identity": *"Microsoft.NET.Test.Sdk"') {
+                  $isTestProject = $true
+                }
+                if ($isTestProject) {
+                  $asmMatch = [regex]::Match($content, '<AssemblyName>([^<]+)</AssemblyName>')
+                  $asmName = if ($asmMatch.Success) { $asmMatch.Groups[1].Value.Trim() } else { $testProj.BaseName }
+                  Add-Content -Path $ranAssembliesFile -Value $asmName
+                }
+              }
             }
             Write-Host ""
           }
@@ -1313,9 +1338,15 @@ jobs:
       - name: Check for coverage files
         id: check-coverage
         run: |
+          $ranAssembliesFile = Join-Path $env:RUNNER_TEMP 'stage2-ran-test-assemblies.txt'
+          $ranAssemblies = if (Test-Path $ranAssembliesFile) { @(Get-Content $ranAssembliesFile | Where-Object { $_ }) } else { @() }
           if (Get-ChildItem -Path TestResults -Recurse -Filter coverage.cobertura.xml -ErrorAction SilentlyContinue) {
             echo "has-coverage=true" >> $env:GITHUB_OUTPUT
             Write-Host "✅ Coverage files found"
+          } elseif ($ranAssemblies.Count -gt 0) {
+            Write-Host "❌ Tests ran but produced no coverage files - the coverage gate cannot be evaluated. Test assemblies that ran:"
+            $ranAssemblies | ForEach-Object { Write-Host $_ }
+            exit 1
           } else {
             echo "has-coverage=false" >> $env:GITHUB_OUTPUT
             Write-Host "ℹ️  No coverage files found - skipping coverage report generation"
@@ -1423,6 +1454,26 @@ jobs:
           if ($matchedCount -eq 0) {
             Write-Error "❌ Coverage parser matched 0 modules in Summary.txt — regex or report format is out of sync. Refusing to silently pass the gate."
             exit 1
+          }
+
+          # Every test assembly that ran must appear in the report. A missing row means
+          # its coverage was never collected, and an unmeasured assembly must not pass.
+          # Exact match on the first token of an unindented row, so X.Application does
+          # not satisfy X.Application.Advisor.
+          $ranAssembliesFile = Join-Path $env:RUNNER_TEMP 'stage2-ran-test-assemblies.txt'
+          if (Test-Path $ranAssembliesFile) {
+            $summaryRows = @(
+              foreach ($row in (Get-Content "CoverageReport/Summary.txt")) {
+                if ($row -match '^\S') { ($row -split '\s+')[0] }
+              }
+            )
+            foreach ($asm in @(Get-Content $ranAssembliesFile | Where-Object { $_ } | Sort-Object -Unique)) {
+              if ($summaryRows -cnotcontains $asm) {
+                Write-Host "Checking test module: '$asm' - Coverage: none collected"
+                Write-Host "  ❌ FAIL: tests ran but no coverage was recorded (is coverlet.collector referenced?)" -ForegroundColor Red
+                $failedProjects += "$asm (no coverage data)"
+              }
+            }
           }
 
           if ($failedProjects.Count -gt 0) {
@@ -1689,6 +1740,12 @@ jobs:
           echo "=========================================="
           printf '%s\n' "${test_projects[@]}"
           echo ""
+
+          # Assemblies that actually ran tests in this job. The coverage steps below
+          # require a coverage row for each one, so a test project whose coverage is
+          # never collected fails the gate instead of silently dropping out of it.
+          ran_assemblies_file="$RUNNER_TEMP/stage3-ran-test-assemblies.txt"
+          : > "$ran_assemblies_file"
           
           for test_proj in "${test_projects[@]}"; do
             echo "=========================================="
@@ -1732,6 +1789,26 @@ jobs:
                 --filter "Category!=Fuzz" \
                 --logger "console;verbosity=normal" || exit 1
             done <<< "$frameworks"
+            # Record only projects that really run tests: tests/ also holds an AOT smoke
+            # executable that `dotnet test` runs nothing in, and it can have no coverage
+            # row. Same check as Stage 1.
+            is_test_project=false
+            while IFS= read -r fw; do
+              [ -z "$fw" ] && continue
+              if dotnet msbuild "$test_proj" -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getProperty:IsTestProject 2>/dev/null | grep -qi '^true$'; then
+                is_test_project=true; break
+              fi
+              if dotnet msbuild "$test_proj" -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getItem:PackageReference 2>/dev/null | grep -qi '"Identity": *"Microsoft.NET.Test.Sdk"'; then
+                is_test_project=true; break
+              fi
+            done <<< "$frameworks"
+            if [ "$is_test_project" = true ]; then
+              asm=$(grep -oE '<AssemblyName>[^<]+' "$test_proj" 2>/dev/null | head -1 | cut -d'>' -f2 || true)
+              if [ -z "$asm" ]; then
+                asm=$(basename "$test_proj"); asm="${asm%.*}"
+              fi
+              echo "$asm" >> "$ran_assemblies_file"
+            fi
             echo ""
           done
 
@@ -1745,6 +1822,10 @@ jobs:
               -reports:"TestResults/**/coverage.cobertura.xml" \
               -targetdir:"CoverageReport" \
               -reporttypes:"Html;TextSummary;MarkdownSummaryGithub;CsvSummary"
+          elif [ -s "$RUNNER_TEMP/stage3-ran-test-assemblies.txt" ]; then
+            echo "❌ Tests ran but produced no coverage files - the coverage gate cannot be evaluated. Test assemblies that ran:"
+            cat "$RUNNER_TEMP/stage3-ran-test-assemblies.txt"
+            exit 1
           else
             echo "ℹ️  No coverage files found - skipping report generation"
           fi
@@ -1757,6 +1838,10 @@ jobs:
           # actually collected — instead of failing with "Coverage report
           # not generated!" on jobs that legitimately had nothing to cover.
           if ! find ./TestResults -name "coverage.cobertura.xml" -print -quit 2>/dev/null | grep -q .; then
+            if [ -s "$RUNNER_TEMP/stage3-ran-test-assemblies.txt" ]; then
+              echo "❌ Tests ran but produced no coverage files - the coverage gate cannot be evaluated."
+              exit 1
+            fi
             echo "ℹ️  No coverage files produced — skipping coverage gate (consistent with the prior 'skipping report generation' notice)."
             exit 0
           fi
@@ -1816,6 +1901,20 @@ jobs:
           if [ "$MATCHED" -eq 0 ]; then
             echo "❌ Coverage parser matched 0 modules in Summary.txt — regex or report format is out of sync. Refusing to silently pass the gate."
             exit 1
+          fi
+
+          # Every test assembly that ran must appear in the report. A missing row means
+          # its coverage was never collected, and an unmeasured assembly must not pass.
+          ran_assemblies_file="$RUNNER_TEMP/stage3-ran-test-assemblies.txt"
+          if [ -f "$ran_assemblies_file" ]; then
+            while IFS= read -r asm; do
+              [ -z "$asm" ] && continue
+              if ! awk -v asm="$asm" '/^[^ ]/ && $1 == asm { found = 1 } END { exit !found }' CoverageReport/Summary.txt; then
+                echo "Checking test module: '$asm' - Coverage: none collected"
+                echo "  ❌ FAIL: tests ran but no coverage was recorded (is coverlet.collector referenced?)"
+                FAILED=1
+              fi
+            done < <(sort -u "$ran_assemblies_file")
           fi
 
           if [ "$FAILED" -ne 0 ]; then
