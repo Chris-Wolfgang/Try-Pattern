@@ -18,7 +18,7 @@ Try.Run(…), …)`), that path can fire thousands of times per second.
 The naïve implementation
 
 ```csharp
-public static Result Success() => new Result(succeeded: true, string.Empty);
+public static Result Success() => new Result(succeeded: true, errorMessage: null);
 ```
 
 allocates a fresh `Result` object on every call. For an immutable
@@ -36,10 +36,16 @@ and hand it out.
 
 ```csharp
 private static readonly Result _successInstance =
-    new(succeeded: true, string.Empty);
+    new(succeeded: true, errorMessage: null);
 
 public static Result Success() => _successInstance;
 ```
+
+> **Transcription note (2026-10-27):** the snippets in this ADR originally
+> passed `string.Empty`. Since v0.4.0 a successful `Result` has
+> `ErrorMessage == null`, and the code passes `errorMessage: null`. The base
+> constructor still accepts `string.Empty` and canonicalizes it to `null`, so
+> the decision recorded here is unchanged.
 
 `Result` is deliberately kept immutable to preserve the safety of
 sharing this instance across threads and unrelated call sites.

@@ -10,6 +10,13 @@ namespace Wolfgang.TryPattern;
 /// a <see cref="Result"/> representing the outcome of the action/function and the return value
 /// of the function if successful or an error message if the action/function failed.
 /// </summary>
+/// <remarks>
+/// When an exception is caught, the failed <see cref="Result"/>'s <see cref="Result.ErrorMessage"/>
+/// is the exception's <see cref="Exception.Message"/>. If that message is null, empty, or
+/// whitespace (which <see cref="Result.Failure(string)"/> would reject), the exception's type
+/// name (for example <c>InvalidOperationException</c>) is used instead, so these methods never
+/// throw from inside their own <c>catch</c> block.
+/// </remarks>
 public static class Try
 {
     /// <summary>
@@ -17,7 +24,9 @@ public static class Try
     /// </summary>
     /// <param name="action">The action to execute.</param>
     /// <returns>
-    /// A <see cref="Result"/> that indicates if the action was successful.
+    /// A successful <see cref="Result"/>, or a failed <see cref="Result"/> whose
+    /// <see cref="Result.ErrorMessage"/> is the caught exception's message (or its type name when
+    /// the message is null, empty, or whitespace; see <see cref="Try"/>).
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
     /// <example>
@@ -56,7 +65,8 @@ public static class Try
     /// <param name="function">The function to execute.</param>
     /// <returns>
     /// A successful <see cref="Result{T}"/> wrapping the function's return value, or a failed
-    /// <see cref="Result{T}"/> whose <see cref="Result.ErrorMessage"/> is the caught exception's message.
+    /// <see cref="Result{T}"/> whose <see cref="Result.ErrorMessage"/> is the caught exception's message
+    /// (or its type name when the message is null, empty, or whitespace; see <see cref="Try"/>).
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
     /// <example>
@@ -120,7 +130,10 @@ public static class Try
     /// token (e.g. via <see cref="CancellationToken.ThrowIfCancellationRequested"/>) and throws.
     /// </param>
     /// <returns>
-    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation.
+    /// A <see cref="Task"/> of <see cref="Result"/> representing the asynchronous operation. On a
+    /// caught exception the failed <see cref="Result"/>'s <see cref="Result.ErrorMessage"/> is the
+    /// exception's message (or its type name when the message is null, empty, or whitespace; see
+    /// <see cref="Try"/>).
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
     /// <exception cref="OperationCanceledException">
@@ -182,7 +195,10 @@ public static class Try
     /// rather than wrapped in a failed <see cref="Result{T}"/>.
     /// </param>
     /// <returns>
-    /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation.
+    /// A <see cref="Task"/> of <see cref="Result{T}"/> representing the asynchronous operation. On a
+    /// caught exception the failed <see cref="Result{T}"/>'s <see cref="Result.ErrorMessage"/> is the
+    /// exception's message (or its type name when the message is null, empty, or whitespace; see
+    /// <see cref="Try"/>).
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
     /// <exception cref="OperationCanceledException">
