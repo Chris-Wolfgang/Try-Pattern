@@ -37,17 +37,19 @@ If the score drops below **6.0**, treat as an incident: file an
 `incident` issue and block further release-prep PRs until back above
 floor.
 
-## Baseline (populate after first successful run)
+## Baseline
 
-The workflow's first push-to-main run establishes the baseline. Fill
-in this table after that run completes.
+Recorded 2026-10-27 from `https://api.scorecard.dev/projects/github.com/Chris-Wolfgang/Try-Pattern`.
+That is the last result scorecard.dev accepted: every run since has been
+refused because the job that runs Scorecard also had a `run:` step
+(#419). Refresh this table from the first main run after that fix merges.
 
 | Metric | Value |
 |---|---|
-| First-scan date | *(populate)* |
-| First-scan score | *(populate)* /10 |
-| Failed checks | *(populate — list each with the score contribution)* |
-| Passing checks | *(populate — count only, or list the notable ones)* |
+| Scan date | 2026-08-19 |
+| Score | 6.2 /10 |
+| Failed checks (score) | Code-Review (0), Dangerous-Workflow (0), CII-Best-Practices (0), Branch-Protection (0), Signed-Releases (0), Contributors (0); partial: Pinned-Dependencies (6) |
+| Passing checks | 11 at 10/10 (Maintained, Security-Policy, Binary-Artifacts, Dependency-Update-Tool, Token-Permissions, Vulnerabilities, SAST, License, Packaging, Fuzzing, CI-Tests) |
 
 ## Known-acceptable findings
 
@@ -56,7 +58,7 @@ why we accept it rather than fix it. Review annually.
 
 | Check | Finding | Rationale | Reviewed |
 |---|---|---|---|
-| *(populate after first run)* | | | |
+| *(none triaged yet; triage the failed checks above once a current scan publishes)* | | | |
 
 Example row (for reference — delete once real entries exist):
 
