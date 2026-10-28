@@ -26,6 +26,12 @@ on:
   schedule:
     - cron: '0 6 * * 0' # weekly Sunday 06:00 UTC
 
+# Superseded PR runs are cancelled; push / schedule / dispatch runs on a branch
+# queue instead, so a scheduled or post-merge run is never cut short.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
