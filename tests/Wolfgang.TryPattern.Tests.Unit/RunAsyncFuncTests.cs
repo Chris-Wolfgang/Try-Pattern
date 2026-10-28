@@ -166,7 +166,7 @@ public class RunAsyncFuncTests
     {
         // Arrange
         Func<Task<int>>? nullFunction = null;
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullFunction!, cts.Token));
@@ -186,7 +186,7 @@ public class RunAsyncFuncTests
             return expectedValue;
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         // Act
         var result = await Try.RunAsync((Func<Task<int>>)Function, cts.Token);
@@ -212,7 +212,7 @@ public class RunAsyncFuncTests
             return expectedValue;
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         // Act
@@ -239,7 +239,7 @@ public class RunAsyncFuncTests
             return expectedValue;
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         // Act
@@ -264,7 +264,7 @@ public class RunAsyncFuncTests
             throw new InvalidOperationException("Test exception");
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         // Act
@@ -290,7 +290,7 @@ public class RunAsyncFuncTests
             throw new InvalidOperationException("Test exception");
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         // Act
@@ -317,7 +317,7 @@ public class RunAsyncFuncTests
             throw new InvalidOperationException("Test exception");
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         // Act

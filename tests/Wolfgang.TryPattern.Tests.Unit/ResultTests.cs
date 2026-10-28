@@ -37,7 +37,10 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_false_and_message_does_not_throw_Exception()
     {
-        var unused = new TestResult(succeeded: false, "Test error");
+        var result = new TestResult(succeeded: false, "Test error");
+
+        Assert.True(result.Failed);
+        Assert.Equal("Test error", result.ErrorMessage);
     }
 
 
@@ -94,7 +97,7 @@ public class ResultTests
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.Equal(message, result.ErrorMessage!);
+        Assert.Equal(message, result.ErrorMessage);
     }
 
 

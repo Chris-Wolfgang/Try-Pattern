@@ -49,19 +49,13 @@ public class FuzzTests
     public Property Fuzz_Try_Run_of_throwing_action_carries_message(NonEmptyString message)
     {
         if (message is null) throw new ArgumentNullException(nameof(message));
+        // NonEmptyString can still be whitespace-only. Since #273 Try.Run
+        // reports such a message as the exception's type name, because
+        // Result.Failure rejects whitespace (same oracle as PropertyTests).
         string msg = message.Get;
-        // Exclude whitespace-only strings — Result.Failure requires
-        // non-whitespace and a whitespace exception message causes
-        // Try.Run itself to throw (tracked as bug #273). Skip via a
-        // trivial-true property so FsCheck's generator keeps producing
-        // new inputs, but this specific case doesn't count as a
-        // failure until #273 is fixed.
-        if (string.IsNullOrWhiteSpace(msg))
-        {
-            return true.ToProperty();
-        }
+        string expected = string.IsNullOrWhiteSpace(msg) ? nameof(InvalidOperationException) : msg;
         Result r = Try.Run(() => throw new InvalidOperationException(msg));
-        return (r.Failed && string.Equals(r.ErrorMessage, msg, StringComparison.Ordinal)).ToProperty();
+        return (r.Failed && string.Equals(r.ErrorMessage, expected, StringComparison.Ordinal)).ToProperty();
     }
 
 
@@ -92,5 +86,45 @@ public class FuzzTests
         bool allOk = Result.AllSucceeded(results);
         bool anyFail = Result.AnyFailed(results);
         return (allOk == !anyFail).ToProperty();
+    }
+
+
+    [Property(MaxTest = LongRunMaxTest)]
+    public Property Fuzz_Flatten_of_all_successes_is_success(NonNegativeInt count)
+    {
+        if (count is null) throw new ArgumentNullException(nameof(count));
+        int n = Math.Min(count.Get, 64);
+        Result[] results = new Result[n];
+        for (int i = 0; i < n; i++)
+        {
+            results[i] = Result.Success();
+        }
+
+        Result flat = Result.Flatten(results);
+        return flat.Succeeded.ToProperty();
+    }
+
+
+    [Property(MaxTest = LongRunMaxTest)]
+    public Property Fuzz_Flatten_with_at_least_one_failure_is_failure(int[] failIndices)
+    {
+        if (failIndices is null || failIndices.Length == 0)
+        {
+            return true.ToProperty();
+        }
+
+        int n = failIndices.Length;
+        Result[] results = new Result[n];
+        for (int i = 0; i < n; i++)
+        {
+            results[i] = failIndices[i] % 2 == 0
+                ? Result.Failure($"f{i}")
+                : Result.Success();
+        }
+
+        results[0] = Result.Failure("guaranteed");
+
+        Result flat = Result.Flatten(results);
+        return flat.Failed.ToProperty();
     }
 }
