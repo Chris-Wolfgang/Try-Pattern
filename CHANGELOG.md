@@ -292,7 +292,7 @@ job is now live.
   ([#242](https://github.com/Chris-Wolfgang/Try-Pattern/pull/242),
   [#244](https://github.com/Chris-Wolfgang/Try-Pattern/pull/244)).
 
-## [0.3.4] - 2026-06-30
+## [0.3.4] - 2026-06-29
 
 Follow-up Tier-2 cleanup round surfaced by the v0.3.3 AI code-review
 pass. No public API change in `Wolfgang.TryPattern` itself; PATCH bump.
@@ -345,7 +345,7 @@ pass. No public API change in `Wolfgang.TryPattern` itself; PATCH bump.
   paths updated to match
   ([#231](https://github.com/Chris-Wolfgang/Try-Pattern/pull/231), closes #222).
 
-## [0.3.3] - 2026-06-28
+## [0.3.3] - 2026-06-29
 
 Tier-1 maintenance round. Docs accuracy, code-review polish, and a
 single behaviour fix on the docs-site version picker. No public API or
@@ -433,7 +433,7 @@ runtime behaviour change in `Wolfgang.TryPattern` itself.
   async style, test csproj/dir naming alignment): #218, #219, #220,
   #221, #222.
 
-## [0.3.2] - 2026-06-01
+## [0.3.2] - 2026-06-27
 
 Canonical maintenance round + binding-stability fix. No public API or
 runtime behavior change vs v0.3.1.
@@ -487,3 +487,65 @@ runtime behavior change vs v0.3.1.
   consumers without a binding redirect. (See DateTime-Extensions v1.3.1
   for the post-mortem on what happens when this regression reaches a
   release.)
+
+## [0.3.1] - 2026-05-10
+
+Infrastructure-validation release. No `src/` changes since v0.3.0; it
+verified the `release.yaml` -> `docfx.yaml` chain after the fixes in
+#108 (untracked the `_site/.gitignore` that blocked the docs deploy) and
+#110 (synced the canonical workflow improvements).
+
+## [0.3.0] - 2026-05-02
+
+Repository and CI standardization round. No public API change.
+
+### Added
+
+- Application and package icons (#50).
+- `SECURITY.md` (#65), README with usage examples and API-docs links (#70).
+- `scripts/build-pr.ps1` to run the PR checks locally (#64), plus setup,
+  formatting, label and branch-ruleset scripts (#58, #60, #63).
+- gitleaks secret scanning and PR-workflow concurrency (#54, #55); SBOM
+  generation in the release workflow (#56); CodeQL on pull requests (#90).
+- DocFX site content and the single-commit deploy with version picker
+  (#57, #73).
+
+### Changed
+
+- `pr.yaml` and `release.yaml` replaced with the repo-template standard
+  (#61, #62, #72); `.github/workflows/*` added to protected-file detection (#88).
+- Analyzer package references moved from `Directory.Build.props` to the src
+  csproj (#84); `Try.cs` overloads reordered for SonarAnalyzer S4136 (#85).
+- XML doc typos, stale TODOs and exception-message wording fixed (#76).
+- Dependency bumps: coverlet.collector 6.0.4 -> 10.0.0, Meziantou.Analyzer
+  3.0.27 -> 3.0.54, SonarAnalyzer.CSharp 10.21 -> 10.24.
+
+## [0.2.0] - 2026-01-17
+
+### Changed
+
+- Release workflow simplified to Windows-only so the .NET Framework
+  targets build and test (#45).
+- Test dependencies set per target framework (#49).
+
+## [0.1.0] - 2026-01-16
+
+Initial release.
+
+### Added
+
+- `Try.Run` / `Try.RunAsync` for actions and functions: run the delegate,
+  catch any exception, and return a `Result` / `Result<T>` instead of throwing.
+- `Result` (`Succeeded`, `Failed`, `ErrorMessage`) and `Result<T>` (adds `Value`).
+
+[Unreleased]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.3.4...v0.4.0
+[0.3.4]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/Chris-Wolfgang/Try-Pattern/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/Chris-Wolfgang/Try-Pattern/releases/tag/v0.1.0

@@ -11,7 +11,7 @@ Create `changelog/unreleased/<short-change-name>.md` (kebab-case, named for the 
 ```
 type: feature
 
-Add `IsDryRun` to every loader options record so pipelines can be rehearsed without writing.
+Add `Result.Flatten` overloads that accept an `IEnumerable<Result>` so callers need not build an array first.
 ```
 
 - **Line 1** is `type: <kind>` where `<kind>` is one of:
