@@ -67,7 +67,11 @@ public sealed class ConcurrencyStressTests
             Assert.All
             (
                 results,
-                r => Assert.True(r.Result.Succeeded && r.Result.Value == r.Id * 3)
+                r =>
+                {
+                    Assert.True(r.Result.Succeeded);
+                    Assert.Equal(r.Id * 3, r.Result.Value);
+                }
             );
         }
     }
@@ -89,7 +93,11 @@ public sealed class ConcurrencyStressTests
             Assert.All
             (
                 results,
-                r => Assert.True(r.Result.Failed && string.Equals(r.Result.ErrorMessage, $"caller {r.Id}", StringComparison.Ordinal))
+                r =>
+                {
+                    Assert.True(r.Result.Failed);
+                    Assert.Equal($"caller {r.Id}", r.Result.ErrorMessage);
+                }
             );
         }
     }
@@ -112,12 +120,19 @@ public sealed class ConcurrencyStressTests
             Assert.All
             (
                 results,
-                r => Assert.True
-                (
-                    r.Id % 2 == 0
-                        ? r.Result.Succeeded && r.Result.Value == r.Id
-                        : r.Result.Failed && string.Equals(r.Result.ErrorMessage, $"caller {r.Id}", StringComparison.Ordinal)
-                )
+                r =>
+                {
+                    if (r.Id % 2 == 0)
+                    {
+                        Assert.True(r.Result.Succeeded);
+                        Assert.Equal(r.Id, r.Result.Value);
+                    }
+                    else
+                    {
+                        Assert.True(r.Result.Failed);
+                        Assert.Equal($"caller {r.Id}", r.Result.ErrorMessage);
+                    }
+                }
             );
         }
     }
