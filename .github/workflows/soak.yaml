@@ -1,0 +1,102 @@
+name: Soak (leak check)
+
+# Long-run soak per issue #382. Runs benchmarks/Wolfgang.TryPattern.Soak, which
+# hammers the public API for --duration, samples GC heap / gen-2 collections /
+# thread-pool threads / handles / exception count every minute, and exits 1 on
+# sustained growth (last-quarter median vs the first-hour baseline).
+#
+# GitHub-hosted jobs stop at 6 hours, so the scheduled run is ~5 hours (the
+# fallback #382 describes). A true 24-hour soak needs a self-hosted runner;
+# pass a longer duration through workflow_dispatch once one exists.
+#
+# On a regression, opens an issue with the summary table so it is not lost in
+# a scheduled run nobody watches (the same pattern as fuzz.yaml).
+
+on:
+  schedule:
+    - cron: '0 3 1 * *'   # 1st of each month, 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'Soak duration (hh:mm:ss). Hosted runners stop at 6h.'
+        required: false
+        default: '05:00:00'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: soak
+  cancel-in-progress: false
+
+jobs:
+  soak:
+    name: Soak run
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    permissions:
+      contents: read
+      issues: write   # File an issue on a regression.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build soak harness
+        run: dotnet build benchmarks/Wolfgang.TryPattern.Soak -c Release
+
+      - name: Run soak
+        id: soak
+        env:
+          # Inputs go through env, never straight into the script (template injection).
+          SOAK_DURATION: ${{ inputs.duration || '05:00:00' }}
+        run: |
+          set -o pipefail
+          dotnet run -c Release --no-build --project benchmarks/Wolfgang.TryPattern.Soak -- \
+            --duration "$SOAK_DURATION" \
+            --interval 00:01:00 \
+            --output ./soak-output \
+            2>&1 | tee ./soak-log.txt
+
+      - name: Upload soak output
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: soak-output-${{ github.run_id }}
+          path: |
+            ./soak-output/
+            ./soak-log.txt
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: File an issue on regression
+        if: failure() && steps.soak.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          summary=$(cat ./soak-output/summary.md 2>/dev/null || echo "No summary.md was written; see the run log.")
+          gh issue create \
+            --repo "$REPO" \
+            --title "Soak regression on $(date -u +%Y-%m-%d): sustained resource growth" \
+            --label "maintenance - testing" \
+            --body "$(cat <<EOF
+          The scheduled soak run reported sustained growth (or could not judge the trend).
+
+          - Run: $RUN_URL
+          - Artifact: \`soak-output-$RUN_ID\` (samples.csv, summary.md, full log)
+
+          $summary
+
+          _Filed automatically by \`.github/workflows/soak.yaml\`._
+          EOF
+          )"
