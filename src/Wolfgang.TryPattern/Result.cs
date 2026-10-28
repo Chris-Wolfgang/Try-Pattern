@@ -33,6 +33,9 @@ public class Result
     /// string; both canonicalize to <see langword="null"/> on the constructed instance's
     /// <see cref="ErrorMessage"/>. If the operation failed, <paramref name="errorMessage"/> must
     /// not be null, empty, or whitespace.
+    /// The public factories (<see cref="Failure(string)"/>, <see cref="Result{T}.Failure(string)"/>)
+    /// validate their argument before calling this constructor, so these checks are only reachable
+    /// from a derived type's constructor.
     /// </remarks>
     protected Result
     (
