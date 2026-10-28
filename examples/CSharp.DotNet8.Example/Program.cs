@@ -11,7 +11,7 @@ internal static class Program
         Console.ForegroundColor = ConsoleColor.Cyan;
 
         // Try reading a file async
-        var fileReadResult = await Try.RunAsync(async () => await File.ReadAllTextAsync(@".\sample.txt"));
+        var fileReadResult = await Try.RunAsync(async () => await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "sample.txt")));
 
         // If file read failed, print the error message
         if (fileReadResult.Succeeded)
@@ -58,6 +58,8 @@ internal static class Program
 
 
 
+    // The null-forgiving operator is deliberate: Main calls this with null to show that the
+    // resulting NullReferenceException is captured as a failed Result. Do not "fix" it.
     private static int GetWordCount(string? content) =>
         content!
             .Split([' ', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries)
