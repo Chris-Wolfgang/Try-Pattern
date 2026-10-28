@@ -1,0 +1,9 @@
+# Overrides for exact pins that semgrep declares, so the hash-locked semgrep.txt can pick up
+# security fixes semgrep has not adopted yet. semgrep.yaml installs semgrep.txt with --no-deps,
+# so pip does not re-apply semgrep's own pins at install time.
+# Regenerate semgrep.txt with the command in its header. Delete an entry once semgrep itself
+# requires the patched version (check its metadata on PyPI), and delete this file when empty.
+
+# GHSA-84m7-p3x7-pcfv (Dependabot alerts #35, #36): semgrep pins mcp==1.29.0; fixed in 1.30.0.
+# semgrep imports mcp only for its MCP server, never in `semgrep scan`.
+mcp>=1.30.0,<2
