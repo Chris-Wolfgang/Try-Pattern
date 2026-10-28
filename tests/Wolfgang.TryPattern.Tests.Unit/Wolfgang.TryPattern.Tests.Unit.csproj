@@ -9,36 +9,12 @@
 		     TFMs where the SDK would have provided them implicitly. -->
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
-		<Copyright>Copyright 2025 Chris Wolfgang</Copyright>
 
-		<!--
-			Suppress analyzer rules that are noisy or non-applicable in test code.
-			These are firing on the Windows CI runner despite being relaxed in
-			.editorconfig's [tests/**/*.cs] section, so we suppress at the project
-			level to make the policy explicit and unambiguous.
-		-->
-		<NoWarn>$(NoWarn);
-			VSTHRD200; <!-- Async naming - tests use descriptive names without 'Async' suffix -->
-			VSTHRD003; <!-- Awaiting Task started outside context - common test pattern -->
-			VSTHRD103; <!-- Sync calls when async exists - tests need both -->
-			AsyncFixer01; <!-- Single-await async methods - test pattern -->
-			MA0004;    <!-- ConfigureAwait - not needed in tests -->
-			S6966;     <!-- Sync vs async - test fixtures use both -->
-			S2190;     <!-- Loop without break - false positive on tests that throw to exit loop -->
-			S2930;     <!-- Dispose CTS - tests are short-lived; CTS goes out of scope -->
-			S3928;     <!-- ArgumentException paramName - test fixture exceptions are illustrative -->
-			MA0015;    <!-- Same as S3928 from Meziantou -->
-			MA0012;    <!-- NullReferenceException is reserved - tests intentionally throw it to verify handling -->
-			S2699;     <!-- Test must have assertion - xUnit treats unhandled exceptions as failures, so 'no exception thrown' tests are valid without explicit asserts -->
-			S1481      <!-- Unused local 'unused' - intentional 'does not throw' pattern; rename masks the test's purpose -->
-		</NoWarn>
 	</PropertyGroup>
 
 	<!-- Common packages for all frameworks -->
 	<ItemGroup>
 		<PackageReference Include="xunit" Version="2.9.3" />
-		<PackageReference Include="xunit.assert" Version="2.9.3" />
-		<PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
 		<!-- FsCheck property-based fuzzing (issue #170). FsCheck.Xunit 3.x
 		     still targets xunit v2, which is what this project uses (xunit
 		     2.9.3 core); FsCheck.Xunit.v3 is the xunit v3 package. C# callers
@@ -58,10 +34,6 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="xunit.runner.console" Version="2.9.3">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="coverlet.collector" Version="10.1.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -72,10 +44,6 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0' ">
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="xunit.runner.console" Version="2.9.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -95,10 +63,6 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="xunit.runner.console" Version="2.9.3">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="coverlet.collector" Version="10.1.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -113,10 +77,6 @@
 			   ">
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="xunit.runner.console" Version="2.9.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

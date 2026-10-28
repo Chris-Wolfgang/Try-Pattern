@@ -22,15 +22,14 @@
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageValidationBaselineVersion>0.5.0</PackageValidationBaselineVersion>
     <Title>$(AssemblyName)</Title>
-    <Description>A .NET library demonstrating the Try pattern for structured error handling and result types.</Description>
+    <Description>A .NET library implementing the Try pattern for structured error handling and result types.</Description>
     <PackageTags>try;result;error-handling;exception-handling;functional;railway-oriented;dotnet</PackageTags>
     <PackageProjectUrl>https://github.com/Chris-Wolfgang/Try-Pattern</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Chris-Wolfgang/Try-Pattern.git</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <SignAssembly>False</SignAssembly>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
