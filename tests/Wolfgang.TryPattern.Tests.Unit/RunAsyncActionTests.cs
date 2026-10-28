@@ -37,16 +37,15 @@ public class RunAsyncActionTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Null(result.ErrorMessage);
-
     }
 
-    
+
 
     [Fact]
     public async Task RunAsync_Action_when_action_throws_exception_swallows_the_exception()
     {
         // Arrange
-        static void Action ()
+        static void Action()
         {
             throw new InvalidOperationException("Test exception");
         }
@@ -62,7 +61,7 @@ public class RunAsyncActionTests
     }
 
 
-    
+
     [Fact]
     public async Task RunAsync_Action_when_passed_synchronous_action_that_throws_exception_swallows_the_exception()
     {
@@ -113,7 +112,7 @@ public class RunAsyncActionTests
         // Assert
         Assert.Equal(3, callCount);
     }
-    
+
 
 
     [Fact]
@@ -151,7 +150,6 @@ public class RunAsyncActionTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Null(result.ErrorMessage);
-
     }
 
 
