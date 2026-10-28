@@ -7,3 +7,18 @@
 # GHSA-84m7-p3x7-pcfv (Dependabot alerts #35, #36): semgrep pins mcp==1.29.0; fixed in 1.30.0.
 # semgrep imports mcp only for its MCP server, never in `semgrep scan`.
 mcp>=1.30.0,<2
+
+# GHSA-xcq7-p3pf-p88h (Dependabot alert #38): semgrep pins opentelemetry-api~=1.37; fixed in 1.45.1.
+# The OpenTelemetry Python packages release in lockstep (SDK/exporter/proto 1.x.y with
+# instrumentation/semantic-conventions 0.(x+21)bN), and the 1.37 SDK fails to import against a
+# newer API, so the whole family moves together. Delete this block when semgrep's own pins reach it.
+opentelemetry-api>=1.45.1,<2
+opentelemetry-sdk>=1.45.1,<2
+opentelemetry-proto>=1.45.1,<2
+opentelemetry-exporter-otlp-proto-common>=1.45.1,<2
+opentelemetry-exporter-otlp-proto-http>=1.45.1,<2
+opentelemetry-semantic-conventions>=0.66b1,<1
+opentelemetry-instrumentation>=0.66b1,<1
+opentelemetry-instrumentation-requests>=0.66b1,<1
+opentelemetry-instrumentation-threading>=0.66b1,<1
+opentelemetry-util-http>=0.66b1,<1
