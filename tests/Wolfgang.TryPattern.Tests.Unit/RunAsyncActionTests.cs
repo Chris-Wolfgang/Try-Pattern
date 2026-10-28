@@ -121,7 +121,7 @@ public class RunAsyncActionTests
         // Arrange
         Action? nullAction = null;
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullAction!, cts.Token));
@@ -140,7 +140,7 @@ public class RunAsyncActionTests
             executed = true;
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         // Act
         var result = await Try.RunAsync(Action, cts.Token);
@@ -163,7 +163,7 @@ public class RunAsyncActionTests
             throw new InvalidOperationException("Test exception");
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         // Act
@@ -184,7 +184,7 @@ public class RunAsyncActionTests
         // Arrange
         static void Action() => throw new InvalidOperationException("Synchronous exception");
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
 
         // Act
@@ -223,7 +223,7 @@ public class RunAsyncActionTests
             throw new NullReferenceException();
         }
 
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         // Act
         await Try.RunAsync(Action1, cts.Token);
