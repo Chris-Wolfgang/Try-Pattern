@@ -156,11 +156,11 @@ public class RunFuncTests
         var failFunction = new Func<int>
         (
             () =>
-                {
-                    callCount++;
-                    throw new Exception("Test error");
-                }
-            );
+            {
+                callCount++;
+                throw new Exception("Test error");
+            }
+        );
 
         // Act
         var result1 = Try.Run(successFunction);

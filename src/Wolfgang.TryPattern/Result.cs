@@ -17,6 +17,10 @@ namespace Wolfgang.TryPattern;
 /// </remarks>
 public class Result
 {
+    private static readonly Result _successInstance = new(succeeded: true, errorMessage: null);
+
+
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Result"/> class with the specified success
     /// status and error message.
@@ -77,10 +81,6 @@ public class Result
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be null, empty, or whitespace.", nameof(errorMessage))
             : new Result(succeeded: false, errorMessage);
-
-
-
-    private static readonly Result _successInstance = new(succeeded: true, errorMessage: null);
 
 
 
@@ -301,8 +301,6 @@ public class Result
     Justification = "Result<T>.Failure / Result<T>.Success are factory methods central to the public API; consumers explicitly specify T at the call site by design.")]
 public class Result<T> : Result
 {
-
-
 #if NET5_0_OR_GREATER
     private readonly T? _value;
 #else
@@ -343,7 +341,7 @@ public class Result<T> : Result
     public static new Result<T?> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be null, empty, or whitespace.", nameof(errorMessage))
-            : new Result<T?>(succeeded: false, errorMessage, default!);
+            : new Result<T?>(succeeded: false, errorMessage, default);
 #else
     public static new Result<T> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
@@ -379,8 +377,4 @@ public class Result<T> : Result
         ? throw new InvalidOperationException("Cannot access the Value of a failed Result.")
         : _value;
 #endif
-
-
-
-
 }

@@ -4,8 +4,6 @@ namespace Wolfgang.TryPattern.Tests.Unit;
 
 public class ResultOfTTests
 {
-
-
     [Fact]
     public void Success_int_sets_properties_correctly()
     {
@@ -84,7 +82,7 @@ public class ResultOfTTests
     public void Success_Person_sets_properties_correctly()
     {
         // Arrange
-        var value = new Person {FirstName = "John", LastName = "Doe"};
+        var value = new Person { FirstName = "John", LastName = "Doe" };
 
         // Act
         var result = Result<Person>.Success(value);
@@ -111,7 +109,7 @@ public class ResultOfTTests
         // Assert
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
-        Assert.Null( result.Value);
+        Assert.Null(result.Value);
         Assert.Null(result.ErrorMessage);
     }
 
@@ -171,6 +169,7 @@ public class ResultOfTTests
         Assert.Equal(value, result.Value);
         Assert.Null(result.ErrorMessage);
     }
+
 
 
     // Note: AllSucceeded / AnyFailed / Flatten are inherited from Result and

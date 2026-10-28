@@ -16,6 +16,8 @@ public class RunAsyncFuncTests
         await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullFunction!));
     }
 
+
+
     [Fact]
     public async Task RunAsync_Func_int_when_successful_returns_successful_Result()
     {
