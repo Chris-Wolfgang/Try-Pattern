@@ -54,8 +54,6 @@ public class ResultTests
 
 
 
-
-
     [Fact]
     public void Success_sets_properties_correctly()
     {
@@ -110,7 +108,6 @@ public class ResultTests
         // Act & Assert
         var ex = Assert.Throws<ArgumentException>(() => Result.Failure(message!));
         Assert.Equal("errorMessage", ex.ParamName);
-
     }
 
 
@@ -160,7 +157,6 @@ public class ResultTests
         var result3 = Result.Success();
 
         Assert.False(Result.AllSucceeded(result1, result2, result3));
-
     }
 
 
@@ -370,10 +366,4 @@ public class ResultTests
         Assert.True(result.Failed);
         Assert.Equal("test error 1\ntest error 2", result.ErrorMessage);
     }
-
-
-
-
-
-
 }
