@@ -10,6 +10,8 @@
 //   2. `Try.Run(Action)` on the success path — success returns
 //      `Result.Success()` (singleton) and try/catch itself is
 //      zero-heap-alloc.
+//   3. `Result.Flatten` when every input succeeded — returns the same
+//      singleton without building a message (#442).
 //
 // Everything else allocates by design: `Result.Failure(msg)` news up
 // a Result instance, `Result<T>.Success/Failure` news up a Result<T>,
@@ -78,6 +80,31 @@ public class ZeroAllocationTests
         (
             delta == 0,
             $"Try.Run(Action) success path should be zero-alloc — observed {delta} bytes across {BatchSize} calls (the wrapped Action itself must also be zero-alloc for this claim to hold)."
+        );
+    }
+
+
+
+    [Fact]
+    public void Result_Flatten_when_all_results_succeeded_allocates_zero_bytes()
+    {
+        var results = new[] { Result.Success(), Result.Success(), Result.Success() };
+
+        // Warm-up.
+        _ = Result.Flatten(results);
+
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int i = 0; i < BatchSize; i++)
+        {
+            _ = Result.Flatten(results);
+        }
+        long after = GC.GetAllocatedBytesForCurrentThread();
+
+        long delta = after - before;
+        Assert.True
+        (
+            delta == 0,
+            $"Result.Flatten of all successes should return the cached singleton with zero alloc — observed {delta} bytes across {BatchSize} calls."
         );
     }
 }
