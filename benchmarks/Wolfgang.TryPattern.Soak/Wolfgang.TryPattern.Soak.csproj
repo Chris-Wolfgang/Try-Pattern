@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Long-running soak harness (#382): hammers the public API for a configurable
+         duration, samples GC heap / gen-2 collections / thread-pool threads / handles /
+         exception rate, and exits 1 on sustained growth. Lives under benchmarks/ (not
+         tests/) so the PR coverage gate never treats it as a test assembly. -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- ImplicitUsings intentionally NOT enabled — see src csproj. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Wolfgang.TryPattern\Wolfgang.TryPattern.csproj" />
+  </ItemGroup>
+
+</Project>
