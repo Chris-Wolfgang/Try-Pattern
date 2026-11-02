@@ -16,7 +16,7 @@ Friend Module Module1
 		Console.ForegroundColor = ConsoleColor.Cyan
 
 		' Try reading a file async
-		Dim fileReadResult = Await [Try].RunAsync(Function() File.ReadAllTextAsync(".\sample.txt"))
+		Dim fileReadResult = Await [Try].RunAsync(Function() File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "sample.txt")))
 
 		' If file read failed, print the error message
 		If fileReadResult.Succeeded Then

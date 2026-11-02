@@ -13,7 +13,7 @@ module Program =
     let main argv =
         Console.ForegroundColor <- ConsoleColor.Cyan
 
-        let fileReadResult = Try.Run(fun () -> File.ReadAllText(@".\sample.txt"))
+        let fileReadResult = Try.Run(fun () -> File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "sample.txt")))
 
         let exitCode =
             if fileReadResult.Succeeded then

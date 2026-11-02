@@ -13,7 +13,7 @@ namespace CSharp.DotNet462.Example
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             // Try reading a file
-            var fileReadResult = Try.Run(() => File.ReadAllText(@".\sample.txt"));
+            var fileReadResult = Try.Run(() => File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "sample.txt")));
 
             // If file read failed, print the error message
             if (fileReadResult.Succeeded)
