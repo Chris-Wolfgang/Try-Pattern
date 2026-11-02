@@ -16,11 +16,8 @@ name: Native AOT smoke
 on:
   pull_request:
     branches: [main, vNext]
-    paths:
-      - 'src/**'
-      - 'tests/Wolfgang.TryPattern.AotSmoke/**'
-      - '.github/workflows/aot-smoke.yaml'
-      - 'Directory.Build.props'
+    # No paths filter: this check is to be a required status check, and a required
+    # check must report on every PR (a skipped workflow never reports and blocks the merge).
   push:
     branches: [main]
     paths:
