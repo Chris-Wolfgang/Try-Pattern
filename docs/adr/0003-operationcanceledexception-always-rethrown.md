@@ -50,7 +50,8 @@ which is exactly the boilerplate `Try` exists to eliminate.
 Both `Try.RunAsync` overloads (Action + Func) catch
 `OperationCanceledException` in a dedicated `catch` block that
 **rethrows** — the exception propagates to the caller unchanged. Only
-non-cancellation exceptions become `Result.Failure(ex.Message)`.
+non-cancellation exceptions become a failed `Result` (see the note below
+the snippet for how the message is chosen).
 
 ```csharp
 try
@@ -64,9 +65,17 @@ catch (OperationCanceledException)
 }
 catch (Exception ex)
 {
-    return Result.Failure(ex.Message);
+    return Result.Failure(SafeErrorMessage(ex));
 }
 ```
+
+> **Transcription note (2026-10-27):** this snippet originally showed
+> `Result.Failure(ex.Message)`. Since v0.4.0 (#273) the code passes
+> `SafeErrorMessage(ex)`, which falls back to the exception's type name when
+> `ex.Message` is null, empty, or whitespace, because `Result.Failure` rejects
+> those. Do not copy the old form back: it makes `Try.RunAsync` throw
+> `ArgumentException` from its own `catch` block. The decision recorded here is
+> unchanged.
 
 The order matters: the `OperationCanceledException` catch must come
 before the general `Exception` catch, or the specific handler is
