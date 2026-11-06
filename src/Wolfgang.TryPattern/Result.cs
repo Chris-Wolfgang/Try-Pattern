@@ -18,8 +18,8 @@ namespace Wolfgang.TryPattern;
 public class Result
 {
     /// <summary>
-    /// Initializes a new instance of the Result class with the specified success status and
-    /// exception information.
+    /// Initializes a new instance of the <see cref="Result"/> class with the specified success
+    /// status and error message.
     /// </summary>
     /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/>
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
@@ -136,7 +136,7 @@ public class Result
     /// <returns>
     /// If all the <see cref="Result"/>s were successful (or the array is empty) the return value
     /// is a successful <see cref="Result"/>. If one or more failed, the return value is a failed
-    /// <see cref="Result"/> and the ErrorMessage property will contain the errors from each failed
+    /// <see cref="Result"/> and the <see cref="ErrorMessage"/> property will contain the errors from each failed
     /// <see cref="Result"/> separated by a newline character.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
@@ -312,14 +312,15 @@ public class Result<T> : Result
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Result{T}"/> class with the specified success status,
-    /// exception information, and return value.
+    /// error message, and return value.
     /// </summary>
     /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/>
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
     /// <param name="errorMessage">Error message associated with the result.</param>
     /// <param name="value">The return value of the function if it succeeded, otherwise the default value for <typeparamref name="T"/>.</param>
     /// <remarks>
-    /// If the operation was successful, <paramref name="errorMessage"/> must be an empty string and
+    /// If the operation was successful, <paramref name="errorMessage"/> must be null or an empty
+    /// string (both canonicalize to <see langword="null"/> on <see cref="Result.ErrorMessage"/>) and
     /// <paramref name="value"/> should be the return value from the function.
     /// If the operation failed, <paramref name="errorMessage"/> must not be null, empty, or whitespace and
     /// <paramref name="value"/> should be <c>default(T)</c>.

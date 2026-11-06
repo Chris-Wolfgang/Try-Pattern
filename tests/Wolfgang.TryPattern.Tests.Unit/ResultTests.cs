@@ -238,7 +238,7 @@ public class ResultTests
     public void Flatten_when_null_appears_after_first_failure_throws_ArgumentException()
     {
         // Regression test for the second null-check inside Flatten's
-        // tail loop (Result.cs:172). The pre-existing test covers a
+        // tail loop (the loop after the first failure). The pre-existing test covers a
         // null seen before the first failure (head loop). This one
         // covers a null seen AFTER the first failure — the tail loop
         // must keep validating elements even after firstFailureIndex
