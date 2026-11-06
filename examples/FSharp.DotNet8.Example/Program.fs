@@ -17,7 +17,7 @@ let private mainAsync (args: string array) =
         Console.ForegroundColor <- ConsoleColor.Cyan
 
         let! fileReadResult =
-            Try.RunAsync(fun () -> File.ReadAllTextAsync(@".\sample.txt"))
+            Try.RunAsync(fun () -> File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "sample.txt")))
 
         if fileReadResult.Succeeded then
             Console.WriteLine("File read successfully.")
