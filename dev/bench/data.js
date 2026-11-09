@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794187470783,
+  "lastUpdate": 1794192357584,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -480,6 +480,78 @@ window.BENCHMARK_DATA = {
             "value": 3752152.0026041665,
             "unit": "ns",
             "range": "± 5862.503207682021"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c83905947812b29945067133a89872461a4bfd79",
+          "message": "chore(pack): stop requiring licence acceptance for the MIT package (#477)\n\nPackageRequireLicenseAcceptance=True makes Visual Studio show an\naccept-licence prompt on install. MIT does not require acceptance, so the\nprompt is only friction.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-08T21:44:18-05:00",
+          "tree_id": "4f737bfd79456fe2bf253e8951bdc9e69fa91c32",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/c83905947812b29945067133a89872461a4bfd79"
+        },
+        "date": 1794192355829,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1659.6732730865479,
+            "unit": "ns",
+            "range": "± 24.677304951591513"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1716182.2688802083,
+            "unit": "ns",
+            "range": "± 17874.832233424488"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 369019.6393229167,
+            "unit": "ns",
+            "range": "± 11294.15105732223"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 8058436.625,
+            "unit": "ns",
+            "range": "± 68227.29733054445"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 5468.215293884277,
+            "unit": "ns",
+            "range": "± 36.79634561108848"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1674756.8916015625,
+            "unit": "ns",
+            "range": "± 6286.45804602367"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 29538.61587524414,
+            "unit": "ns",
+            "range": "± 582.0673290132264"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 3701385.640625,
+            "unit": "ns",
+            "range": "± 43200.24929783573"
           }
         ]
       }
