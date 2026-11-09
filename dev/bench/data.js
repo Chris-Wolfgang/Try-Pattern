@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790541396893,
+  "lastUpdate": 1794187470783,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -408,6 +408,78 @@ window.BENCHMARK_DATA = {
             "value": 4878522.276041667,
             "unit": "ns",
             "range": "± 14253.971755204831"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e33561931fa77d67f18dc10da3eda3ce95e3174c",
+          "message": "build(deps): bump the github-actions group with 4 updates (#494)\n\nBumps the github-actions group with 4 updates: [github/codeql-action/upload-sarif](https://github.com/github/codeql-action), [actions/setup-dotnet](https://github.com/actions/setup-dotnet), [github/codeql-action/init](https://github.com/github/codeql-action) and [github/codeql-action/analyze](https://github.com/github/codeql-action).\n\n\nUpdates `github/codeql-action/upload-sarif` from 4.39.1 to 4.39.3\n- [Release notes](https://github.com/github/codeql-action/releases)\n- [Changelog](https://github.com/github/codeql-action/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/github/codeql-action/compare/9b3254085494b55a0f7c4c2b3d2d52cc712ce370...33d7b85da1a04171e211befe2c739303b9a4c066)\n\nUpdates `actions/setup-dotnet` from 6.0.0 to 6.1.0\n- [Release notes](https://github.com/actions/setup-dotnet/releases)\n- [Commits](https://github.com/actions/setup-dotnet/compare/a98b56852c35b8e3190ac28c8c2271da59106c68...0f4a354dd5547a28c70b7853dbd95d5b67886e73)\n\nUpdates `github/codeql-action/init` from 4.39.1 to 4.39.3\n- [Release notes](https://github.com/github/codeql-action/releases)\n- [Changelog](https://github.com/github/codeql-action/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/github/codeql-action/compare/9b3254085494b55a0f7c4c2b3d2d52cc712ce370...33d7b85da1a04171e211befe2c739303b9a4c066)\n\nUpdates `github/codeql-action/analyze` from 4.39.1 to 4.39.3\n- [Release notes](https://github.com/github/codeql-action/releases)\n- [Changelog](https://github.com/github/codeql-action/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/github/codeql-action/compare/9b3254085494b55a0f7c4c2b3d2d52cc712ce370...33d7b85da1a04171e211befe2c739303b9a4c066)\n\n---\nupdated-dependencies:\n- dependency-name: github/codeql-action/upload-sarif\n  dependency-version: 4.39.3\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: github-actions\n- dependency-name: actions/setup-dotnet\n  dependency-version: 6.1.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: github-actions\n- dependency-name: github/codeql-action/init\n  dependency-version: 4.39.3\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: github-actions\n- dependency-name: github/codeql-action/analyze\n  dependency-version: 4.39.3\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n  dependency-group: github-actions\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Chris Wolfgang <210299580+Chris-Wolfgang@users.noreply.github.com>",
+          "timestamp": "2026-11-08T20:19:26-05:00",
+          "tree_id": "8b520c8cf6e59bbd36fd0ad257c69d614e763824",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/e33561931fa77d67f18dc10da3eda3ce95e3174c"
+        },
+        "date": 1794187469057,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1653.6172873179119,
+            "unit": "ns",
+            "range": "± 17.385198216618825"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1711113.6741536458,
+            "unit": "ns",
+            "range": "± 15404.569339872542"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 381470.8614095052,
+            "unit": "ns",
+            "range": "± 1063.497251945833"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 8046366.46875,
+            "unit": "ns",
+            "range": "± 78456.12258835741"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 5563.250625610352,
+            "unit": "ns",
+            "range": "± 128.8485851031944"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1754655.9680989583,
+            "unit": "ns",
+            "range": "± 2811.418723276248"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 30297.842783610027,
+            "unit": "ns",
+            "range": "± 195.70362042496018"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 3752152.0026041665,
+            "unit": "ns",
+            "range": "± 5862.503207682021"
           }
         ]
       }
