@@ -16,7 +16,6 @@ on:
 
 permissions:
   contents: read
-  issues: write   # File a kind:fuzz-finding issue on failure.
 
 concurrency:
   group: fuzz
@@ -27,6 +26,11 @@ jobs:
     name: Long-run FsCheck fuzz
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # Job-level, not workflow-level: this job files a kind:fuzz-finding
+    # issue when a property fails.
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
