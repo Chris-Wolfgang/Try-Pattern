@@ -4,16 +4,20 @@
 # Stage 3: macOS tests (only if Stage 2 passes)
 #
 # SECURITY NOTE:
-# - Uses pull_request_target to run workflow from the trusted main branch, not from the PR branch
-# - This prevents malicious workflow YAML changes in untrusted PR branches from taking effect
-# - All checkout steps use PR refs (refs/pull/*/head) to check out PR code from the base repo
-# - After checkout, configuration files (.editorconfig, BannedSymbols.txt, etc.) are fetched from
-#   the main branch to prevent malicious PRs from disabling analyzers or bypassing code quality checks
-# - If a PR changes any of these protected configuration files, CI explicitly fails with instructions
-#   for a maintainer to manually review and verify the changes before merging
+# - Runs on `pull_request` (and on push to main): the PR's own code and its own copies of the
+#   workflow and config files are what get built and tested. GitHub hands a pull_request run a
+#   read-only GITHUB_TOKEN and no secrets for forks; nothing here uses a secret, and
+#   `permissions: contents: read` applies to same-repo PRs too.
+# - Gate integrity lives in protected-files.yaml: a separate workflow on the privileged PR trigger
+#   that never checks out PR code, lists the PR's changed files through the API, and fails any PR
+#   that mixes a protected file (this workflow, .editorconfig, Directory.Build.props, .globalconfig,
+#   .DotSettings, BannedSymbols.txt, coverlet.runsettings, .gitleaks.toml, the CI scripts it runs)
+#   with other changes. A PR therefore cannot weaken the checks it is subject to without either
+#   failing that guard or being a configuration-only PR that a maintainer reviews on its own.
+# - The only write scope in this file is `security-events: write` on inspectcode-upload, a job
+#   that never checks out PR code.
 # - persist-credentials: false prevents the checkout token from being written to git config for subsequent git commands
 #   (it does NOT, by itself, prevent steps from accessing github.token / GITHUB_TOKEN if you explicitly expose it)
-# - Default GITHUB_TOKEN permissions are restricted to read-only repository contents to limit impact if exposed
 
 name: PR Checks v3 (Gated)
 
@@ -32,13 +36,22 @@ env:
   CODECOV_TEST_MINIMUM: 100
   
 on:
-  # zizmor: ignore[dangerous-triggers]
-  pull_request_target:  # Runs from the main branch, not from PR branch
+  pull_request:
+    branches:
+      - main
+  # A push to main re-runs the same gates on the merged result and keeps the InspectCode
+  # alert set on main current (a pull_request run attributes its SARIF to the PR ref).
+  push:
     branches:
       - main
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # The event name is part of the group on purpose: while this migration is in flight, main
+  # still triggers the previous workflow of the same name on the privileged PR trigger, and
+  # that run carries the REQUIRED check names. In one group the pull_request run (starting
+  # seconds later) cancels it and the PR is blocked on "cancelled" required checks; in
+  # separate groups both complete.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -53,32 +66,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Fetch trusted gitleaks config from main
-        # Prevent PR from modifying .gitleaks.toml to bypass the scan.
-        # Distinguish "file doesn't exist in main" (fine — gitleaks uses
-        # defaults) from "checkout failed for any other reason" (abort —
-        # silently using the PR version would defeat the guard).
-        shell: bash
-        run: |
-          if ! git fetch origin main --depth=1; then
-            echo "::error::Failed to fetch origin/main — aborting before gitleaks scan."
-            exit 1
-          fi
-          if git cat-file -e origin/main:.gitleaks.toml 2>/dev/null; then
-            if ! git checkout origin/main -- .gitleaks.toml; then
-              echo "::error::Failed to checkout origin/main:.gitleaks.toml — aborting to prevent silent fall-back to PR version."
-              exit 1
-            fi
-          else
-            echo "::notice::.gitleaks.toml not present in origin/main — gitleaks will use defaults."
-          fi
-
       - name: Run gitleaks
-        # gitleaks-action@v2 does not support pull_request_target, so invoke the CLI directly
+        # The CLI is invoked directly (version + SHA-256 pinned below) rather than through gitleaks-action.
         # Pinned to a specific version with SHA256 checksum verification for supply-chain safety
         run: |
           GITLEAKS_VERSION="8.24.0"
@@ -107,155 +99,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
-      
-      - name: Fetch trusted configuration files from main branch
-        # Skip for Dependabot — its package-version bumps to protected files (e.g.
-        # Directory.Build.props) are legitimate and should not be overwritten by main's
-        # older versions. Dependabot's identity is GitHub-controlled and not spoofable.
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        run: |
-          echo "Fetching configuration files from main branch to prevent malicious overrides..."
-          
-          # Fetch the main branch
-          git fetch origin main:main-branch
-          
-          # List of configuration files that should come from trusted main branch
-          config_files=(
-            ".editorconfig"
-            "Directory.Build.props"
-            "Directory.Build.targets"
-            "BannedSymbols.txt"
-            "*.globalconfig"
-            "*.ruleset"
-            ".github/workflows/*.yml"
-            ".github/workflows/*.yaml"
-          )
-          
-          # Copy each configuration file from main branch if it exists
-          for config_file in "${config_files[@]}"; do
-            # Handle glob patterns
-            if [[ "$config_file" == *"*"* ]]; then
-              # Find files matching the pattern in main branch.
-              # NOTE: use process substitution (`done < <(...)`) instead of a
-              # plain pipeline. A piped `while` runs in a subshell — an
-              # `exit 1` from inside would only kill the subshell, not the
-              # outer step, letting a failed copy silently fall back to the
-              # PR-supplied protected config. Process substitution runs the
-              # loop in the parent shell so exit actually terminates the job.
-              while read -r file; do
-                if [ -n "$file" ]; then
-                  echo "  ✓ Copying $file from main branch"
-                  mkdir -p "$(dirname "$file")"
-                  if ! git show "main-branch:$file" > "$file"; then
-                    echo "::error::Failed to copy $file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                    exit 1
-                  fi
-                fi
-              # Mask grep's exit 1 on zero matches with `|| true` — under
-              # `set -eo pipefail`, an empty match would otherwise fail the step,
-              # but a pattern like `*.ruleset` legitimately has no matches in
-              # repos that don't ship one. The empty stream is fine; the while
-              # loop simply doesn't iterate.
-              done < <(git ls-tree -r --name-only main-branch | { grep -E "${config_file//\*/.*}" || true; })
-            else
-              # Check if file exists in main branch
-              if git cat-file -e "main-branch:$config_file" 2>/dev/null; then
-                echo "  ✓ Copying $config_file from main branch"
-                if ! git show "main-branch:$config_file" > "$config_file"; then
-                  echo "::error::Failed to copy $config_file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                  exit 1
-                fi
-              else
-                echo "  ℹ️  $config_file not found in main branch, skipping"
-              fi
-            fi
-          done
-          
-          echo ""
-          echo "✅ Configuration files secured - using versions from main branch"
-      
-      - name: Detect protected configuration file changes
-        # Skip for Dependabot — its bumps to protected files (e.g. Directory.Build.props)
-        # are legitimate. The guard's threat model is human PR authors disabling analyzers
-        # in their own PRs; it does not apply to a trusted GitHub-controlled bot whose
-        # only action is package-version updates.
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          # persist-credentials:false on the checkout, so the deepening fetch below needs the
-          # job token for a private repository. Used on this one command only; never stored.
-          TRUSTED_MAIN_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
-        run: |
-          echo "Checking for changes to protected configuration files in this PR..."
-          
-          # Verify main-branch ref is available (it was fetched in the previous step)
-          if ! git cat-file -e main-branch 2>/dev/null; then
-            echo "❌ main-branch ref not found - cannot detect configuration file changes"
-            exit 1
-          fi
-          
-          # Files this PR changes, relative to the merge base with main (three-dot), so a
-          # PR that is merely behind main is not blamed for files main changed since it
-          # branched. --diff-filter=AMRCD: Added, Modified, Renamed, Copied, Deleted -
-          # a PR that *deletes* a workflow or .globalconfig is as security-relevant as an
-          # edit. -i: Windows (and ReSharper on it) resolve names case-insensitively, so
-          # foo.dotsettings is as live as foo.DotSettings.
-          # The checkout is shallow (depth 1); the PR's own history is needed to find the
-          # merge base. Fetch the checked-out commit itself, deeper each time, until one
-          # exists, then diff against it. Fail closed: a guard that cannot compute the diff
-          # must not report "nothing changed".
-          # Fetch by SHA, not refs/pull/N/head: HEAD is GitHub's test merge commit, which
-          # GitHub regenerates, and once refs/pull/N/merge has moved on, deepening the PR
-          # head never reaches the parents of the orphaned merge this run checked out (and a
-          # re-run replays the same SHA). --depth rather than --deepen: a --deepen fetch of
-          # a commit that is already present fetches nothing.
-          head_sha=$(git rev-parse HEAD)
-          for depth in 50 100 200 400 800 1600; do
-            git merge-base main-branch HEAD >/dev/null 2>&1 && break
-            git fetch --quiet --depth="$depth" "$TRUSTED_MAIN_URL" "$head_sha" || echo "::warning::Fetching $head_sha at depth $depth failed"
-          done
-          if ! base=$(git merge-base main-branch HEAD 2>/dev/null); then
-            echo "::error::Cannot find the merge base between main and the PR head - refusing to classify the change."
-            exit 1
-          fi
-          mapfile -t all_changed < <(git diff --name-only --diff-filter=AMRCD "$base" HEAD)
-          protected=(); other=()
-          for file in "${all_changed[@]}"; do
-            case "$file" in
-              .editorconfig|Directory.Build.props|Directory.Build.targets|BannedSymbols.txt) protected+=("$file") ;;
-              *)
-                if echo "$file" | grep -qiE '(\.(globalconfig|ruleset|DotSettings)|^\.github/workflows/.*\.ya?ml)$'; then protected+=("$file"); else other+=("$file"); fi ;;
-            esac
-          done
-
-          if [ ${#protected[@]} -eq 0 ]; then
-            echo "✅ No protected configuration files changed - CI fully validates this PR"
-          elif [ ${#other[@]} -eq 0 ]; then
-            # Configuration-only PR. CI runs main's copies of these files, so nothing in
-            # this run exercised the change - but nothing else changed either, so there is
-            # no code the stale config could have mis-validated. It merges on review with
-            # the ruleset fully active (baseline item 10: never disable a ruleset to merge).
-            echo ""
-            echo "⚠️  CONFIGURATION-ONLY PULL REQUEST - protected files changed, nothing else:"
-            for file in "${protected[@]}"; do echo "  - $file"; done
-            echo ""
-            echo "::warning::Configuration-only PR: CI ran main's copies of ${#protected[@]} protected file(s), so this run did not exercise the change. Review the diff before merging; the next PR runs with the new configuration."
-          else
-            echo ""
-            echo "⚠️  PROTECTED CONFIGURATION FILES CHANGED ALONGSIDE OTHER CHANGES:"
-            for file in "${protected[@]}"; do echo "  - $file"; done
-            echo ""
-            echo "❌ CI uses the main branch version of these files to prevent security bypasses,"
-            echo "   so the other ${#other[@]} file(s) in this PR were validated against the OLD configuration"
-            echo "   and the configuration change itself was not tested."
-            echo ""
-            echo "Split the PR: put the protected files in their own PR (it passes this guard as"
-            echo "configuration-only and merges on review), then rebase the rest on top so it is"
-            echo "validated with the new configuration. Nothing here can be bypassed."
-            exit 1
-          fi
       
       - name: Check for .NET project files
         id: check-projects
@@ -269,46 +113,20 @@ jobs:
           fi
   # ============================================================================
   # CHANGELOG: every PR that touches src/ must add a fragment under
-  # changelog/unreleased/ (or carry the `no-changelog` label). The script is
-  # taken from main so a PR cannot weaken its own check; the fragments and the
-  # diff come from the PR head. See changelog/unreleased/README.md.
+  # changelog/unreleased/ (or carry the `no-changelog` label). The script is a
+  # protected file (protected-files.yaml), so a PR cannot quietly weaken its own
+  # check; the fragments and the diff come from the PR. See changelog/unreleased/README.md.
   # ============================================================================
   changelog-check:
     name: "Changelog Fragment Check"
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
           fetch-depth: 0
-
-      - name: Fetch trusted changelog script from main
-        shell: bash
-        env:
-          # The checkout uses persist-credentials:false (nothing in .git/config for
-          # PR-controlled build steps to read), so a bare `git fetch origin` has no
-          # auth and fails on a private repository. Pass the job token on this one
-          # command only; it is never written to git config.
-          TRUSTED_MAIN_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
-        run: |
-          if ! git fetch "$TRUSTED_MAIN_URL" main:refs/remotes/origin/main --depth=1; then
-            echo "::error::Failed to fetch origin/main — aborting before changelog check."
-            exit 1
-          fi
-          # Fail closed: never run the PR's own copy of the validator. (A first-adoption PR
-          # cannot reach this job anyway — pull_request_target runs the base branch's pr.yaml,
-          # so the job only exists once main carries both this workflow and the script.)
-          if ! git cat-file -e origin/main:scripts/changelog.ps1 2>/dev/null; then
-            echo "::error::scripts/changelog.ps1 is not present in origin/main — refusing to run the PR-controlled copy. Merge the script to main first."
-            exit 1
-          fi
-          if ! git checkout origin/main -- scripts/changelog.ps1; then
-            echo "::error::Failed to checkout origin/main:scripts/changelog.ps1 — aborting to prevent silent fall-back to the PR version."
-            exit 1
-          fi
 
       - name: Check for a changelog fragment
         shell: pwsh
@@ -319,9 +137,9 @@ jobs:
           # PR-controlled build steps to read), so a bare `git fetch origin` has no
           # auth and fails on a private repository. Pass the job token on this one
           # command only; it is never written to git config.
-          TRUSTED_MAIN_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+          BASE_FETCH_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
         run: |
-          git fetch "$env:TRUSTED_MAIN_URL" $env:BASE_SHA --depth=1
+          git fetch "$env:BASE_FETCH_URL" $env:BASE_SHA --depth=1
           pwsh ./scripts/changelog.ps1 check -BaseRef $env:BASE_SHA -Labels $env:PR_LABELS
 
   # ============================================================================
@@ -363,67 +181,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
 
-      # Same defense-in-depth pattern as detect-projects and the test stages:
-      # jobs don't share workspaces under pull_request_target, so each build/
-      # analyzer job re-fetches protected config from main after checkout.
-      # Without this, a malicious PR could ship a permissive .editorconfig /
-      # BannedSymbols.txt / .DotSettings that would silence InspectCode
-      # findings on the PR's own code.
-      - name: Fetch trusted configuration files from main branch
-        # Skip for Dependabot — its package-version bumps to protected files are
-        # legitimate and should not be overwritten by main's older versions.
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        run: |
-          echo "Fetching configuration files from main branch to prevent malicious overrides..."
-
-          git fetch origin main:main-branch
-
-          config_files=(
-            ".editorconfig"
-            "Directory.Build.props"
-            "Directory.Build.targets"
-            "BannedSymbols.txt"
-            "*.globalconfig"
-            "*.ruleset"
-            ".github/workflows/*.yml"
-            ".github/workflows/*.yaml"
-          )
-
-          for config_file in "${config_files[@]}"; do
-            if [[ "$config_file" == *"*"* ]]; then
-              # See Stage 1 for the process-substitution rationale (avoids a
-              # subshell that would swallow `exit 1` on failed copies).
-              while read -r file; do
-                if [ -n "$file" ]; then
-                  echo "  ✓ Copying $file from main branch"
-                  mkdir -p "$(dirname "$file")"
-                  if ! git show "main-branch:$file" > "$file"; then
-                    echo "::error::Failed to copy $file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                    exit 1
-                  fi
-                fi
-              done < <(git ls-tree -r --name-only main-branch | { grep -E "${config_file//\*/.*}" || true; })
-            else
-              if git cat-file -e "main-branch:$config_file" 2>/dev/null; then
-                echo "  ✓ Copying $config_file from main branch"
-                if ! git show "main-branch:$config_file" > "$config_file"; then
-                  echo "::error::Failed to copy $config_file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                  exit 1
-                fi
-              else
-                echo "  ℹ️  $config_file not found in main branch, skipping"
-              fi
-            fi
-          done
-
-          echo ""
-          echo "✅ Configuration files secured - using versions from main branch"
-
       - name: Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68  # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73  # v6.1.0
         with:
           dotnet-version: '10.0.x'
 
@@ -509,16 +270,24 @@ jobs:
 
   # ============================================================================
   # INSPECTCODE UPLOAD: the only job with security-events: write. It never checks
-  # out PR code — the checkout below is the trusted base ref (pull_request_target
-  # default), which upload-sarif needs only to resolve the workspace — and it
-  # uploads the SARIF the job above produced. Runs after a gate failure too (the
+  # out PR code — the checkout below is the base branch, which upload-sarif needs
+  # only to resolve the workspace — and it uploads the SARIF the job above
+  # produced. Runs after a gate failure too (the
   # warnings are the point) but not when the analysis never ran.
   # ============================================================================
   inspectcode-upload:
     name: "ReSharper InspectCode (upload SARIF)"
     runs-on: ubuntu-latest
     needs: inspectcode
-    if: always() && (needs.inspectcode.result == 'success' || needs.inspectcode.result == 'failure')
+    # A pull_request run from a fork (or by Dependabot) carries a read-only token that cannot write
+    # Code Scanning; those PRs still get the InspectCode gate above, just no SARIF upload.
+    # The Dependabot test reads the PR AUTHOR, not github.actor: re-running or reopening a
+    # Dependabot PR makes the actor a maintainer while the token stays Dependabot's read-only
+    # one, so an actor test would let this write-scoped job run and then fail.
+    if: >-
+      always() && (needs.inspectcode.result == 'success' || needs.inspectcode.result == 'failure')
+      && (github.event_name == 'push'
+          || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]'))
     timeout-minutes: 10
     permissions:
       contents: read
@@ -526,9 +295,10 @@ jobs:
       actions: read            # upload-sarif reads the workflow run to associate the analysis
 
     steps:
-      - name: Checkout trusted base ref
+      - name: Checkout base branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.base.ref || github.ref }}
           persist-credentials: false
 
       - name: Download the SARIF
@@ -542,7 +312,7 @@ jobs:
 
       - name: Upload SARIF to Code Scanning
         if: steps.sarif.outcome == 'success' && hashFiles('inspect.sarif') != ''
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d  # v4.38.3
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3
         with:
           sarif_file: inspect.sarif
 
@@ -551,7 +321,9 @@ jobs:
   # ============================================================================
   test-linux-core: 
     name: "Stage 1: Linux Tests (.NET 5.0-10.0) + Coverage Gate"
-    runs-on:  ubuntu-latest
+    # Pinned to 24.04: on ubuntu-latest (26.04) the netcoreapp3.1 test host finds no ICU it can
+    # load and aborts. Keep the pin until the netcoreapp3.1 slot is handled another way.
+    runs-on: ubuntu-24.04
     needs: detect-projects
     if: github.repository != 'Chris-Wolfgang/repo-template' && needs.detect-projects.outputs.has-projects == 'true'
     
@@ -559,75 +331,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
       
-      - name: Fetch trusted configuration files from main branch
-        # Skip for Dependabot — its package-version bumps to protected files (e.g.
-        # Directory.Build.props) are legitimate and should not be overwritten by main's
-        # older versions. Dependabot's identity is GitHub-controlled and not spoofable.
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        run: |
-          echo "Fetching configuration files from main branch to prevent malicious overrides..."
-          
-          # Fetch the main branch
-          git fetch origin main:main-branch
-          
-          # List of configuration files that should come from trusted main branch
-          config_files=(
-            ".editorconfig"
-            "Directory.Build.props"
-            "Directory.Build.targets"
-            "BannedSymbols.txt"
-            "*.globalconfig"
-            "*.ruleset"
-            ".github/workflows/*.yml"
-            ".github/workflows/*.yaml"
-          )
-          
-          # Copy each configuration file from main branch if it exists
-          for config_file in "${config_files[@]}"; do
-            # Handle glob patterns
-            if [[ "$config_file" == *"*"* ]]; then
-              # Find files matching the pattern in main branch.
-              # NOTE: use process substitution (`done < <(...)`) instead of a
-              # plain pipeline. A piped `while` runs in a subshell — an
-              # `exit 1` from inside would only kill the subshell, not the
-              # outer step, letting a failed copy silently fall back to the
-              # PR-supplied protected config. Process substitution runs the
-              # loop in the parent shell so exit actually terminates the job.
-              while read -r file; do
-                if [ -n "$file" ]; then
-                  echo "  ✓ Copying $file from main branch"
-                  mkdir -p "$(dirname "$file")"
-                  if ! git show "main-branch:$file" > "$file"; then
-                    echo "::error::Failed to copy $file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                    exit 1
-                  fi
-                fi
-              # Mask grep's exit 1 on zero matches with `|| true` — under
-              # `set -eo pipefail`, an empty match would otherwise fail the step,
-              # but a pattern like `*.ruleset` legitimately has no matches in
-              # repos that don't ship one. The empty stream is fine; the while
-              # loop simply doesn't iterate.
-              done < <(git ls-tree -r --name-only main-branch | { grep -E "${config_file//\*/.*}" || true; })
-            else
-              # Check if file exists in main branch
-              if git cat-file -e "main-branch:$config_file" 2>/dev/null; then
-                echo "  ✓ Copying $config_file from main branch"
-                if ! git show "main-branch:$config_file" > "$config_file"; then
-                  echo "::error::Failed to copy $config_file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                  exit 1
-                fi
-              else
-                echo "  ℹ️  $config_file not found in main branch, skipping"
-              fi
-            fi
-          done
-          
-          echo ""
-          echo "✅ Configuration files secured - using versions from main branch"
-
       # Fix for .NET 5.0 on Ubuntu 22.04+ - install libssl1.1 from the focal-security
       # repository so APT verifies the package via GPG instead of a plain wget download.
       - name: Install OpenSSL 1.1 for .NET 5.0
@@ -644,7 +349,7 @@ jobs:
           sudo rm /etc/apt/sources.list.d/focal-security.list
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68  # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73  # v6.1.0
         with:
           dotnet-version: |
             3.1.x
@@ -1075,60 +780,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
       
-      - name: Fetch trusted configuration files from main branch
-        # Skip for Dependabot — its package-version bumps to protected files (e.g.
-        # Directory.Build.props) are legitimate and should not be overwritten by main's
-        # older versions. Dependabot's identity is GitHub-controlled and not spoofable.
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        shell: pwsh
-        run: |
-          Write-Host "Fetching configuration files from main branch to prevent malicious overrides..."
-          
-          # Fetch the main branch
-          git fetch origin main:main-branch
-          
-          # List of configuration files that should come from trusted main branch
-          $configFiles = @(
-            ".editorconfig",
-            "Directory.Build.props",
-            "Directory.Build.targets",
-            "BannedSymbols.txt"
-          )
-          
-          # Copy each configuration file from main branch if it exists
-          foreach ($configFile in $configFiles) {
-            # Check if file exists in main branch
-            $exists = git cat-file -e "main-branch:$configFile" 2>&1
-            if ($LASTEXITCODE -eq 0) {
-              Write-Host "  ✓ Copying $configFile from main branch"
-              git show "main-branch:$configFile" | Out-File -FilePath $configFile -Encoding UTF8NoBOM
-            } else {
-              Write-Host "  ℹ️  $configFile not found in main branch, skipping"
-            }
-          }
-          
-          # Handle glob patterns for .globalconfig, .ruleset, and workflow files
-          $globPatterns = @("*.globalconfig", "*.ruleset", ".github/workflows/*.yml", ".github/workflows/*.yaml")
-          foreach ($pattern in $globPatterns) {
-            $files = git ls-tree -r --name-only main-branch | Select-String -Pattern $pattern.Replace("*", ".*")
-            foreach ($file in $files) {
-              if ($file) {
-                Write-Host "  ✓ Copying $file from main branch"
-                $dir = Split-Path -Parent $file
-                if ($dir) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
-                git show "main-branch:$file" | Out-File -FilePath $file -Encoding UTF8NoBOM
-              }
-            }
-          }
-          
-          Write-Host ""
-          Write-Host "✅ Configuration files secured - using versions from main branch"
-
       - name: Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68  # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73  # v6.1.0
         with:
           dotnet-version: |
             3.1.x
@@ -1145,25 +800,14 @@ jobs:
         # net6.0 assets. Warning-only by design (a platform TFM may have no
         # test story yet); the point is that it is visible. Runs on this
         # stage because Windows has every SDK the matrix needs. The script is
-        # taken from main so a PR cannot edit the check it is subject to;
-        # when main does not carry it yet (first adoption) the step skips.
+        # a protected file (protected-files.yaml), so a PR cannot quietly edit
+        # the check it is subject to; a repo that does not carry it yet skips.
         shell: pwsh
-        env:
-          # The checkout uses persist-credentials:false (nothing in .git/config for
-          # PR-controlled build steps to read), so a bare `git fetch origin` has no
-          # auth and fails on a private repository. Pass the job token on this one
-          # command only; it is never written to git config.
-          TRUSTED_MAIN_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
         run: |
-          git fetch "$env:TRUSTED_MAIN_URL" main:refs/remotes/origin/main --depth=1
-          if ($LASTEXITCODE -ne 0) { Write-Host "::error::Failed to fetch origin/main"; exit 1 }
-          git cat-file -e origin/main:scripts/tfm-parity.ps1 2>$null
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "::notice::scripts/tfm-parity.ps1 is not on main yet - skipping the TFM parity check."
+          if (-not (Test-Path scripts/tfm-parity.ps1)) {
+            Write-Host "::notice::scripts/tfm-parity.ps1 is not in this repository - skipping the TFM parity check."
             exit 0
           }
-          git checkout origin/main -- scripts/tfm-parity.ps1
-          if ($LASTEXITCODE -ne 0) { Write-Host "::error::Failed to checkout origin/main:scripts/tfm-parity.ps1"; exit 1 }
           pwsh ./scripts/tfm-parity.ps1
 
       - name: Restore .NET workloads
@@ -1209,6 +853,14 @@ jobs:
           }
 
           $testProjects = @(Get-ChildItem -Path './tests/*' -Recurse -File -Include '*.csproj','*.vbproj','*.fsproj')
+
+          # Assemblies that ran tests under a coverage-collecting TFM (net5.0+). The
+          # coverage steps below require a coverage row for each one, so a test project
+          # whose coverage is never collected fails the gate instead of silently dropping
+          # out of it. net4x and netcoreapp3.1 are tested without the XPlat collector by
+          # design, so they never enter the ledger.
+          $ranAssembliesFile = Join-Path $env:RUNNER_TEMP 'stage2-ran-test-assemblies.txt'
+          Set-Content -Path $ranAssembliesFile -Value $null
 
           if (@($testProjects).Count -eq 0) {
             if ($srcHasProjects) {
@@ -1306,6 +958,23 @@ jobs:
                 Write-Error "Tests failed for $fw in $($testProj.Name)"
                 exit 1
               }
+
+              # Record only projects that really run tests: tests/ also holds an AOT smoke
+              # executable that `dotnet test` runs nothing in, and it can have no coverage row.
+              if ($fw -match '^net([5-9]|[1-9][0-9]+)\.') {
+                $isTestProject = $false
+                if ((dotnet msbuild $testProj.FullName -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getProperty:IsTestProject 2>$null) -match '^true$') {
+                  $isTestProject = $true
+                }
+                elseif ((dotnet msbuild $testProj.FullName -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getItem:PackageReference 2>$null) -match '"Identity": *"Microsoft.NET.Test.Sdk"') {
+                  $isTestProject = $true
+                }
+                if ($isTestProject) {
+                  $asmMatch = [regex]::Match($content, '<AssemblyName>([^<]+)</AssemblyName>')
+                  $asmName = if ($asmMatch.Success) { $asmMatch.Groups[1].Value.Trim() } else { $testProj.BaseName }
+                  Add-Content -Path $ranAssembliesFile -Value $asmName
+                }
+              }
             }
             Write-Host ""
           }
@@ -1313,9 +982,15 @@ jobs:
       - name: Check for coverage files
         id: check-coverage
         run: |
+          $ranAssembliesFile = Join-Path $env:RUNNER_TEMP 'stage2-ran-test-assemblies.txt'
+          $ranAssemblies = if (Test-Path $ranAssembliesFile) { @(Get-Content $ranAssembliesFile | Where-Object { $_ }) } else { @() }
           if (Get-ChildItem -Path TestResults -Recurse -Filter coverage.cobertura.xml -ErrorAction SilentlyContinue) {
             echo "has-coverage=true" >> $env:GITHUB_OUTPUT
             Write-Host "✅ Coverage files found"
+          } elseif ($ranAssemblies.Count -gt 0) {
+            Write-Host "❌ Tests ran but produced no coverage files - the coverage gate cannot be evaluated. Test assemblies that ran:"
+            $ranAssemblies | ForEach-Object { Write-Host $_ }
+            exit 1
           } else {
             echo "has-coverage=false" >> $env:GITHUB_OUTPUT
             Write-Host "ℹ️  No coverage files found - skipping coverage report generation"
@@ -1425,6 +1100,26 @@ jobs:
             exit 1
           }
 
+          # Every test assembly that ran must appear in the report. A missing row means
+          # its coverage was never collected, and an unmeasured assembly must not pass.
+          # Exact match on the first token of an unindented row, so X.Application does
+          # not satisfy X.Application.Advisor.
+          $ranAssembliesFile = Join-Path $env:RUNNER_TEMP 'stage2-ran-test-assemblies.txt'
+          if (Test-Path $ranAssembliesFile) {
+            $summaryRows = @(
+              foreach ($row in (Get-Content "CoverageReport/Summary.txt")) {
+                if ($row -match '^\S') { ($row -split '\s+')[0] }
+              }
+            )
+            foreach ($asm in @(Get-Content $ranAssembliesFile | Where-Object { $_ } | Sort-Object -Unique)) {
+              if ($summaryRows -cnotcontains $asm) {
+                Write-Host "Checking test module: '$asm' - Coverage: none collected"
+                Write-Host "  ❌ FAIL: tests ran but no coverage was recorded (is coverlet.collector referenced?)" -ForegroundColor Red
+                $failedProjects += "$asm (no coverage data)"
+              }
+            }
+          }
+
           if ($failedProjects.Count -gt 0) {
             Write-Host ""
             Write-Host "==========================================" -ForegroundColor Red
@@ -1467,77 +1162,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
       
-      - name: Fetch trusted configuration files from main branch
-        # Skip for Dependabot — its package-version bumps to protected files (e.g.
-        # Directory.Build.props) are legitimate and should not be overwritten by main's
-        # older versions. Dependabot's identity is GitHub-controlled and not spoofable.
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        run: |
-          echo "Fetching configuration files from main branch to prevent malicious overrides..."
-          
-          # Fetch the main branch
-          git fetch origin main:main-branch
-          
-          # List of configuration files that should come from trusted main branch
-          config_files=(
-            ".editorconfig"
-            "Directory.Build.props"
-            "Directory.Build.targets"
-            "BannedSymbols.txt"
-            "*.globalconfig"
-            "*.ruleset"
-            ".github/workflows/*.yml"
-            ".github/workflows/*.yaml"
-          )
-          
-          # Copy each configuration file from main branch if it exists
-          for config_file in "${config_files[@]}"; do
-            # Handle glob patterns
-            if [[ "$config_file" == *"*"* ]]; then
-              # Find files matching the pattern in main branch.
-              # NOTE: use process substitution (`done < <(...)`) instead of a
-              # plain pipeline. A piped `while` runs in a subshell — an
-              # `exit 1` from inside would only kill the subshell, not the
-              # outer step, letting a failed copy silently fall back to the
-              # PR-supplied protected config. Process substitution runs the
-              # loop in the parent shell so exit actually terminates the job.
-              while read -r file; do
-                if [ -n "$file" ]; then
-                  echo "  ✓ Copying $file from main branch"
-                  mkdir -p "$(dirname "$file")"
-                  if ! git show "main-branch:$file" > "$file"; then
-                    echo "::error::Failed to copy $file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                    exit 1
-                  fi
-                fi
-              # Mask grep's exit 1 on zero matches with `|| true` — under
-              # `set -eo pipefail`, an empty match would otherwise fail the step,
-              # but a pattern like `*.ruleset` legitimately has no matches in
-              # repos that don't ship one. The empty stream is fine; the while
-              # loop simply doesn't iterate.
-              done < <(git ls-tree -r --name-only main-branch | { grep -E "${config_file//\*/.*}" || true; })
-            else
-              # Check if file exists in main branch
-              if git cat-file -e "main-branch:$config_file" 2>/dev/null; then
-                echo "  ✓ Copying $config_file from main branch"
-                if ! git show "main-branch:$config_file" > "$config_file"; then
-                  echo "::error::Failed to copy $config_file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                  exit 1
-                fi
-              else
-                echo "  ℹ️  $config_file not found in main branch, skipping"
-              fi
-            fi
-          done
-          
-          echo ""
-          echo "✅ Configuration files secured - using versions from main branch"
-
       - name: Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68  # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73  # v6.1.0
         with:
           dotnet-version: |
             6.0.x
@@ -1689,6 +1317,12 @@ jobs:
           echo "=========================================="
           printf '%s\n' "${test_projects[@]}"
           echo ""
+
+          # Assemblies that actually ran tests in this job. The coverage steps below
+          # require a coverage row for each one, so a test project whose coverage is
+          # never collected fails the gate instead of silently dropping out of it.
+          ran_assemblies_file="$RUNNER_TEMP/stage3-ran-test-assemblies.txt"
+          : > "$ran_assemblies_file"
           
           for test_proj in "${test_projects[@]}"; do
             echo "=========================================="
@@ -1732,6 +1366,26 @@ jobs:
                 --filter "Category!=Fuzz" \
                 --logger "console;verbosity=normal" || exit 1
             done <<< "$frameworks"
+            # Record only projects that really run tests: tests/ also holds an AOT smoke
+            # executable that `dotnet test` runs nothing in, and it can have no coverage
+            # row. Same check as Stage 1.
+            is_test_project=false
+            while IFS= read -r fw; do
+              [ -z "$fw" ] && continue
+              if dotnet msbuild "$test_proj" -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getProperty:IsTestProject 2>/dev/null | grep -qi '^true$'; then
+                is_test_project=true; break
+              fi
+              if dotnet msbuild "$test_proj" -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getItem:PackageReference 2>/dev/null | grep -qi '"Identity": *"Microsoft.NET.Test.Sdk"'; then
+                is_test_project=true; break
+              fi
+            done <<< "$frameworks"
+            if [ "$is_test_project" = true ]; then
+              asm=$(grep -oE '<AssemblyName>[^<]+' "$test_proj" 2>/dev/null | head -1 | cut -d'>' -f2 || true)
+              if [ -z "$asm" ]; then
+                asm=$(basename "$test_proj"); asm="${asm%.*}"
+              fi
+              echo "$asm" >> "$ran_assemblies_file"
+            fi
             echo ""
           done
 
@@ -1745,6 +1399,10 @@ jobs:
               -reports:"TestResults/**/coverage.cobertura.xml" \
               -targetdir:"CoverageReport" \
               -reporttypes:"Html;TextSummary;MarkdownSummaryGithub;CsvSummary"
+          elif [ -s "$RUNNER_TEMP/stage3-ran-test-assemblies.txt" ]; then
+            echo "❌ Tests ran but produced no coverage files - the coverage gate cannot be evaluated. Test assemblies that ran:"
+            cat "$RUNNER_TEMP/stage3-ran-test-assemblies.txt"
+            exit 1
           else
             echo "ℹ️  No coverage files found - skipping report generation"
           fi
@@ -1757,6 +1415,10 @@ jobs:
           # actually collected — instead of failing with "Coverage report
           # not generated!" on jobs that legitimately had nothing to cover.
           if ! find ./TestResults -name "coverage.cobertura.xml" -print -quit 2>/dev/null | grep -q .; then
+            if [ -s "$RUNNER_TEMP/stage3-ran-test-assemblies.txt" ]; then
+              echo "❌ Tests ran but produced no coverage files - the coverage gate cannot be evaluated."
+              exit 1
+            fi
             echo "ℹ️  No coverage files produced — skipping coverage gate (consistent with the prior 'skipping report generation' notice)."
             exit 0
           fi
@@ -1816,6 +1478,20 @@ jobs:
           if [ "$MATCHED" -eq 0 ]; then
             echo "❌ Coverage parser matched 0 modules in Summary.txt — regex or report format is out of sync. Refusing to silently pass the gate."
             exit 1
+          fi
+
+          # Every test assembly that ran must appear in the report. A missing row means
+          # its coverage was never collected, and an unmeasured assembly must not pass.
+          ran_assemblies_file="$RUNNER_TEMP/stage3-ran-test-assemblies.txt"
+          if [ -f "$ran_assemblies_file" ]; then
+            while IFS= read -r asm; do
+              [ -z "$asm" ] && continue
+              if ! awk -v asm="$asm" '/^[^ ]/ && $1 == asm { found = 1 } END { exit !found }' CoverageReport/Summary.txt; then
+                echo "Checking test module: '$asm' - Coverage: none collected"
+                echo "  ❌ FAIL: tests ran but no coverage was recorded (is coverlet.collector referenced?)"
+                FAILED=1
+              fi
+            done < <(sort -u "$ran_assemblies_file")
           fi
 
           if [ "$FAILED" -ne 0 ]; then
@@ -1889,75 +1565,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
           persist-credentials: false
       
-      - name: Fetch trusted configuration files from main branch
-        # Skip for Dependabot — its package-version bumps to protected files (e.g.
-        # Directory.Build.props) are legitimate and should not be overwritten by main's
-        # older versions. Dependabot's identity is GitHub-controlled and not spoofable.
-        if: github.event.pull_request.user.login != 'dependabot[bot]'
-        run: |
-          echo "Fetching configuration files from main branch to prevent malicious overrides..."
-          
-          # Fetch the main branch
-          git fetch origin main:main-branch
-          
-          # List of configuration files that should come from trusted main branch
-          config_files=(
-            ".editorconfig"
-            "Directory.Build.props"
-            "Directory.Build.targets"
-            "BannedSymbols.txt"
-            "*.globalconfig"
-            "*.ruleset"
-            ".github/workflows/*.yml"
-            ".github/workflows/*.yaml"
-          )
-          
-          # Copy each configuration file from main branch if it exists
-          for config_file in "${config_files[@]}"; do
-            # Handle glob patterns
-            if [[ "$config_file" == *"*"* ]]; then
-              # Find files matching the pattern in main branch.
-              # NOTE: use process substitution (`done < <(...)`) instead of a
-              # plain pipeline. A piped `while` runs in a subshell — an
-              # `exit 1` from inside would only kill the subshell, not the
-              # outer step, letting a failed copy silently fall back to the
-              # PR-supplied protected config. Process substitution runs the
-              # loop in the parent shell so exit actually terminates the job.
-              while read -r file; do
-                if [ -n "$file" ]; then
-                  echo "  ✓ Copying $file from main branch"
-                  mkdir -p "$(dirname "$file")"
-                  if ! git show "main-branch:$file" > "$file"; then
-                    echo "::error::Failed to copy $file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                    exit 1
-                  fi
-                fi
-              # Mask grep's exit 1 on zero matches with `|| true` — under
-              # `set -eo pipefail`, an empty match would otherwise fail the step,
-              # but a pattern like `*.ruleset` legitimately has no matches in
-              # repos that don't ship one. The empty stream is fine; the while
-              # loop simply doesn't iterate.
-              done < <(git ls-tree -r --name-only main-branch | { grep -E "${config_file//\*/.*}" || true; })
-            else
-              # Check if file exists in main branch
-              if git cat-file -e "main-branch:$config_file" 2>/dev/null; then
-                echo "  ✓ Copying $config_file from main branch"
-                if ! git show "main-branch:$config_file" > "$config_file"; then
-                  echo "::error::Failed to copy $config_file from main-branch — aborting to prevent silent fall-back to PR-supplied protected config."
-                  exit 1
-                fi
-              else
-                echo "  ℹ️  $config_file not found in main branch, skipping"
-              fi
-            fi
-          done
-          
-          echo ""
-          echo "✅ Configuration files secured - using versions from main branch"
-
       - name: Install DevSkim CLI
         run: dotnet tool install --global Microsoft.CST.DevSkim.CLI
 
