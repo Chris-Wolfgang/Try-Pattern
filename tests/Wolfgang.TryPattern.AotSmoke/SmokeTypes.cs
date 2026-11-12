@@ -1,6 +1,9 @@
+using System.Runtime.InteropServices;
+
 namespace Wolfgang.TryPattern.AotSmoke;
 
 /// <summary>A user-defined value type, so the generic members are exercised with a non-BCL struct.</summary>
+[StructLayout(LayoutKind.Auto)]
 internal readonly record struct Point(int X, int Y);
 
 /// <summary>Reaches the protected <see cref="Result"/> constructor the way a consumer would.</summary>
