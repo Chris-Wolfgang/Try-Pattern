@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794192357584,
+  "lastUpdate": 1794493751551,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -552,6 +552,78 @@ window.BENCHMARK_DATA = {
             "value": 3701385.640625,
             "unit": "ns",
             "range": "± 43200.24929783573"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "89aaff12b059d8746c5e06fa49130173e19018f5",
+          "message": "docs: align XML docs and ADRs with the v0.4.0 behaviour (#453)\n\n- Try: class <remarks> states the SafeErrorMessage fallback (#273); each\n  overload's <returns> references it.\n- Result/Result<T> ctors: \"error message\", not \"exception information\";\n  Result<T> ctor remark says null or empty on success (both become null).\n- Flatten: ErrorMessage as a <see cref>.\n- ADR 0003/0004: snippets match the code (SafeErrorMessage(ex),\n  errorMessage: null) with a dated transcription note.\n- ResultTests: drop a hard-coded Result.cs line number from a comment.\n\nRefs #435\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-12T09:23:55-05:00",
+          "tree_id": "fbff40acc15771364d584b2e5133a9d68401c384",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/89aaff12b059d8746c5e06fa49130173e19018f5"
+        },
+        "date": 1794493749826,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1452.9420744578044,
+            "unit": "ns",
+            "range": "± 21.106835027479033"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1353720.5361328125,
+            "unit": "ns",
+            "range": "± 96131.9063035297"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 324093.64371744794,
+            "unit": "ns",
+            "range": "± 2538.1070054861025"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 6451258.231770833,
+            "unit": "ns",
+            "range": "± 99774.75434103949"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 4872.694163004558,
+            "unit": "ns",
+            "range": "± 15.12594209760423"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1291287.3681640625,
+            "unit": "ns",
+            "range": "± 3284.97977668657"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 22460.130930582684,
+            "unit": "ns",
+            "range": "± 947.5746588501625"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 2759724.7109375,
+            "unit": "ns",
+            "range": "± 10857.2855167187"
           }
         ]
       }
