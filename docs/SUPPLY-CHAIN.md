@@ -15,7 +15,7 @@ Every GitHub Release attaches:
 | `Wolfgang.TryPattern.<v>.snupkg`  | Symbol package with SourceLink-embedded PDBs.                                                    |
 | `Wolfgang.TryPattern.bom.json`    | CycloneDX SBOM listing every transitive dependency.                                              |
 | `reproducible-build-manifest.json`| SHA-256 of each `.nupkg` / `.snupkg` / `lib/<tfm>/*.dll` + SDK / commit / timestamp. See #193.   |
-| Sigstore build-provenance         | SLSA level 3 attestation via `actions/attest-build-provenance`. See `gh attestation`.            |
+| Sigstore build-provenance         | SLSA v1.0 Build L2 provenance via `actions/attest-build-provenance` (inline job; L3 needs a reusable workflow). See `gh attestation`. |
 
 ## What we do NOT ship (yet)
 
@@ -39,7 +39,7 @@ jq '.components[] | {name: .name, version: .version, license: (.licenses[0].expr
 
 Compare the listed transitive dependencies against your own security
 requirements. The `license-audit.yaml` workflow enforces the licence
-allowlist inside our CI (see [`docs/../.github/license/`](../.github/license)),
+allowlist inside our CI (see [`.github/license/`](../.github/license)),
 but you can re-run the check locally on your own copy.
 
 ### 2. Verify the reproducible-build manifest

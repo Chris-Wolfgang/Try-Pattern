@@ -231,6 +231,22 @@ function Invoke-Assemble
 
     $block = @($section -split "`n") + @('')
     $lines.InsertRange($insertAt, [string[]]$block)
+
+    # Keep the Keep-a-Changelog footer in step: [Unreleased] now compares from the new version,
+    # and the new version compares from the one [Unreleased] compared from. Skipped when the
+    # file has no "[Unreleased]: <repo>/compare/vX.Y.Z...HEAD" line.
+    for ($i = 0; $i -lt $lines.Count; $i++)
+    {
+        if ($lines[$i] -match '^\[Unreleased\]:\s*(?<base>\S+)/compare/v(?<prev>\d+\.\d+\.\d+)\.\.\.HEAD\s*$')
+        {
+            $repoBase = $Matches['base']
+            $previous = $Matches['prev']
+            $lines[$i] = "[Unreleased]: $repoBase/compare/v$Version...HEAD"
+            $lines.Insert($i + 1, "[$Version]: $repoBase/compare/v$previous...v$Version")
+            break
+        }
+    }
+
     Set-Content -Path $ChangelogPath -Value ($lines -join "`n") -NoNewline
     Add-Content -Path $ChangelogPath -Value ''
 
