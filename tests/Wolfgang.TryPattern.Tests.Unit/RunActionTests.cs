@@ -31,16 +31,15 @@ public class RunActionTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Null(result.ErrorMessage);
-
     }
 
-    
+
 
     [Fact]
     public void Run_Action_when_action_throws_exception_swallows_the_exception()
     {
         // Arrange
-        static void Action ()
+        static void Action()
         {
             throw new InvalidOperationException("Test exception");
         }

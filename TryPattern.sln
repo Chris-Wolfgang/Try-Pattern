@@ -17,12 +17,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.Tests.U
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{E2B4145B-6A0B-4011-9F72-08D7B0223858}"
 	ProjectSection(SolutionItems) = preProject
-		sample.txt = sample.txt
+		examples\sample.txt = examples\sample.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A8070992-C05E-4286-8005-05AF955C4CAB}"
 	ProjectSection(SolutionItems) = preProject
-		docs\index.html = docs\index.html
+		docs\DOCFX-VERSION-PICKER.md = docs\DOCFX-VERSION-PICKER.md
+		docs\MUTATION-TESTING.md = docs\MUTATION-TESTING.md
+		docs\README-FORMATTING.md = docs\README-FORMATTING.md
+		docs\RELEASE-WORKFLOW-SETUP.md = docs\RELEASE-WORKFLOW-SETUP.md
+		docs\REPRODUCIBLE-BUILD.md = docs\REPRODUCIBLE-BUILD.md
+		docs\SECURITY-SCORECARD.md = docs\SECURITY-SCORECARD.md
+		docs\SEMGREP-AUDIT.md = docs\SEMGREP-AUDIT.md
+		docs\SUPPLY-CHAIN.md = docs\SUPPLY-CHAIN.md
+		docs\WORKFLOW_SECURITY.md = docs\WORKFLOW_SECURITY.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docfx_project", "docfx_project", "{7122EC59-A4D2-4111-91EE-5C93EE4FFFAF}"
@@ -41,16 +49,35 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{CEDF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{00469A08-D076-4CAE-A96A-827445F6BFD9}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\create-labels.yaml = .github\workflows\create-labels.yaml
+		.github\workflows\actions-audit.yaml = .github\workflows\actions-audit.yaml
+		.github\workflows\aot-smoke.yaml = .github\workflows\aot-smoke.yaml
+		.github\workflows\api-compat.yaml = .github\workflows\api-compat.yaml
+		.github\workflows\benchmarks.yaml = .github\workflows\benchmarks.yaml
+		.github\workflows\build-all-versions.yaml = .github\workflows\build-all-versions.yaml
+		.github\workflows\codeql.yaml = .github\workflows\codeql.yaml
+		.github\workflows\concurrency.yaml = .github\workflows\concurrency.yaml
+		.github\workflows\cross-platform-differential.yaml = .github\workflows\cross-platform-differential.yaml
 		.github\workflows\docfx.yaml = .github\workflows\docfx.yaml
+		.github\workflows\fuzz.yaml = .github\workflows\fuzz.yaml
+		.github\workflows\license-audit.yaml = .github\workflows\license-audit.yaml
+		.github\workflows\pr-benchmarks.yaml = .github\workflows\pr-benchmarks.yaml
 		.github\workflows\pr.yaml = .github\workflows\pr.yaml
 		.github\workflows\release.yaml = .github\workflows\release.yaml
+		.github\workflows\reproducible-build.yaml = .github\workflows\reproducible-build.yaml
+		.github\workflows\sbom.yaml = .github\workflows\sbom.yaml
+		.github\workflows\scorecard.yaml = .github\workflows\scorecard.yaml
+		.github\workflows\security-alerts.yml = .github\workflows\security-alerts.yml
+		.github\workflows\semgrep.yaml = .github\workflows\semgrep.yaml
+		.github\workflows\sourcelink-verify.yaml = .github\workflows\sourcelink-verify.yaml
+		.github\workflows\sourcelink.yaml = .github\workflows\sourcelink.yaml
+		.github\workflows\stryker.yaml = .github\workflows\stryker.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ISSUE_TEMPLATE", "ISSUE_TEMPLATE", "{691A7AFE-8055-46AE-8D60-C397094BBCD3}"
 	ProjectSection(SolutionItems) = preProject
 		.github\ISSUE_TEMPLATE\BUG_REPORT.yaml = .github\ISSUE_TEMPLATE\BUG_REPORT.yaml
-		.github\ISSUE_TEMPLATE\feature_request.md = .github\ISSUE_TEMPLATE\feature_request.md
+		.github\ISSUE_TEMPLATE\feature_request.yaml = .github\ISSUE_TEMPLATE\feature_request.yaml
+		.github\ISSUE_TEMPLATE\maintenance-task.yaml = .github\ISSUE_TEMPLATE\maintenance-task.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.DotNet462.Example", "examples\CSharp.DotNet462.Example\CSharp.DotNet462.Example.csproj", "{C26D03B8-B76C-4C77-B8E0-6D58D97E67CC}"
@@ -71,10 +98,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{933DE134
 		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE = LICENSE
 		README.md = README.md
-		SETUP.md = SETUP.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.Tests.Concurrency", "tests\Wolfgang.TryPattern.Tests.Concurrency\Wolfgang.TryPattern.Tests.Concurrency.csproj", "{E93A217D-F130-48C0-AEF7-B67BA2E6461A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.AotSmoke", "tests\Wolfgang.TryPattern.AotSmoke\Wolfgang.TryPattern.AotSmoke.csproj", "{070EE2F3-407A-477E-8545-2333FE19F360}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -206,6 +234,18 @@ Global
 		{E93A217D-F130-48C0-AEF7-B67BA2E6461A}.Release|x64.Build.0 = Release|Any CPU
 		{E93A217D-F130-48C0-AEF7-B67BA2E6461A}.Release|x86.ActiveCfg = Release|Any CPU
 		{E93A217D-F130-48C0-AEF7-B67BA2E6461A}.Release|x86.Build.0 = Release|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Debug|x64.Build.0 = Debug|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Debug|x86.Build.0 = Debug|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|Any CPU.Build.0 = Release|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|x64.ActiveCfg = Release|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|x64.Build.0 = Release|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|x86.ActiveCfg = Release|Any CPU
+		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -223,6 +263,7 @@ Global
 		{26CE9F2C-1EF1-4B50-92D7-53F81A34690F} = {E2B4145B-6A0B-4011-9F72-08D7B0223858}
 		{FC33E249-7D53-45C4-93FA-AB641898D7B1} = {E2B4145B-6A0B-4011-9F72-08D7B0223858}
 		{E93A217D-F130-48C0-AEF7-B67BA2E6461A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{070EE2F3-407A-477E-8545-2333FE19F360} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4B78A421-6F38-4A02-8673-B44E9F682D0F}
