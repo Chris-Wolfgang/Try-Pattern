@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794518268152,
+  "lastUpdate": 1794523152721,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -726,6 +726,108 @@ window.BENCHMARK_DATA = {
             "value": 4834655.846354167,
             "unit": "ns",
             "range": "± 36343.616728622546"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "90b1447b7fd602140a0121f76979c201b3f57bc4",
+          "message": "Align Microsoft.NET.Test.Sdk to 17.13.0 on every test slot (#439) (#476)\n\nThe Unit test project pinned Microsoft.NET.Test.Sdk to 17.11.1 (net462-\nnet481, net5.0), 17.12.0 (net6.0/net7.0) and 17.13.0 (net8.0+) with no\ncomment. The 17.11.1, 17.12.0 and 17.13.0 nuspecs declare the same\ndependency groups (net462 and netcoreapp3.1), so the split was not a\nTFM-support limit. All slots now use 17.13.0, the version the net8.0+\nslot and the Concurrency project already use.\n\nCo-authored-by: Claude Fable 5.1 <noreply@anthropic.com>",
+          "timestamp": "2026-11-12T17:30:12-05:00",
+          "tree_id": "d1afcce278a1687e88bd2b862c407e21393e17d2",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/90b1447b7fd602140a0121f76979c201b3f57bc4"
+        },
+        "date": 1794523151323,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllSucceeded",
+            "value": 5.022242963314056,
+            "unit": "ns",
+            "range": "± 0.019761495963195815"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_OneFailed",
+            "value": 10.243039528528849,
+            "unit": "ns",
+            "range": "± 0.09815846094301553"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllFailed",
+            "value": 120.92573563257854,
+            "unit": "ns",
+            "range": "± 0.85760641722521"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AnyFailed_AllSucceeded",
+            "value": 4.179766692221165,
+            "unit": "ns",
+            "range": "± 0.23167360638615322"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AllSucceeded_AllSucceeded",
+            "value": 3.968304418027401,
+            "unit": "ns",
+            "range": "± 0.03015515255243098"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1344.11976369222,
+            "unit": "ns",
+            "range": "± 1.6583996588864656"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1184176.3151041667,
+            "unit": "ns",
+            "range": "± 3561.2152240014357"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 269381.95524088544,
+            "unit": "ns",
+            "range": "± 5721.710941540431"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 6218703.524739583,
+            "unit": "ns",
+            "range": "± 93002.66106149035"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 4134.010999043782,
+            "unit": "ns",
+            "range": "± 45.19628830699804"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1200383.9524739583,
+            "unit": "ns",
+            "range": "± 24147.630182572877"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 18808.143412272137,
+            "unit": "ns",
+            "range": "± 44.106729293988586"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 2514903.1959635415,
+            "unit": "ns",
+            "range": "± 5445.368469446395"
           }
         ]
       }
