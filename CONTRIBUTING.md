@@ -124,12 +124,12 @@ await Task.WhenAll(tasks);
 // Banned
 File.ReadAllText(path);
 stream.Read(buffer, 0, count);
-streamReader.ReadLine();
+Console.ReadLine();
 
 // Required
 await File.ReadAllTextAsync(path);
 await stream.ReadAsync(buffer, 0, count);
-await streamReader.ReadLineAsync();
+// Console.ReadLine has no async overload; keep it out of async code paths.
 ```
 
 #### ❌ Thread Blocking
@@ -184,8 +184,9 @@ dotnet build --configuration Release
 # Run all unit tests
 dotnet test --configuration Release
 
-# Run with coverage (if configured)
-dotnet test --collect:"XPlat Code Coverage"
+# Run with coverage (the runsettings apply the test-assembly
+# instrumentation and excludes that the CI gate uses)
+dotnet test --configuration Release --settings coverlet.runsettings --collect:"XPlat Code Coverage"
 ```
 
 ### Code Formatting

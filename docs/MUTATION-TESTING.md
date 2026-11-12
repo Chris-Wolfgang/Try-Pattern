@@ -37,8 +37,9 @@ first.
 ## Surviving mutants
 
 When Stryker reports a surviving mutant, it means the tests do not
-enforce the piece of behaviour the mutant altered. File a
-`kind:mutation-survives` issue with:
+enforce the piece of behaviour the mutant altered. File an issue
+labelled `maintenance - testing` (titled `mutation survives: <file>:<line>`)
+with:
 
 1. The source file + line the mutant was introduced at (from the
    Stryker HTML report artifact).

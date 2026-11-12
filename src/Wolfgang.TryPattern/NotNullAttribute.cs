@@ -1,5 +1,5 @@
-// Polyfill for nullable-annotation attributes that ship in
-// netstandard2.1 / .NET 5+ but are missing from the older TFMs we
+// Polyfill for nullable-annotation attributes that ship in .NET Core 3.0+ /
+// netstandard2.1 but are missing from the older TFMs we
 // target (net462, netstandard2.0). Declared `internal` so consumers
 // of this assembly never see them, and so they don't collide with the
 // runtime-provided types on newer TFMs.
