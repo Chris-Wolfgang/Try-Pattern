@@ -98,8 +98,8 @@ Result runAsync = await Try.RunAsync(() => { });
 Check("Try.RunAsync", runAsync.Succeeded, "success");
 runAsync = await Try.RunAsync(() => throw new InvalidOperationException("async-boom"), CancellationToken.None);
 Check("Try.RunAsync", runAsync.Failed && Same(runAsync.ErrorMessage, "async-boom"), "failure");
-await ThrowsAsync<OperationCanceledException>("Try.RunAsync", () => Try.RunAsync(() => { }, canceled.Token), "pre-canceled token propagates cancellation");
-await ThrowsAsync<ArgumentNullException>("Try.RunAsync", () => Try.RunAsync(null!), "null action");
+await ThrowsAsync<OperationCanceledException>("Try.RunAsync", async () => _ = await Try.RunAsync(() => { }, canceled.Token), "pre-canceled token propagates cancellation");
+await ThrowsAsync<ArgumentNullException>("Try.RunAsync", async () => _ = await Try.RunAsync(null!), "null action");
 
 // ---- Try.RunAsync<T>(Func<Task<T>>, CancellationToken) — both kinds of T -----
 Result<string?> runAsyncString = await Try.RunAsync<string?>(() => Task.FromResult<string?>("ok"));
@@ -112,8 +112,8 @@ Result<int> runAsyncInt = await Try.RunAsync(async () =>
     return 7;
 });
 Check("Try.RunAsync<T>", runAsyncInt.Succeeded && runAsyncInt.Value == 7, "value-type success across an await");
-await ThrowsAsync<OperationCanceledException>("Try.RunAsync<T>", () => Try.RunAsync(() => Task.FromResult(1), canceled.Token), "pre-canceled token propagates cancellation");
-await ThrowsAsync<ArgumentNullException>("Try.RunAsync<T>", () => Try.RunAsync<int>(null!), "null function");
+await ThrowsAsync<OperationCanceledException>("Try.RunAsync<T>", async () => _ = await Try.RunAsync(() => Task.FromResult(1), canceled.Token), "pre-canceled token propagates cancellation");
+await ThrowsAsync<ArgumentNullException>("Try.RunAsync<T>", async () => _ = await Try.RunAsync<int>(null!), "null function");
 
 // ---- Result: constructor, factories, properties -----------------------------
 // The constructor is protected: exercise it the way a consumer can, through a subclass.
