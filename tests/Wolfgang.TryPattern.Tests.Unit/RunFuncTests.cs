@@ -39,8 +39,8 @@ public class RunFuncTests
     public void Run_Func_when_nullable_int_function_succeeds_returns_successful_Result()
     {
         // Arrange
-        var expectedValue = 42;
-        int Function() => expectedValue;
+        int? expectedValue = 42;
+        int? Function() => expectedValue;
 
         // Act
         var result = Try.Run(Function);
@@ -172,7 +172,7 @@ public class RunFuncTests
         Assert.Equal(1, result1.Value);
 
         Assert.True(result2.Failed);
-        Assert.Equal("Test error", result2.ErrorMessage); // Default int value
+        Assert.Equal("Test error", result2.ErrorMessage);
 
         Assert.True(result3.Succeeded);
         Assert.Equal(3, result3.Value);
