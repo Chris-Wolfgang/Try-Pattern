@@ -37,7 +37,10 @@ public class ResultTests
     [Fact]
     public void Ctor_when_passed_false_and_message_does_not_throw_Exception()
     {
-        var unused = new TestResult(succeeded: false, "Test error");
+        var result = new TestResult(succeeded: false, "Test error");
+
+        Assert.True(result.Failed);
+        Assert.Equal("Test error", result.ErrorMessage);
     }
 
 
@@ -51,8 +54,6 @@ public class ResultTests
         var ex = Assert.Throws<ArgumentException>(() => new TestResult(succeeded: false, message));
         Assert.Equal("errorMessage", ex.ParamName);
     }
-
-
 
 
 
@@ -96,7 +97,7 @@ public class ResultTests
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.Equal(message, result.ErrorMessage!);
+        Assert.Equal(message, result.ErrorMessage);
     }
 
 
@@ -110,7 +111,6 @@ public class ResultTests
         // Act & Assert
         var ex = Assert.Throws<ArgumentException>(() => Result.Failure(message!));
         Assert.Equal("errorMessage", ex.ParamName);
-
     }
 
 
@@ -160,7 +160,6 @@ public class ResultTests
         var result3 = Result.Success();
 
         Assert.False(Result.AllSucceeded(result1, result2, result3));
-
     }
 
 
@@ -238,7 +237,7 @@ public class ResultTests
     public void Flatten_when_null_appears_after_first_failure_throws_ArgumentException()
     {
         // Regression test for the second null-check inside Flatten's
-        // tail loop (Result.cs:172). The pre-existing test covers a
+        // tail loop (the loop after the first failure). The pre-existing test covers a
         // null seen before the first failure (head loop). This one
         // covers a null seen AFTER the first failure — the tail loop
         // must keep validating elements even after firstFailureIndex
@@ -370,10 +369,4 @@ public class ResultTests
         Assert.True(result.Failed);
         Assert.Equal("test error 1\ntest error 2", result.ErrorMessage);
     }
-
-
-
-
-
-
 }

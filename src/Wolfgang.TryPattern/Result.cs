@@ -17,9 +17,13 @@ namespace Wolfgang.TryPattern;
 /// </remarks>
 public class Result
 {
+    private static readonly Result _successInstance = new(succeeded: true, errorMessage: null);
+
+
+
     /// <summary>
-    /// Initializes a new instance of the Result class with the specified success status and
-    /// exception information.
+    /// Initializes a new instance of the <see cref="Result"/> class with the specified success
+    /// status and error message.
     /// </summary>
     /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/>
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
@@ -29,6 +33,9 @@ public class Result
     /// string; both canonicalize to <see langword="null"/> on the constructed instance's
     /// <see cref="ErrorMessage"/>. If the operation failed, <paramref name="errorMessage"/> must
     /// not be null, empty, or whitespace.
+    /// The public factories (<see cref="Failure(string)"/>, <see cref="Result{T}.Failure(string)"/>)
+    /// validate their argument before calling this constructor, so these checks are only reachable
+    /// from a derived type's constructor.
     /// </remarks>
     protected Result
     (
@@ -77,10 +84,6 @@ public class Result
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be null, empty, or whitespace.", nameof(errorMessage))
             : new Result(succeeded: false, errorMessage);
-
-
-
-    private static readonly Result _successInstance = new(succeeded: true, errorMessage: null);
 
 
 
@@ -136,7 +139,7 @@ public class Result
     /// <returns>
     /// If all the <see cref="Result"/>s were successful (or the array is empty) the return value
     /// is a successful <see cref="Result"/>. If one or more failed, the return value is a failed
-    /// <see cref="Result"/> and the ErrorMessage property will contain the errors from each failed
+    /// <see cref="Result"/> and the <see cref="ErrorMessage"/> property will contain the errors from each failed
     /// <see cref="Result"/> separated by a newline character.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="results"/> is null.</exception>
@@ -301,8 +304,6 @@ public class Result
     Justification = "Result<T>.Failure / Result<T>.Success are factory methods central to the public API; consumers explicitly specify T at the call site by design.")]
 public class Result<T> : Result
 {
-
-
 #if NET5_0_OR_GREATER
     private readonly T? _value;
 #else
@@ -312,14 +313,15 @@ public class Result<T> : Result
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Result{T}"/> class with the specified success status,
-    /// exception information, and return value.
+    /// error message, and return value.
     /// </summary>
     /// <param name="succeeded">A value indicating whether the operation succeeded. Set to <see langword="true"/>
     /// if the operation was successful; otherwise, <see langword="false"/>.</param>
     /// <param name="errorMessage">Error message associated with the result.</param>
     /// <param name="value">The return value of the function if it succeeded, otherwise the default value for <typeparamref name="T"/>.</param>
     /// <remarks>
-    /// If the operation was successful, <paramref name="errorMessage"/> must be an empty string and
+    /// If the operation was successful, <paramref name="errorMessage"/> must be null or an empty
+    /// string (both canonicalize to <see langword="null"/> on <see cref="Result.ErrorMessage"/>) and
     /// <paramref name="value"/> should be the return value from the function.
     /// If the operation failed, <paramref name="errorMessage"/> must not be null, empty, or whitespace and
     /// <paramref name="value"/> should be <c>default(T)</c>.
@@ -342,7 +344,7 @@ public class Result<T> : Result
     public static new Result<T?> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
             ? throw new ArgumentException("errorMessage cannot be null, empty, or whitespace.", nameof(errorMessage))
-            : new Result<T?>(succeeded: false, errorMessage, default!);
+            : new Result<T?>(succeeded: false, errorMessage, default);
 #else
     public static new Result<T> Failure(string errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage)
@@ -378,8 +380,4 @@ public class Result<T> : Result
         ? throw new InvalidOperationException("Cannot access the Value of a failed Result.")
         : _value;
 #endif
-
-
-
-
 }
