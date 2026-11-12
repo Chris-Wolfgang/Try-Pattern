@@ -23,7 +23,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write   # Post / edit the delta comment.
 
 # One in-flight run per PR — a push mid-run cancels the older one so
 # the final comment reflects HEAD, not a stale interim commit.
@@ -56,6 +55,11 @@ jobs:
     name: Run BDN on HEAD + base and diff
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Job-level, not workflow-level: this is the job that upserts the
+    # benchmark delta comment on the PR.
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout PR HEAD
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -67,7 +71,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.0.x'
 
@@ -75,18 +79,20 @@ jobs:
         working-directory: benchmarks/Wolfgang.TryPattern.Benchmarks
         run: |
           dotnet run -c Release -- --filter "*" --job short --memory --exporters json
-          mkdir -p /tmp/pr-benchmarks
-          cp BenchmarkDotNet.Artifacts/results/*-report-full-compressed.json /tmp/pr-benchmarks/head.raw.json || true
+          # BDN writes one report per benchmark class, so copy them all into
+          # a directory; a single-file `cp` target fails once there are two.
+          mkdir -p /tmp/pr-benchmarks/head
+          cp BenchmarkDotNet.Artifacts/results/*-report-full-compressed.json /tmp/pr-benchmarks/head/ || true
 
       - name: Merge HEAD reports
         run: |
           shopt -s nullglob
-          reports=(/tmp/pr-benchmarks/*.raw.json)
+          reports=(/tmp/pr-benchmarks/head/*.json)
           if [ ${#reports[@]} -eq 0 ]; then
             echo "::error::No BDN report produced from HEAD run."
             exit 1
           fi
-          jq -s '{ Benchmarks: [.[].Benchmarks[]] }' /tmp/pr-benchmarks/head.raw.json > /tmp/pr-benchmarks/head.json
+          jq -s '{ Benchmarks: [.[].Benchmarks[]] }' "${reports[@]}" > /tmp/pr-benchmarks/head.json
           # Clean the raw for the second run.
           rm -rf benchmarks/Wolfgang.TryPattern.Benchmarks/BenchmarkDotNet.Artifacts
 
@@ -105,16 +111,19 @@ jobs:
         run: |
           dotnet run -c Release -- --filter "*" --job short --memory --exporters json || true
           if [ -d BenchmarkDotNet.Artifacts/results ]; then
-            cp BenchmarkDotNet.Artifacts/results/*-report-full-compressed.json /tmp/pr-benchmarks/base.raw.json || true
+            mkdir -p /tmp/pr-benchmarks/base
+            cp BenchmarkDotNet.Artifacts/results/*-report-full-compressed.json /tmp/pr-benchmarks/base/ || true
           fi
 
       - name: Merge base reports
         run: |
-          if [ ! -f /tmp/pr-benchmarks/base.raw.json ]; then
+          shopt -s nullglob
+          reports=(/tmp/pr-benchmarks/base/*.json)
+          if [ ${#reports[@]} -eq 0 ]; then
             echo "No base BDN reports — this must be a first-of-kind PR that adds benchmarks."
             echo '{ "Benchmarks": [] }' > /tmp/pr-benchmarks/base.json
           else
-            jq -s '{ Benchmarks: [.[].Benchmarks[]] }' /tmp/pr-benchmarks/base.raw.json > /tmp/pr-benchmarks/base.json
+            jq -s '{ Benchmarks: [.[].Benchmarks[]] }' "${reports[@]}" > /tmp/pr-benchmarks/base.json
           fi
 
       - name: Compute delta + build comment
