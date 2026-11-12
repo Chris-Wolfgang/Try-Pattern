@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794493751551,
+  "lastUpdate": 1794518268152,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -624,6 +624,108 @@ window.BENCHMARK_DATA = {
             "value": 2759724.7109375,
             "unit": "ns",
             "range": "± 10857.2855167187"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2da2ffbb0e65217adc1119e3f6e301025fc00643",
+          "message": "tests/.editorconfig: drop unused and no-longer-needed suppressions (#457)\n\n- S1215, S6562, S6610, xUnit2013: template boilerplate; nothing in tests/\n  triggers them (xUnit2013 needs xunit.analyzers, not referenced).\n- S2930, S2699, S1481: their only justifications (undisposed CTS, the\n  assert-less \"does not throw\" test) are gone after #456.\n- Section header: this file is the single source for test-scope\n  suppressions once the csproj <NoWarn> blocks are removed.\n\nRefs #439, #437\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-12T16:14:36-05:00",
+          "tree_id": "6ad1412b2f0fbc06b55728fa6e7c7b988b750960",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/2da2ffbb0e65217adc1119e3f6e301025fc00643"
+        },
+        "date": 1794518265817,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllSucceeded",
+            "value": 12.753652016321817,
+            "unit": "ns",
+            "range": "± 0.20310793399702579"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_OneFailed",
+            "value": 18.272124181191128,
+            "unit": "ns",
+            "range": "± 0.27571378929785767"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllFailed",
+            "value": 258.3052142461141,
+            "unit": "ns",
+            "range": "± 4.078519945070249"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AnyFailed_AllSucceeded",
+            "value": 10.458071077863375,
+            "unit": "ns",
+            "range": "± 0.056635009593920094"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AllSucceeded_AllSucceeded",
+            "value": 10.40492032468319,
+            "unit": "ns",
+            "range": "± 0.2113904175068463"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 2191.5679410298667,
+            "unit": "ns",
+            "range": "± 3.4275395943974836"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 2213167.7122395835,
+            "unit": "ns",
+            "range": "± 10214.27846811344"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 572970.4049479166,
+            "unit": "ns",
+            "range": "± 12302.219523930882"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 11392217.84375,
+            "unit": "ns",
+            "range": "± 323894.63063206867"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 6956.983664194743,
+            "unit": "ns",
+            "range": "± 25.988567875442524"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 2189122.8020833335,
+            "unit": "ns",
+            "range": "± 12242.356839802635"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 38928.500244140625,
+            "unit": "ns",
+            "range": "± 1526.819445672285"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 4834655.846354167,
+            "unit": "ns",
+            "range": "± 36343.616728622546"
           }
         ]
       }
