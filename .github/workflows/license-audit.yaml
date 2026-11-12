@@ -26,6 +26,12 @@ on:
     - cron: '15 6 * * 1'   # Mondays 06:15 UTC — catches licence-of-record
                             # changes on already-consumed packages.
 
+# Superseded PR runs are cancelled; push / schedule / dispatch runs on a branch
+# queue instead, so a scheduled or post-merge run is never cut short.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -43,7 +49,7 @@ jobs:
         # 7.0.x (EOL) is installed only because the dotnet-project-licenses
         # tool targets net7.0; the runner image no longer ships it, so the
         # tool fails to launch without an explicit install. Do not remove.
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: |
             7.0.x

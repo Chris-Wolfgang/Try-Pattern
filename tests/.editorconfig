@@ -23,18 +23,6 @@ dotnet_diagnostic.MA0074.severity = none
 # S108: Empty block of code — sometimes needed in test setup
 dotnet_diagnostic.S108.severity = none
 
-# S1215: Remove use of GC.GetTotalMemory — acceptable in perf/memory tests
-dotnet_diagnostic.S1215.severity = none
-
-# S2699: Add assertion to test case — some tests verify no-throw behavior
-dotnet_diagnostic.S2699.severity = none
-
-# S6562: Provide DateTimeKind — test data doesn't need DateTimeKind
-dotnet_diagnostic.S6562.severity = none
-
-# S6610: Use char overload of StartsWith — not critical in tests
-dotnet_diagnostic.S6610.severity = none
-
 # VSTHRD200: Use Async suffix — test methods follow xunit naming conventions
 dotnet_diagnostic.VSTHRD200.severity = none
 
@@ -44,26 +32,15 @@ dotnet_diagnostic.MA0003.severity = none
 # S1144: Remove unused private type member — test POCOs have constructors used via reflection
 dotnet_diagnostic.S1144.severity = none
 
-# xUnit2013: Use Assert.Single instead of Assert.Equal for collection size
-dotnet_diagnostic.xUnit2013.severity = none
-
 # -----------------------------------------------------------------------
-# InspectCode-only suppressions (rules already NoWarn'd in the tests csproj
-# but InspectCode doesn't read csproj <NoWarn>). Duplicating here so both
-# MSBuild-time analyzers and InspectCode agree on the test scope.
+# Formerly duplicated in the test csproj <NoWarn> blocks. This file is now
+# the single source for test-scope suppressions: MSBuild-time analyzers
+# and InspectCode both read it (InspectCode ignores csproj <NoWarn>).
 # -----------------------------------------------------------------------
-
-# S1481: Unused local — the `unused` variable is intentional in the
-# "does not throw" test pattern; renaming would mask the test's purpose.
-dotnet_diagnostic.S1481.severity = none
 
 # S2190: Loop without break — false positive on tests that throw to exit
 # their loop (see cancellation-token tests).
 dotnet_diagnostic.S2190.severity = none
-
-# S2930: IDisposables should be disposed — CTS instances in tests are
-# short-lived and scoped inside the test method.
-dotnet_diagnostic.S2930.severity = none
 
 # S3928: More meaningful exception message — test fixture exceptions
 # are illustrative, not user-facing.
