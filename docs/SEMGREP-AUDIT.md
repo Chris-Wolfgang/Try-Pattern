@@ -19,6 +19,7 @@ addressed in one PR, group them under one date/PR header.
 
 ## Findings
 
-_(No triaged findings yet — the workflow ships in the PR that adds
-this file. First entries will appear after the initial CI baseline
-run.)_
+_(No triaged findings.) Baseline clean as of 2026-10-27: a local
+`semgrep scan --config p/csharp --config p/security-audit --config p/secrets`
+(the configs `semgrep.yaml` runs, semgrep 1.180.0) on `main` reported 0
+results._
