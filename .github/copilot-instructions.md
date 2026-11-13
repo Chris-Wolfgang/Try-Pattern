@@ -42,12 +42,19 @@ This is a C# library that implements the Try Pattern - a design pattern where co
 ### Method Structure
 ```csharp
 // For public methods that may fail, return Result or Result<T>
-public async Task<Result<Order>> GetOrderAsync(string orderId)
+// On net5+ Try.RunAsync<T> returns Task<Result<T?>>, so the wrapper does too.
+public async Task<Result<Order?>> GetOrderAsync(string orderId)
 {
-    // Validate arguments - throw for programming errors
-    if (string.IsNullOrWhiteSpace(orderId))
+    // Validate arguments - throw for programming errors:
+    // ArgumentNullException for null, ArgumentException for empty/whitespace.
+    if (orderId is null)
     {
         throw new ArgumentNullException(nameof(orderId));
+    }
+
+    if (string.IsNullOrWhiteSpace(orderId))
+    {
+        throw new ArgumentException("orderId cannot be empty or whitespace.", nameof(orderId));
     }
     
     // Use Try.RunAsync for operations that may fail
@@ -88,20 +95,20 @@ else
 ## Testing Guidelines
 
 ### Unit Test Structure
-- Use xUnit or similar testing framework
+- Use xUnit 2.9.3 (the only test framework in this repo)
 - Test both success and failure paths
 - Verify `Succeeded` property is correct
 - Verify `ErrorMessage` is populated on failure
 - Verify `Value` is correct on success for `Result<T>`
 
 ### Test Naming
-- Use descriptive test method names:  `MethodName_Scenario_ExpectedBehavior`
-- Example: `ValidateUserInput_EmptyString_ReturnsFailure`
+- Use snake case `Method_when_condition_expected_result` (the convention in every test file)
+- Example: `Run_Action_when_passed_null_throws_ArgumentNullException`
 
 ### Test Example
 ```csharp
 [Fact]
-public async Task TryRunAsync_FileNotFound_ReturnsFailureResult()
+public async Task RunAsync_Func_when_file_does_not_exist_returns_failed_Result()
 {
     // Arrange
     var nonExistentFile = "does-not-exist.txt";
@@ -127,11 +134,12 @@ public async Task TryRunAsync_FileNotFound_ReturnsFailureResult()
 /// Executes an asynchronous operation and returns a result indicating success or failure.
 /// </summary>
 /// <typeparam name="T">The type of value returned by the operation.</typeparam>
-/// <param name="func">The asynchronous function to execute.</param>
-/// <param name="token">Cancellation token observed by the operation.</param>
+/// <param name="function">The asynchronous function to execute.</param>
+/// <param name="token">Checked before <paramref name="function"/> is invoked; it is not passed into the function.</param>
 /// <returns>A Result<T> containing the value if successful, or an error message if failed.</returns>
-/// <exception cref="ArgumentNullException">Thrown when func is null.</exception>
-public static async Task<Result<T>> RunAsync<T>(Func<Task<T>> func, CancellationToken token = default)
+/// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
+// Shipped shape on net5+ (src/Wolfgang.TryPattern/Try.cs); legacy TFMs use Task<Result<T>> / Func<Task<T>>.
+public static async Task<Result<T?>> RunAsync<T>([NotNull] Func<Task<T?>>? function, CancellationToken token = default)
 ```
 
 ## Benchmarking
@@ -142,7 +150,7 @@ public static async Task<Result<T>> RunAsync<T>(Func<Task<T>> func, Cancellation
 
 ## Dependencies
 - Minimize external dependencies
-- Target multiple . NET versions if possible
+- Target multiple .NET versions if possible
 - Keep the library lightweight and focused
 
 ## Code Review Checklist
@@ -168,18 +176,18 @@ if (result.Succeeded)
 
 ### Pattern: HTTP Operations
 ```csharp
-public async Task<Result<TResponse>> GetAsync<TResponse>(string url)
+public async Task<Result<TResponse?>> GetAsync<TResponse>(string url)
 {
     using var response = await httpClient.GetAsync(url).ConfigureAwait(false);
     
     if (response.IsSuccessStatusCode)
     {
-        var content = await response.Content. ReadAsStringAsync().ConfigureAwait(false);
+        var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         var data = JsonSerializer.Deserialize<TResponse>(content);
         return Result<TResponse>.Success(data);
     }
     
-    return Result<TResponse>.Failure($"Request failed:  {response.StatusCode}");
+    return Result<TResponse>.Failure($"Request failed: {response.StatusCode}");
 }
 ```
 
