@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794523152721,
+  "lastUpdate": 1794533284476,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -828,6 +828,108 @@ window.BENCHMARK_DATA = {
             "value": 2514903.1959635415,
             "unit": "ns",
             "range": "± 5445.368469446395"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "91d5358e4fe209747a73fc4868be51e8a4779742",
+          "message": "docs(reproducible-build): describe the cross-OS byte-identical build (#510)\n\nMoved from #429 so that PR stays configuration-only for the Protected\nFiles Guard. Content is #429's original docs/REPRODUCIBLE-BUILD.md change.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-12T20:24:24-05:00",
+          "tree_id": "03d300a6e8350113f023797238296ef79c67b8e0",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/91d5358e4fe209747a73fc4868be51e8a4779742"
+        },
+        "date": 1794533282668,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllSucceeded",
+            "value": 9.130126347144445,
+            "unit": "ns",
+            "range": "± 0.1419598821376465"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_OneFailed",
+            "value": 15.139345477024714,
+            "unit": "ns",
+            "range": "± 0.43631584811903273"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllFailed",
+            "value": 196.69713672002158,
+            "unit": "ns",
+            "range": "± 5.976607111001373"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AnyFailed_AllSucceeded",
+            "value": 8.243144690990448,
+            "unit": "ns",
+            "range": "± 0.04839273411059646"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AllSucceeded_AllSucceeded",
+            "value": 8.047743951280912,
+            "unit": "ns",
+            "range": "± 0.013481685499404704"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1670.242436726888,
+            "unit": "ns",
+            "range": "± 27.9657795864851"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1714008.3658854167,
+            "unit": "ns",
+            "range": "± 12870.130221123834"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 447412.962890625,
+            "unit": "ns",
+            "range": "± 10651.283380735647"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 7838455.307291667,
+            "unit": "ns",
+            "range": "± 83445.0772635253"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 5630.6723225911455,
+            "unit": "ns",
+            "range": "± 93.91897007320077"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1698926.6875,
+            "unit": "ns",
+            "range": "± 2578.4980002997077"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 30292.55974324544,
+            "unit": "ns",
+            "range": "± 108.51840599685231"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 3652991.9453125,
+            "unit": "ns",
+            "range": "± 15982.720761879358"
           }
         ]
       }
