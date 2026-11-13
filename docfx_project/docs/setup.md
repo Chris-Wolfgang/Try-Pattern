@@ -30,7 +30,7 @@ This guide provides instructions for setting up the Try Pattern library for deve
 
 ### Prerequisites
 
-- .NET 8.0 SDK or later (for building the library which targets .NET 4.6.2 through .NET 10.0)
+- .NET 10.0 SDK or later (the library targets `net10.0`, so older SDKs cannot load the project)
 - Git
 - Visual Studio 2022, VS Code, or Rider
 
@@ -61,7 +61,9 @@ Try-Pattern/
 ├── src/
 │   └── Wolfgang.TryPattern/        # Main library project
 ├── tests/
-│   └── Wolfgang.TryPattern.Tests/  # Unit tests
+│   ├── Wolfgang.TryPattern.Tests.Unit/         # Unit, property and doc-example tests
+│   ├── Wolfgang.TryPattern.Tests.Concurrency/  # Concurrency stress tests
+│   └── Wolfgang.TryPattern.AotSmoke/           # Native AOT / trimming smoke app
 ├── examples/
 │   ├── CSharp.DotNet8.Example/     # C# .NET 8 examples
 │   ├── CSharp.DotNet462.Example/   # C# .NET Framework examples
@@ -69,8 +71,10 @@ Try-Pattern/
 │   ├── FSharp.DotNet462.Example/   # F# .NET Framework examples
 │   ├── VB.DotNet8.Example/         # VB.NET .NET 8 examples
 │   └── VB.DotNet462.Example/       # VB.NET .NET Framework examples
-├── benchmarks/                      # Performance benchmarks
-└── docs/                            # Documentation files
+├── benchmarks/
+│   └── Wolfgang.TryPattern.Benchmarks/  # BenchmarkDotNet benchmarks
+├── docfx_project/                   # This documentation site
+└── docs/                            # ADRs and repository documentation
 ```
 
 ## Development Workflow
@@ -95,7 +99,7 @@ dotnet test
 dotnet build
 
 # Run benchmarks (optional)
-cd benchmarks
+cd benchmarks/Wolfgang.TryPattern.Benchmarks
 dotnet run -c Release
 ```
 
@@ -186,14 +190,13 @@ dotnet test
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Please read [CONTRIBUTING.md](https://github.com/Chris-Wolfgang/Try-Pattern/blob/main/CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Chris-Wolfgang/Try-Pattern/blob/main/LICENSE) file for details.
 
 ## Support
 
 - **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/Chris-Wolfgang/Try-Pattern/issues)
-- **Discussions**: Ask questions in [GitHub Discussions](https://github.com/Chris-Wolfgang/Try-Pattern/discussions)
-- **Documentation**: Check the [docs](docs/) folder for detailed documentation
+- **Documentation**: Check the [docs](https://github.com/Chris-Wolfgang/Try-Pattern/tree/main/docs) folder for detailed documentation
