@@ -114,23 +114,30 @@ future iteration. Feedback welcome via issue #193.
 
 ## Automated verification
 
-`.github/workflows/reproducible-build.yaml` builds the current commit on
-both `ubuntu-latest` and `windows-latest` (weekly on Mondays, and on manual
-dispatch), then diffs the produced `.dll` hashes across the two runners.
-The `compare` job posts a `::warning::` (not a hard failure) if the hashes
-diverge — cross-OS byte-equality is aspirational, not gate-blocking.
+`.github/workflows/reproducible-build.yaml` packs the current commit on both
+`ubuntu-latest` and `windows-latest` (on pull requests, weekly on Mondays, and
+on manual dispatch), hashes every `.dll` and `.pdb` for every target
+framework, and fails the `compare` job if the two runners disagree on any of
+them.
+
+Two inputs used to differ between Linux and Windows and are now removed:
+
+- `Directory.Build.targets` rewrites the SDK-generated sources
+  (`*.AssemblyInfo.cs`, `*.AssemblyAttributes.cs`, `*.GlobalUsings.g.cs`) to
+  LF before compilation. The SDK writes them with the OS newline, and the
+  portable PDB records each source's hash.
+- `Directory.Build.props` pins `Microsoft.NETFramework.ReferenceAssemblies`
+  for the `net4x` target of `src/` projects, so Windows compiles against the
+  same reference assemblies as Linux instead of the installed targeting pack.
 
 ## Limits
 
-- **TFM slice**: only `net8.0` is verified. Framework TFMs (`net462`,
-  `netstandard2.0`) require Windows-only reference assemblies via a
-  targeting pack, so the same-inputs-across-OS guarantee cannot be met for
-  them.
-- **Cross-OS byte-equality is best-effort**. `<ContinuousIntegrationBuild>`
-  normalises source paths but does not guarantee identical `.pdb` /
-  `.snupkg` bytes between runners. Managed IL should match; embedded
-  metadata may differ. The reproducible-build workflow surfaces any
-  divergence as a warning.
+- **The guarantee covers assemblies and symbols, not package files.** The
+  `.dll` and `.pdb` for every target framework are byte-identical across
+  operating systems for the same commit and SDK.
+  The `.nupkg` and `.snupkg` are never byte-reproducible: NuGet stamps the
+  pack time into every zip entry, so two packs of one commit differ even on
+  one machine. Compare the entries inside a package, never the file.
 - **Third-party rebuilds** are best done with the same major/minor
   `dotnet` SDK as the release used. `dotnet --info` on the release run
   (visible in the release-workflow logs) is the reference.
