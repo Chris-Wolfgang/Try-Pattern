@@ -10,7 +10,7 @@ Friend Module Program
 		Console.ForegroundColor = ConsoleColor.Cyan
 
 		' Try reading a file
-		Dim fileReadResult = [Try].Run(Function() File.ReadAllText(".\sample.txt"))
+		Dim fileReadResult = [Try].Run(Function() File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "sample.txt")))
 
 		' If file read failed, print the error message
 		If fileReadResult.Succeeded Then
