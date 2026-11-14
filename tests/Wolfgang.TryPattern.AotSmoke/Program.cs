@@ -25,13 +25,13 @@ using Wolfgang.TryPattern;
 using Wolfgang.TryPattern.AotSmoke;
 
 var failures = new List<string>();
-var checks = 0;
+var checkedApis = new List<string>();
 
 static bool Same(string? a, string? b) => string.Equals(a, b, StringComparison.Ordinal);
 
 void Check(string api, bool condition, string what)
 {
-    checks++;
+    checkedApis.Add(api);
     if (!condition)
     {
         failures.Add($"{api}: {what}");
@@ -161,7 +161,7 @@ Throws<ArgumentException>("Result<T>.Failure", () => Result<int>.Failure(""), "e
 
 if (failures.Count > 0)
 {
-    Console.Error.WriteLine(string.Create(CultureInfo.InvariantCulture, $"FAIL: {failures.Count} of {checks} AOT smoke checks failed:"));
+    Console.Error.WriteLine(string.Create(CultureInfo.InvariantCulture, $"FAIL: {failures.Count} of {checkedApis.Count} AOT smoke checks failed:"));
     foreach (var failure in failures)
     {
         Console.Error.WriteLine($"  {failure}");
@@ -170,5 +170,5 @@ if (failures.Count > 0)
     return 1;
 }
 
-Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"OK: {checks} AOT smoke checks passed under Native AOT."));
+Console.WriteLine(string.Create(CultureInfo.InvariantCulture, $"OK: {checkedApis.Count} AOT smoke checks passed under Native AOT."));
 return 0;
