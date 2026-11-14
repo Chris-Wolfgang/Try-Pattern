@@ -3,14 +3,14 @@
   "isRoot": true,
   "tools": {
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.5.12",
+      "version": "5.6.0",
       "commands": [
         "reportgenerator"
       ],
       "rollForward": true
     },
     "microsoft.cst.devskim.cli": {
-      "version": "1.0.100",
+      "version": "1.0.103",
       "commands": [
         "devskim"
       ],
