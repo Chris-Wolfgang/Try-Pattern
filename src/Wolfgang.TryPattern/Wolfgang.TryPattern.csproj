@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;netstandard2.0;net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;net8.0;net10.0;net11.0</TargetFrameworks>
     <LangVersion>14</LangVersion>
     <Version>0.5.0</Version>
     <!-- Pin AssemblyVersion to a fixed binding-stability baseline so consumers
@@ -31,6 +31,17 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <!-- net11.0 compiles against the Microsoft.NETCore.App.Ref package from NuGet instead of the
+       copy bundled in the SDK. SDK 11.0.100 ships a different build of that pack per OS (the
+       facade reference assemblies carry other MVIDs), and the PDB records each reference's MVID,
+       so the Linux and Windows output hashes differed. The NuGet package is one artifact for every
+       OS. Pointing the targeting-pack root at an empty folder makes restore download the pack;
+       package pruning keeps reading its data from the SDK's own packs folder. -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <NetCoreTargetingPackRoot>$(MSBuildProjectDirectory)/obj/no-targeting-packs</NetCoreTargetingPackRoot>
+    <PrunePackageTargetingPackRoots>$(NetCoreRoot)packs</PrunePackageTargetingPackRoots>
   </PropertyGroup>
 
   <!-- Trim / Native AOT analyzers. Only net8.0+ ships the analyzers, so the
