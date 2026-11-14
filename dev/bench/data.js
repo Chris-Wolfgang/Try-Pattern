@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794695549703,
+  "lastUpdate": 1794698854200,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -1032,6 +1032,108 @@ window.BENCHMARK_DATA = {
             "value": 2680981.8841145835,
             "unit": "ns",
             "range": "± 26649.774942905475"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cdaaa717c4e57d2be41281688981d4666026efd0",
+          "message": "build: add net11.0 to the package and the unit tests (#503, part 2) (#517)\n\n* ci: install the .NET 11.0.x SDK and keep net11.0 in every test stage\n\nSync of repo-template#831 for #503: 11.0.x beside 10.0.x in every\nsetup-dotnet step (25 steps, 19 workflows, including this repo's own\nworkflows), 11\\.0 in the 8 pr.yaml TFM filters and the build-pr.ps1\nStage 2 mirror. Job names unchanged (required checks).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* build: add net11.0 to the package and the unit tests\n\n#503: net11.0 after net10.0 in the library and Tests.Unit TargetFrameworks\n(single line), net11.0 in the modern test-package slot (xunit runner 3.x),\nglobal.json pinned to the 11.0.100 SDK (latestFeature), and a feature\nchangelog fragment. Needs the CI SDK change below it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* build: compile net11.0 against the NuGet targeting pack\n\nSDK 11.0.100 bundles a different build of Microsoft.NETCore.App.Ref on Linux\nand Windows: the facade reference assemblies carry other MVIDs. The IL is\nidentical, but the PDB's referenced-assembly records differ, so the cross-OS\ncompare failed for net11.0 only. Restore now downloads the pack from NuGet,\nwhich is one artifact for every OS. Same fix as IEnumerable-Extensions#653,\nIEquatable-Extensions#862 and Hawsey#1130, where the compare went green.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-14T18:25:03-05:00",
+          "tree_id": "7e1b5382aad5dab42673e37e1a890394c01830d6",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/cdaaa717c4e57d2be41281688981d4666026efd0"
+        },
+        "date": 1794698852461,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllSucceeded",
+            "value": 8.75948952138424,
+            "unit": "ns",
+            "range": "± 0.050334907142394976"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_OneFailed",
+            "value": 14.073665092388788,
+            "unit": "ns",
+            "range": "± 0.14688494008338196"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllFailed",
+            "value": 200.0880518356959,
+            "unit": "ns",
+            "range": "± 16.013676802859365"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AnyFailed_AllSucceeded",
+            "value": 8.026680881778399,
+            "unit": "ns",
+            "range": "± 0.04596130334529403"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AllSucceeded_AllSucceeded",
+            "value": 8.033059100310007,
+            "unit": "ns",
+            "range": "± 0.01753059977908178"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1644.703519821167,
+            "unit": "ns",
+            "range": "± 1.1720980450791454"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1682263.0397135417,
+            "unit": "ns",
+            "range": "± 5802.212583821151"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 386272.9358723958,
+            "unit": "ns",
+            "range": "± 14922.142418602303"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 8354719.377604167,
+            "unit": "ns",
+            "range": "± 127055.127767202"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 5644.196042378743,
+            "unit": "ns",
+            "range": "± 113.50113374962447"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1687543.1959635417,
+            "unit": "ns",
+            "range": "± 4898.991575272519"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 30570.94548543294,
+            "unit": "ns",
+            "range": "± 168.54484166836096"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 3678143.6002604165,
+            "unit": "ns",
+            "range": "± 2908.2438084281134"
           }
         ]
       }
