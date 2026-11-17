@@ -95,10 +95,12 @@ jobs:
               */stryker-config.json) protected+=("$file") ;;
               *)
                 # -i: Windows (and ReSharper on it) resolve names case-insensitively, so
-                # foo.dotsettings is as live as foo.DotSettings. The license-audit policy
-                # files are read from main by license-audit.yaml, so a change to them is
-                # configuration the PR cannot test - same rule as the workflows.
-                if echo "$file" | grep -qiE '(\.(globalconfig|ruleset|DotSettings|editorconfig)|^\.github/workflows/.*\.ya?ml|^\.github/license-audit/.*\.json|^\.github/requirements/.*)$'; then protected+=("$file"); else other+=("$file"); fi ;;
+                # foo.dotsettings is as live as foo.DotSettings. license-audit.yaml reads its
+                # policy (allow-list, package filter, URL mappings) from .github/license/ in the
+                # PR's own tree, so a mixed PR could loosen the allow-list and add the package
+                # it lets through in the same change. .github/license-audit/ is the template's
+                # name for the same files and stays matched.
+                if echo "$file" | grep -qiE '(\.(globalconfig|ruleset|DotSettings|editorconfig)|^\.github/workflows/.*\.ya?ml|^\.github/license/.*\.json|^\.github/license-audit/.*\.json|^\.github/requirements/.*)$'; then protected+=("$file"); else other+=("$file"); fi ;;
             esac
           done
 
