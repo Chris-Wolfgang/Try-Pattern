@@ -47,7 +47,7 @@ The guard fails closed: if it cannot list the PR's files, gets an empty list, or
 - `coverlet.runsettings` — coverage collection (exclusions, instrumentation)
 - `stryker-config.json` (root and nested) — the mutation-test floor `stryker.yaml` enforces
 - `.config/dotnet-tools.json` — the pinned versions of every CI tool (`dotnet tool restore`); a PR must not be able to redirect which tool code CI executes
-- `.github/license-audit/*.json` — license-audit policy files
+- `.github/license/*.json` — the license-audit policy (`allowed-licenses.json`, `packages-filter.json`, `licenseurl-mappings.json`) that `license-audit.yaml` reads from the PR's tree; `.github/license-audit/*.json`, the template's name for the same files, is matched too
 - `.github/requirements/*` — the hash-pinned Python dependencies CI installs and then EXECUTES (`pip install --require-hashes -r .github/requirements/zizmor.txt`, and the same for semgrep); the hashes live in the same file, so they are no defence against a PR editing it
 - `.gitleaks.toml`, `.gitleaksignore` — secrets-scan rules, allowlist and ignored fingerprints
 - `scripts/changelog.ps1`, `scripts/tfm-parity.ps1`, `scripts/build-pr.ps1`, `scripts/third-party-notices.ps1` — the CI scripts `pr.yaml` and `license-audit.yaml` run from the PR's tree
