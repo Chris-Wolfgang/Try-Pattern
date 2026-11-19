@@ -362,6 +362,8 @@ This library targets:
 
 See the [NuGet package page](https://www.nuget.org/packages/Wolfgang.TryPattern/) for the authoritative per-TFM compatibility matrix.
 
+**Test matrix:** every pull request runs the test suite on five legs: linux-x64, linux-arm64 (`ubuntu-24.04-arm`), windows-x64, windows-arm64 (`windows-11-arm`) and macos-arm64. Each leg runs every test target framework that its runtime supports. Windows x64 runs all of them, .NET Framework included. Linux x64 runs net5.0 and later. The two ARM64 legs and macOS run net6.0 and later. The Native AOT smoke test publishes and runs a native binary on linux-x64 and linux-arm64.
+
 ## 🔍 Code Quality & Static Analysis
 
 This project enforces **strict code quality standards** through **8 specialized analyzers**, a `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` Release gate, and SourceLink-embedded provenance for debugger step-into.
