@@ -62,12 +62,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\license-audit.yaml = .github\workflows\license-audit.yaml
 		.github\workflows\pr-benchmarks.yaml = .github\workflows\pr-benchmarks.yaml
 		.github\workflows\pr.yaml = .github\workflows\pr.yaml
+		.github\workflows\protected-files.yaml = .github\workflows\protected-files.yaml
 		.github\workflows\release.yaml = .github\workflows\release.yaml
 		.github\workflows\reproducible-build.yaml = .github\workflows\reproducible-build.yaml
 		.github\workflows\sbom.yaml = .github\workflows\sbom.yaml
 		.github\workflows\scorecard.yaml = .github\workflows\scorecard.yaml
 		.github\workflows\security-alerts.yml = .github\workflows\security-alerts.yml
 		.github\workflows\semgrep.yaml = .github\workflows\semgrep.yaml
+		.github\workflows\soak.yaml = .github\workflows\soak.yaml
 		.github\workflows\sourcelink-verify.yaml = .github\workflows\sourcelink-verify.yaml
 		.github\workflows\sourcelink.yaml = .github\workflows\sourcelink.yaml
 		.github\workflows\stryker.yaml = .github\workflows\stryker.yaml
@@ -103,6 +105,25 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.Tests.Concurrency", "tests\Wolfgang.TryPattern.Tests.Concurrency\Wolfgang.TryPattern.Tests.Concurrency.csproj", "{E93A217D-F130-48C0-AEF7-B67BA2E6461A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.AotSmoke", "tests\Wolfgang.TryPattern.AotSmoke\Wolfgang.TryPattern.AotSmoke.csproj", "{070EE2F3-407A-477E-8545-2333FE19F360}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolfgang.TryPattern.Soak", "benchmarks\Wolfgang.TryPattern.Soak\Wolfgang.TryPattern.Soak.csproj", "{1971A238-3E35-4AB9-9D31-07572CFF78B7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adr", "adr", "{A95EF5D4-EAFE-4A44-959A-8FB774E80DC2}"
+	ProjectSection(SolutionItems) = preProject
+		docs\adr\0001-pinned-assembly-version-for-binding-stability.md = docs\adr\0001-pinned-assembly-version-for-binding-stability.md
+		docs\adr\0002-per-tfm-publicapi-split.md = docs\adr\0002-per-tfm-publicapi-split.md
+		docs\adr\0003-operationcanceledexception-always-rethrown.md = docs\adr\0003-operationcanceledexception-always-rethrown.md
+		docs\adr\0004-result-success-cached-singleton.md = docs\adr\0004-result-success-cached-singleton.md
+		docs\adr\README.md = docs\adr\README.md
+		docs\adr\TEMPLATE.md = docs\adr\TEMPLATE.md
+		docs\adr\index.md = docs\adr\index.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "migrations", "migrations", "{761EC6B5-A252-4F20-A21E-8524CAF5E49A}"
+	ProjectSection(SolutionItems) = preProject
+		docs\migrations\README.md = docs\migrations\README.md
+		docs\migrations\TEMPLATE-major-version-migration.md = docs\migrations\TEMPLATE-major-version-migration.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -246,6 +267,18 @@ Global
 		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|x64.Build.0 = Release|Any CPU
 		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|x86.ActiveCfg = Release|Any CPU
 		{070EE2F3-407A-477E-8545-2333FE19F360}.Release|x86.Build.0 = Release|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Debug|x64.Build.0 = Debug|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Debug|x86.Build.0 = Debug|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Release|x64.ActiveCfg = Release|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Release|x64.Build.0 = Release|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Release|x86.ActiveCfg = Release|Any CPU
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -264,6 +297,9 @@ Global
 		{FC33E249-7D53-45C4-93FA-AB641898D7B1} = {E2B4145B-6A0B-4011-9F72-08D7B0223858}
 		{E93A217D-F130-48C0-AEF7-B67BA2E6461A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{070EE2F3-407A-477E-8545-2333FE19F360} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{1971A238-3E35-4AB9-9D31-07572CFF78B7} = {66320409-64EC-F7C5-3DEF-65E7510DAAD1}
+		{A95EF5D4-EAFE-4A44-959A-8FB774E80DC2} = {A8070992-C05E-4286-8005-05AF955C4CAB}
+		{761EC6B5-A252-4F20-A21E-8524CAF5E49A} = {A8070992-C05E-4286-8005-05AF955C4CAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4B78A421-6F38-4A02-8673-B44E9F682D0F}
