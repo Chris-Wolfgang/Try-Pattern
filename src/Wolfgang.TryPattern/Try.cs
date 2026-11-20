@@ -16,6 +16,12 @@ namespace Wolfgang.TryPattern;
 /// whitespace (which <see cref="Result.Failure(string)"/> would reject), the exception's type
 /// name (for example <c>InvalidOperationException</c>) is used instead, so these methods never
 /// throw from inside their own <c>catch</c> block.
+/// <para>
+/// The synchronous <c>Run</c> overloads capture every exception, including
+/// <see cref="OperationCanceledException"/>, as a failed <see cref="Result"/>. The
+/// <c>RunAsync</c> overloads rethrow <see cref="OperationCanceledException"/> instead, so
+/// cancellation reaches the caller.
+/// </para>
 /// </remarks>
 public static class Try
 {
@@ -28,6 +34,11 @@ public static class Try
     /// <see cref="Result.ErrorMessage"/> is the caught exception's message (or its type name when
     /// the message is null, empty, or whitespace; see <see cref="Try"/>).
     /// </returns>
+    /// <remarks>
+    /// Every exception, including <see cref="OperationCanceledException"/>, becomes a failed
+    /// <see cref="Result"/>. Use <see cref="RunAsync(Action, CancellationToken)"/> when cancellation
+    /// must propagate to the caller.
+    /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
     /// <example>
     /// <code>
@@ -73,6 +84,10 @@ public static class Try
     /// <see cref="Task"/>, so the result is a successful <see cref="Result{T}"/> wrapping the
     /// still-running task and any exception it later throws is not captured. Use
     /// <see cref="RunAsync(Func{Task}, CancellationToken)"/> for asynchronous work.
+    /// <para>
+    /// Every exception, including <see cref="OperationCanceledException"/>, becomes a failed
+    /// <see cref="Result{T}"/>; the <c>RunAsync</c> overloads rethrow cancellation instead.
+    /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
     /// <example>
