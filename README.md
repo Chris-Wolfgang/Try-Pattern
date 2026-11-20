@@ -358,7 +358,7 @@ This library targets:
 
 - **.NET Framework:** 4.6.2
 - **.NET Standard:** 2.0
-- **.NET:** 8.0, 10.0
+- **.NET:** 8.0, 10.0, 11.0
 
 See the [NuGet package page](https://www.nuget.org/packages/Wolfgang.TryPattern/) for the authoritative per-TFM compatibility matrix.
 

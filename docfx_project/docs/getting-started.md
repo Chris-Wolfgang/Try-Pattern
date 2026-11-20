@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- .NET 10 SDK or later (required to build and test this repository, because the library multi-targets .NET 10.0)
-- Any project targeting .NET Framework 4.6.2+, .NET Standard 2.0, .NET 8.0, or .NET 10.0
+- .NET 11 SDK (11.0.100 or later; required to build and test this repository, because `global.json` pins it and the library multi-targets .NET 11.0)
+- Any project targeting .NET Framework 4.6.2+, .NET Standard 2.0, .NET 8.0, .NET 10.0, or .NET 11.0
 
 ## Installation
 
