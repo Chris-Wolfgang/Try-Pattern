@@ -46,6 +46,7 @@ A static class providing methods to execute actions and functions with automatic
 - **`Try.Run(Action)`** - Execute an action, returning a `Result`
 - **`Try.Run<T>(Func<T>)`** - Execute a function, returning a `Result<T>` with the return value
 - **`Try.RunAsync(Action, CancellationToken)`** - Execute an action asynchronously
+- **`Try.RunAsync(Func<Task>, CancellationToken)`** - Await an async function that returns no value
 - **`Try.RunAsync<T>(Func<Task<T>>, CancellationToken)`** - Execute an async function
 
 ### `Result`

@@ -170,7 +170,7 @@ internal static class Workload
             _ = Try.Run(() => workerId + iteration);
             _ = Try.Run<int>(static () => throw new FormatException("soak failure"));
             _ = await Try.RunAsync(static () => { }, CancellationToken.None);
-            _ = await Try.RunAsync(static () => throw new InvalidOperationException("soak failure"), CancellationToken.None);
+            _ = await Try.RunAsync((Action)(static () => throw new InvalidOperationException("soak failure")), CancellationToken.None);
             _ = await Try.RunAsync(() => Task.FromResult(iteration), CancellationToken.None);
             _ = await Try.RunAsync<long>(static () => throw new FormatException("soak failure"), CancellationToken.None);
 
