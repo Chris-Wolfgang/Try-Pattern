@@ -244,6 +244,10 @@ public static class Try
     /// }
     /// </code>
     /// </example>
+    [SuppressMessage(
+        "ApiDesign",
+        "RS0026:Do not add multiple public overloads with optional parameters",
+        Justification = "Matches the shipped RunAsync overloads, which all take an optional token. The delegate types (Action, Func<Task>, Func<Task<T>>) differ, so the optional token cannot make a call ambiguous.")]
     public static async Task<Result> RunAsync([NotNull] Func<Task>? function, CancellationToken token = default)
     {
         if (function == null)
