@@ -111,7 +111,8 @@ runAsyncTask = await Try.RunAsync(async () =>
 });
 Check("Try.RunAsync", runAsyncTask.Failed && Same(runAsyncTask.ErrorMessage, "async-task-boom"), "async lambda failure after an await");
 await ThrowsAsync<OperationCanceledException>("Try.RunAsync", async () => _ = await Try.RunAsync(() => Task.CompletedTask, canceled.Token), "async lambda: pre-canceled token propagates cancellation");
-await ThrowsAsync<ArgumentNullException>("Try.RunAsync", async () => _ = await Try.RunAsync((Func<Task>)null!), "null async function");
+Func<Task>? nullAsyncFunction = null;
+await ThrowsAsync<ArgumentNullException>("Try.RunAsync", async () => _ = await Try.RunAsync(nullAsyncFunction!), "null async function");
 
 // ---- Try.RunAsync<T>(Func<Task<T>>, CancellationToken) — both kinds of T -----
 Result<string?> runAsyncString = await Try.RunAsync<string?>(() => Task.FromResult<string?>("ok"));
