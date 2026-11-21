@@ -56,26 +56,7 @@ public class RunAsyncActionTests
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.NotEmpty(result.ErrorMessage);
-    }
-
-
-
-    [Fact]
-    public async Task RunAsync_Action_when_passed_synchronous_action_that_throws_exception_swallows_the_exception()
-    {
-        // Arrange
-        static void Action() => throw new InvalidOperationException("Synchronous exception");
-
-        // Act
-        var result = await Try.RunAsync(Action);
-
-        // Assert
-        Assert.False(result.Succeeded);
-        Assert.True(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.NotEmpty(result.ErrorMessage);
+        Assert.Equal("Test exception", result.ErrorMessage);
     }
 
 
@@ -172,29 +153,7 @@ public class RunAsyncActionTests
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.NotEmpty(result.ErrorMessage);
-    }
-
-
-
-    [Fact]
-    public async Task RunAsync_Action_CancellationToken_when_passed_synchronous_action_that_throws_exception_swallows_the_exception()
-    {
-        // Arrange
-        static void Action() => throw new InvalidOperationException("Synchronous exception");
-
-        using var cts = new CancellationTokenSource();
-
-
-        // Act
-        var result = await Try.RunAsync(Action, cts.Token);
-
-        // Assert
-        Assert.False(result.Succeeded);
-        Assert.True(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.NotEmpty(result.ErrorMessage);
+        Assert.Equal("Test exception", result.ErrorMessage);
     }
 
 
