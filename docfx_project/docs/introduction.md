@@ -76,4 +76,4 @@ Wolfgang.TryPattern targets multiple frameworks for broad compatibility:
 |--------|---------|
 | .NET Framework | 4.6.2+ |
 | .NET Standard | 2.0 |
-| .NET | 8.0, 10.0 |
+| .NET | 8.0, 10.0, 11.0 |

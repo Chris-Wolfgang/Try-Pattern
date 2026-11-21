@@ -6,7 +6,7 @@ This guide provides instructions for setting up the Try Pattern library for deve
 
 ### Prerequisites
 
-- .NET SDK (the library supports .NET Framework 4.6.2, .NET Standard 2.0, .NET 8.0, and .NET 10.0)
+- .NET SDK (the library supports .NET Framework 4.6.2, .NET Standard 2.0, .NET 8.0, .NET 10.0, and .NET 11.0)
 - Visual Studio 2022, VS Code, or Rider (recommended)
 
 ### Quick Setup
@@ -30,7 +30,7 @@ This guide provides instructions for setting up the Try Pattern library for deve
 
 ### Prerequisites
 
-- .NET 10.0 SDK or later (the library targets `net10.0`, so older SDKs cannot load the project)
+- .NET 11 SDK (11.0.100 or later; `global.json` pins it and the library targets `net11.0`, so older SDKs cannot load the project)
 - Git
 - Visual Studio 2022, VS Code, or Rider
 
