@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794698854200,
+  "lastUpdate": 1795269454614,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -1134,6 +1134,108 @@ window.BENCHMARK_DATA = {
             "value": 3678143.6002604165,
             "unit": "ns",
             "range": "± 2908.2438084281134"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "ac6b5d7bae7d6ca1cb3f7fe653dc699ed08779ed",
+          "message": "build(sln): add the Soak project, two workflows and docs/adr + migrations (#540) (#546)\n\n* build(sln): add the Soak project, two workflows and docs/adr + docs/migrations (#540)\n\nThe Soak harness (added in #465) was missing from TryPattern.sln, so\nsolution-level build, format and InspectCode skipped it. soak.yaml,\nprotected-files.yaml and the docs/adr and docs/migrations folders were\nmissing from the solution items.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(soak): clear the InspectCode warnings now that Soak is in the solution (#540)\n\nAdding the Soak project to TryPattern.sln puts it under InspectCode for the\nfirst time; jb inspectcode reported 10 warnings, all in Program.cs:\n\n- RedundantUsingDirective: drop `using Wolfgang.TryPattern;`.\n- AccessToDisposedClosure: capture cts.Token in a local before the lambdas.\n- AccessToModifiedClosure: copy the loop counter into a per-iteration local.\n- MA0015 x4: pass the parameter name to ArgumentException.\n- S127: advance the option loop by two in the for header.\n- S6618: string.Create(CultureInfo.InvariantCulture, ...) instead of\n  FormattableString.Invariant.\n- S1215: a narrow pragma around the one forced collection, which is the\n  harness's measurement.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-21T08:53:44-05:00",
+          "tree_id": "5fb29971d568616958cda1c73df5a0c648a87118",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/ac6b5d7bae7d6ca1cb3f7fe653dc699ed08779ed"
+        },
+        "date": 1795269453116,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllSucceeded",
+            "value": 4.94245769828558,
+            "unit": "ns",
+            "range": "± 0.06590497951742891"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_OneFailed",
+            "value": 10.245096986492475,
+            "unit": "ns",
+            "range": "± 0.2784013310636426"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllFailed",
+            "value": 145.24228326479593,
+            "unit": "ns",
+            "range": "± 11.364851866038457"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AnyFailed_AllSucceeded",
+            "value": 4.245851578811805,
+            "unit": "ns",
+            "range": "± 0.17851091200583455"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AllSucceeded_AllSucceeded",
+            "value": 4.175172179937363,
+            "unit": "ns",
+            "range": "± 0.012185681776513394"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1438.229253768921,
+            "unit": "ns",
+            "range": "± 9.979720249890171"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1264145.81640625,
+            "unit": "ns",
+            "range": "± 15314.565301391685"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 327645.1647135417,
+            "unit": "ns",
+            "range": "± 10080.40077216137"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 5807405.833333333,
+            "unit": "ns",
+            "range": "± 123630.01652192425"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 4511.968966166179,
+            "unit": "ns",
+            "range": "± 247.0105674027793"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1288286.6969401042,
+            "unit": "ns",
+            "range": "± 37957.5438691406"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 21008.471801757812,
+            "unit": "ns",
+            "range": "± 205.2292213611754"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 2713383.6790364585,
+            "unit": "ns",
+            "range": "± 23319.34424658428"
           }
         ]
       }
