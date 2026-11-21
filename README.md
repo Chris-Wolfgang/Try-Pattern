@@ -120,6 +120,7 @@ var result = await Try.RunAsync(() =>
 | `Try.Run(Action)` | Execute an action, return `Result` |
 | `Try.Run<T>(Func<T>)` | Execute a function, return `Result<T>` with the value |
 | `Try.RunAsync(Action, CancellationToken)` | Run a synchronous action on the thread pool with cooperative cancellation |
+| `Try.RunAsync(Func<Task>, CancellationToken)` | Await an async function that returns no value (an `async () => { ... }` lambda binds here, not to the `Action` overload) |
 | `Try.RunAsync<T>(Func<Task<T>>, CancellationToken)` | Async function execution with cancellation support |
 | `Result.Success()` | Create a successful result |
 | `Result.Failure(message)` | Create a failed result with an error message |

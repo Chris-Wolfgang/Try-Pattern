@@ -49,7 +49,7 @@ public class TryBenchmarks
     {
         for (var i = 0; i < OperationCount; i++)
         {
-            await Try.RunAsync(() => throw new InvalidOperationException());
+            await Try.RunAsync((Action)(() => throw new InvalidOperationException()));
         }
     }
 

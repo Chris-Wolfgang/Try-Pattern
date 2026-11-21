@@ -61,7 +61,7 @@ else
 
 ### Async Operations
 
-Both `Action` and `Func<Task<T>>` have async counterparts:
+Both `Action` and `Func<Task<T>>` have async counterparts. An async lambda that returns no value (`async () => { await ...; }`) binds to `Try.RunAsync(Func<Task>, CancellationToken)`, which awaits it and returns a `Result`:
 
 ```csharp
 var result = await Try.RunAsync(
