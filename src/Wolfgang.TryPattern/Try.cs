@@ -16,6 +16,12 @@ namespace Wolfgang.TryPattern;
 /// whitespace (which <see cref="Result.Failure(string)"/> would reject), the exception's type
 /// name (for example <c>InvalidOperationException</c>) is used instead, so these methods never
 /// throw from inside their own <c>catch</c> block.
+/// <para>
+/// The synchronous <c>Run</c> overloads capture every exception, including
+/// <see cref="OperationCanceledException"/>, as a failed <see cref="Result"/>. The
+/// <c>RunAsync</c> overloads rethrow <see cref="OperationCanceledException"/> instead, so
+/// cancellation reaches the caller.
+/// </para>
 /// </remarks>
 public static class Try
 {
@@ -28,6 +34,11 @@ public static class Try
     /// <see cref="Result.ErrorMessage"/> is the caught exception's message (or its type name when
     /// the message is null, empty, or whitespace; see <see cref="Try"/>).
     /// </returns>
+    /// <remarks>
+    /// Every exception, including <see cref="OperationCanceledException"/>, becomes a failed
+    /// <see cref="Result"/>. Use <see cref="RunAsync(Action, CancellationToken)"/> when cancellation
+    /// must propagate to the caller.
+    /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
     /// <example>
     /// <code>
@@ -68,6 +79,16 @@ public static class Try
     /// <see cref="Result{T}"/> whose <see cref="Result.ErrorMessage"/> is the caught exception's message
     /// (or its type name when the message is null, empty, or whitespace; see <see cref="Try"/>).
     /// </returns>
+    /// <remarks>
+    /// An <c>async</c> lambda passed here is not awaited: <typeparamref name="T"/> is inferred as
+    /// <see cref="Task"/>, so the result is a successful <see cref="Result{T}"/> wrapping the
+    /// still-running task and any exception it later throws is not captured. Use
+    /// <see cref="RunAsync(Func{Task}, CancellationToken)"/> for asynchronous work.
+    /// <para>
+    /// Every exception, including <see cref="OperationCanceledException"/>, becomes a failed
+    /// <see cref="Result{T}"/>; the <c>RunAsync</c> overloads rethrow cancellation instead.
+    /// </para>
+    /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
     /// <example>
     /// <code>
@@ -165,6 +186,82 @@ public static class Try
         try
         {
             await Task.Run(action, token).ConfigureAwait(false);
+            return Result.Success();
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(SafeErrorMessage(ex));
+        }
+    }
+
+
+
+    /// <summary>
+    /// Executes the specified asynchronous function that produces no value, catching any exception
+    /// that may occur.
+    /// </summary>
+    /// <param name="function">The asynchronous function to execute.</param>
+    /// <param name="token">
+    /// A <see cref="CancellationToken"/> that is checked before <paramref name="function"/> is
+    /// invoked. If cancellation is already requested, an <see cref="OperationCanceledException"/>
+    /// is thrown without invoking <paramref name="function"/>. The token is not threaded into
+    /// <paramref name="function"/> itself; if you need cancellation inside the function, capture
+    /// the token in the lambda's closure. If <paramref name="function"/> observes the token during
+    /// execution and the resulting <see cref="OperationCanceledException"/> escapes, it is also
+    /// propagated to the caller rather than wrapped in a failed <see cref="Result"/>.
+    /// </param>
+    /// <returns>
+    /// A <see cref="Task"/> of <see cref="Result"/> that completes when the task returned by
+    /// <paramref name="function"/> completes. On a caught exception (thrown synchronously by
+    /// <paramref name="function"/> or by the task it returns) the failed <see cref="Result"/>'s
+    /// <see cref="Result.ErrorMessage"/> is the exception's message (or its type name when the
+    /// message is null, empty, or whitespace; see <see cref="Try"/>).
+    /// </returns>
+    /// <remarks>
+    /// This is the overload an <c>async</c> lambda with no return value binds to. Without it such a
+    /// lambda would bind to <see cref="RunAsync(Action, CancellationToken)"/> as an <c>async void</c>
+    /// delegate, which reports success before the work finishes and lets its exception escape.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
+    /// <exception cref="OperationCanceledException">
+    /// <paramref name="token"/> was already canceled when this method was called, or
+    /// <paramref name="function"/> observed cancellation during execution and let an
+    /// <see cref="OperationCanceledException"/> escape.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// Result result = await Try.RunAsync(async () =>
+    /// {
+    ///     await File.WriteAllTextAsync("out.txt", "data");
+    /// });
+    /// if (result.Failed)
+    /// {
+    ///     Console.WriteLine("Write failed: " + result.ErrorMessage);
+    /// }
+    /// </code>
+    /// </example>
+    [SuppressMessage(
+        "ApiDesign",
+        "RS0026:Do not add multiple public overloads with optional parameters",
+        Justification = "Matches the shipped RunAsync overloads, which all take an optional token. The delegate types (Action, Func<Task>, Func<Task<T>>) differ, so the optional token cannot make a call ambiguous.")]
+    public static async Task<Result> RunAsync([NotNull] Func<Task>? function, CancellationToken token = default)
+    {
+        if (function == null)
+        {
+            throw new ArgumentNullException(nameof(function));
+        }
+
+        // Same contract as RunAsync<T>: fail fast on an already-canceled token, outside the try so
+        // the OperationCanceledException reaches the caller unwrapped.
+        token.ThrowIfCancellationRequested();
+
+        try
+        {
+            await function().ConfigureAwait(false);
             return Result.Success();
         }
         catch (OperationCanceledException)

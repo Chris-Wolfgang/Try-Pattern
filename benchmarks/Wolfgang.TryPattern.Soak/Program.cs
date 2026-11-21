@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Wolfgang.TryPattern;
 
 namespace Wolfgang.TryPattern.Soak;
 
@@ -54,12 +53,13 @@ internal static class Program
         );
 
         using var cts = new CancellationTokenSource(options.Duration);
+        var stop = cts.Token;
         var workers = Enumerable
             .Range(0, options.Workers)
-            .Select(id => Task.Run(() => Workload.RunAsync(id, cts.Token)))
+            .Select(id => Task.Run(() => Workload.RunAsync(id, stop)))
             .ToArray();
 
-        var samples = await Sampler.RunAsync(options, () => Interlocked.Read(ref _exceptionCount), cts.Token);
+        var samples = await Sampler.RunAsync(options, () => Interlocked.Read(ref _exceptionCount), stop);
         await Task.WhenAll(workers);
 
         await File.WriteAllTextAsync
@@ -104,11 +104,12 @@ internal sealed record SoakOptions
         var maxGrowth = 20d;
         var output = "soak-output";
 
-        for (var i = 0; i < args.Count; i++)
+        // Options come in name/value pairs, so the index advances by two per option.
+        for (var i = 0; i < args.Count; i += 2)
         {
             var value = i + 1 < args.Count
                 ? args[i + 1]
-                : throw new ArgumentException($"Missing value for {args[i]}.");
+                : throw new ArgumentException($"Missing value for {args[i]}.", nameof(args));
             switch (args[i])
             {
                 case "--duration": duration = ParseSpan(value); break;
@@ -117,15 +118,13 @@ internal sealed record SoakOptions
                 case "--workers": workers = int.Parse(value, CultureInfo.InvariantCulture); break;
                 case "--max-growth-percent": maxGrowth = double.Parse(value, CultureInfo.InvariantCulture); break;
                 case "--output": output = value; break;
-                default: throw new ArgumentException($"Unknown option {args[i]}.");
+                default: throw new ArgumentException($"Unknown option {args[i]}.", nameof(args));
             }
-
-            i++;
         }
 
         if (duration <= TimeSpan.Zero || interval <= TimeSpan.Zero || workers < 1 || maxGrowth <= 0)
         {
-            throw new ArgumentException("duration, interval, workers and max-growth-percent must be positive.");
+            throw new ArgumentException("duration, interval, workers and max-growth-percent must be positive.", nameof(args));
         }
 
         // Default warm-up: 10% of the run, at least one interval, at most 30 minutes.
@@ -146,7 +145,7 @@ internal sealed record SoakOptions
     private static TimeSpan ParseSpan(string value) =>
         TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var span)
             ? span
-            : throw new ArgumentException($"'{value}' is not a TimeSpan (hh:mm:ss).");
+            : throw new ArgumentException($"'{value}' is not a TimeSpan (hh:mm:ss).", nameof(value));
 }
 
 
@@ -163,21 +162,22 @@ internal static class Workload
         while (!stop.IsCancellationRequested)
         {
             iteration++;
+            var current = iteration;
 
             // Success and failure paths of every overload.
             _ = Try.Run(static () => { });
             _ = Try.Run(static () => throw new InvalidOperationException("soak failure"));
-            _ = Try.Run(() => workerId + iteration);
+            _ = Try.Run(() => workerId + current);
             _ = Try.Run<int>(static () => throw new FormatException("soak failure"));
             _ = await Try.RunAsync(static () => { }, CancellationToken.None);
-            _ = await Try.RunAsync(static () => throw new InvalidOperationException("soak failure"), CancellationToken.None);
-            _ = await Try.RunAsync(() => Task.FromResult(iteration), CancellationToken.None);
+            _ = await Try.RunAsync((Action)(static () => throw new InvalidOperationException("soak failure")), CancellationToken.None);
+            _ = await Try.RunAsync(() => Task.FromResult(current), CancellationToken.None);
             _ = await Try.RunAsync<long>(static () => throw new FormatException("soak failure"), CancellationToken.None);
 
             // Cancellation: an already-canceled token propagates OperationCanceledException.
             try
             {
-                _ = await Try.RunAsync(() => Task.FromResult(iteration), canceled.Token);
+                _ = await Try.RunAsync(() => Task.FromResult(current), canceled.Token);
             }
             catch (OperationCanceledException)
             {
@@ -245,7 +245,10 @@ internal static class Sampler
 
             // A full blocking collection first, so the heap figure is what is still
             // reachable (a leak), not garbage that has not been collected yet.
+            // S1215 flags forced collections; measuring retained memory is this harness's purpose.
+#pragma warning disable S1215
             var heap = GC.GetTotalMemory(forceFullCollection: true);
+#pragma warning restore S1215
             process.Refresh();
             var sample = new Sample
             (
@@ -259,8 +262,9 @@ internal static class Sampler
             samples.Add(sample);
             Console.WriteLine
             (
-                FormattableString.Invariant
+                string.Create
                 (
+                    CultureInfo.InvariantCulture,
                     $"{sample.Elapsed:hh\\:mm\\:ss} heap={sample.HeapBytes / 1024}KiB gen2={sample.Gen2Collections} threads={sample.ThreadPoolThreads} handles={sample.HandleCount} exceptions={sample.Exceptions}"
                 )
             );

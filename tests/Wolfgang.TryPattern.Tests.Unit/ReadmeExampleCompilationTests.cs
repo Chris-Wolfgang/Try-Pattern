@@ -176,7 +176,7 @@ public class ReadmeExampleCompilationTests
     private static string LocateReadme()
     {
         // Walk upward from the test binary's directory until we find
-        // README.md. On CI the test runs from bin/Release/net10.0/,
+        // README.md. On CI the test runs from bin/Release/<tfm>/,
         // so the repo root is a few levels up.
         string? dir = AppContext.BaseDirectory;
         while (dir is not null && !File.Exists(Path.Combine(dir, "README.md")))

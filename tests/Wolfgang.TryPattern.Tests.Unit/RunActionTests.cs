@@ -50,26 +50,7 @@ public class RunActionTests
         // Assert
         Assert.False(result.Succeeded);
         Assert.True(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.NotEmpty(result.ErrorMessage);
-    }
-
-
-
-    [Fact]
-    public void Run_Action_when_passed_synchronous_action_that_throws_exception_swallows_the_exception()
-    {
-        // Arrange
-        static void Action() => throw new InvalidOperationException("Test exception");
-
-        // Act
-        var result = Try.Run(Action);
-
-        // Assert
-        Assert.False(result.Succeeded);
-        Assert.True(result.Failed);
-        Assert.NotNull(result.ErrorMessage);
-        Assert.NotEmpty(result.ErrorMessage);
+        Assert.Equal("Test exception", result.ErrorMessage);
     }
 
 
@@ -105,5 +86,21 @@ public class RunActionTests
 
         // Assert
         Assert.Equal(3, callCount);
+    }
+
+
+
+    [Fact]
+    public void Run_Action_when_action_throws_OperationCanceledException_returns_failed_Result()
+    {
+        // Arrange: unlike Try.RunAsync, the synchronous overload captures cancellation (#539).
+        static void Action() => throw new OperationCanceledException("cancelled-sync");
+
+        // Act
+        var result = Try.Run(Action);
+
+        // Assert
+        Assert.True(result.Failed);
+        Assert.Equal("cancelled-sync", result.ErrorMessage);
     }
 }

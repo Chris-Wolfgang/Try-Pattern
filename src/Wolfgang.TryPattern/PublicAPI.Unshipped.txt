@@ -1,1 +1,2 @@
 #nullable enable
+static Wolfgang.TryPattern.Try.RunAsync(System.Func<System.Threading.Tasks.Task!>? function, System.Threading.CancellationToken token = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<Wolfgang.TryPattern.Result!>!
