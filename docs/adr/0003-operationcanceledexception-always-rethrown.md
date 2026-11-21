@@ -47,7 +47,7 @@ which is exactly the boilerplate `Try` exists to eliminate.
 
 ## Decision
 
-Both `Try.RunAsync` overloads (Action + Func) catch
+Every `Try.RunAsync` overload (`Action`, `Func<Task>` and `Func<Task<T>>`) catches
 `OperationCanceledException` in a dedicated `catch` block that
 **rethrows** — the exception propagates to the caller unchanged. Only
 non-cancellation exceptions become a failed `Result` (see the note below
@@ -81,13 +81,22 @@ The order matters: the `OperationCanceledException` catch must come
 before the general `Exception` catch, or the specific handler is
 unreachable.
 
-For the `RunAsync(Func<Task<T>>)` overload, the token is also checked
+For the `RunAsync(Func<Task>)` and `RunAsync(Func<Task<T>>)` overloads, the token is also checked
 BEFORE invoking the function via `token.ThrowIfCancellationRequested()`
 — if cancellation is already requested when the caller reaches
 `Try.RunAsync`, the function is never invoked and the
 `OperationCanceledException` propagates directly.
 
 ## Consequences
+
+- **Scope: `Try.RunAsync` only.** The synchronous `Try.Run(Action)` and
+  `Try.Run<T>(Func<T>)` overloads have a single `catch (Exception)` and
+  capture `OperationCanceledException` as a failed `Result` like any other
+  exception. They take no token, so there is no caller cancellation for
+  them to stay transparent to. The XML docs say so, and
+  `Run_Action_when_action_throws_OperationCanceledException_returns_failed_Result` /
+  `Run_Func_when_function_throws_OperationCanceledException_returns_failed_Result`
+  pin that behaviour (2026-11-20, #539).
 
 - **Standard `.WaitAsync(token)` / `WhenAny` cancellation patterns
   work correctly around `Try.RunAsync`.** A caller can wire an outer

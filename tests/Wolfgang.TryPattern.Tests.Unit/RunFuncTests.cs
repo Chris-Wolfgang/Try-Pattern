@@ -179,4 +179,20 @@ public class RunFuncTests
 
         Assert.Equal(3, callCount);
     }
+
+
+
+    [Fact]
+    public void Run_Func_when_function_throws_OperationCanceledException_returns_failed_Result()
+    {
+        // Arrange: unlike Try.RunAsync, the synchronous overload captures cancellation (#539).
+        static int Function() => throw new OperationCanceledException("cancelled-sync-T");
+
+        // Act
+        var result = Try.Run(Function);
+
+        // Assert
+        Assert.True(result.Failed);
+        Assert.Equal("cancelled-sync-T", result.ErrorMessage);
+    }
 }

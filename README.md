@@ -96,7 +96,7 @@ if (result.Failed)
 
 ### Cancellation support
 
-`Try.RunAsync(Action, CancellationToken)` runs a synchronous action on the thread pool via `Task.Run`. The token cancels the task before it starts; once running, cancellation is cooperative (your code must check the token). `OperationCanceledException` is always rethrown, never captured as a `Result`.
+`Try.RunAsync(Action, CancellationToken)` runs a synchronous action on the thread pool via `Task.Run`. The token cancels the task before it starts; once running, cancellation is cooperative (your code must check the token). `Try.RunAsync` always rethrows `OperationCanceledException`, never captures it as a `Result`. The synchronous `Try.Run` overloads capture it as a failed `Result` like any other exception.
 
 ```csharp
 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
