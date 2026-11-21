@@ -163,7 +163,7 @@ var now = DateTimeOffset.UtcNow;
 ## Build and Test Instructions
 
 ### Prerequisites
-- .NET 10.0 SDK or later (required for the repo's net10.0 target; older SDKs cannot load the csproj)
+- .NET 11 SDK (11.0.100 or later; `global.json` pins it and the library targets `net11.0`, so older SDKs cannot load the csproj)
 - PowerShell Core (optional, for formatting scripts)
 
 ### Build the Project

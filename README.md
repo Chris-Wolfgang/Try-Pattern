@@ -96,7 +96,7 @@ if (result.Failed)
 
 ### Cancellation support
 
-`Try.RunAsync(Action, CancellationToken)` runs a synchronous action on the thread pool via `Task.Run`. The token cancels the task before it starts; once running, cancellation is cooperative (your code must check the token). `OperationCanceledException` is always rethrown, never captured as a `Result`.
+`Try.RunAsync(Action, CancellationToken)` runs a synchronous action on the thread pool via `Task.Run`. The token cancels the task before it starts; once running, cancellation is cooperative (your code must check the token). `Try.RunAsync` always rethrows `OperationCanceledException`, never captures it as a `Result`. The synchronous `Try.Run` overloads capture it as a failed `Result` like any other exception.
 
 ```csharp
 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
@@ -120,6 +120,7 @@ var result = await Try.RunAsync(() =>
 | `Try.Run(Action)` | Execute an action, return `Result` |
 | `Try.Run<T>(Func<T>)` | Execute a function, return `Result<T>` with the value |
 | `Try.RunAsync(Action, CancellationToken)` | Run a synchronous action on the thread pool with cooperative cancellation |
+| `Try.RunAsync(Func<Task>, CancellationToken)` | Await an async function that returns no value (an `async () => { ... }` lambda binds here, not to the `Action` overload) |
 | `Try.RunAsync<T>(Func<Task<T>>, CancellationToken)` | Async function execution with cancellation support |
 | `Result.Success()` | Create a successful result |
 | `Result.Failure(message)` | Create a failed result with an error message |
@@ -358,7 +359,7 @@ This library targets:
 
 - **.NET Framework:** 4.6.2
 - **.NET Standard:** 2.0
-- **.NET:** 8.0, 10.0
+- **.NET:** 8.0, 10.0, 11.0
 
 See the [NuGet package page](https://www.nuget.org/packages/Wolfgang.TryPattern/) for the authoritative per-TFM compatibility matrix.
 

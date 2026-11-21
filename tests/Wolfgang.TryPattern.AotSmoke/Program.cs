@@ -96,10 +96,23 @@ Throws<ArgumentNullException>("Try.Run<T>", () => Try.Run<int>(null!), "null fun
 // ---- Try.RunAsync(Action, CancellationToken) --------------------------------
 Result runAsync = await Try.RunAsync(() => { });
 Check("Try.RunAsync", runAsync.Succeeded, "success");
-runAsync = await Try.RunAsync(() => throw new InvalidOperationException("async-boom"), CancellationToken.None);
+runAsync = await Try.RunAsync((Action)(() => throw new InvalidOperationException("async-boom")), CancellationToken.None);
 Check("Try.RunAsync", runAsync.Failed && Same(runAsync.ErrorMessage, "async-boom"), "failure");
 await ThrowsAsync<OperationCanceledException>("Try.RunAsync", async () => _ = await Try.RunAsync(() => { }, canceled.Token), "pre-canceled token propagates cancellation");
-await ThrowsAsync<ArgumentNullException>("Try.RunAsync", async () => _ = await Try.RunAsync(null!), "null action");
+await ThrowsAsync<ArgumentNullException>("Try.RunAsync", async () => _ = await Try.RunAsync((Action)null!), "null action");
+
+// ---- Try.RunAsync(Func<Task>, CancellationToken) -----------------------------
+Result runAsyncTask = await Try.RunAsync(async () => await Task.Yield());
+Check("Try.RunAsync", runAsyncTask.Succeeded, "async lambda success");
+runAsyncTask = await Try.RunAsync(async () =>
+{
+    await Task.Yield();
+    throw new InvalidOperationException("async-task-boom");
+});
+Check("Try.RunAsync", runAsyncTask.Failed && Same(runAsyncTask.ErrorMessage, "async-task-boom"), "async lambda failure after an await");
+await ThrowsAsync<OperationCanceledException>("Try.RunAsync", async () => _ = await Try.RunAsync(() => Task.CompletedTask, canceled.Token), "async lambda: pre-canceled token propagates cancellation");
+Func<Task>? nullAsyncFunction = null;
+await ThrowsAsync<ArgumentNullException>("Try.RunAsync", async () => _ = await Try.RunAsync(nullAsyncFunction!), "null async function");
 
 // ---- Try.RunAsync<T>(Func<Task<T>>, CancellationToken) — both kinds of T -----
 Result<string?> runAsyncString = await Try.RunAsync<string?>(() => Task.FromResult<string?>("ok"));

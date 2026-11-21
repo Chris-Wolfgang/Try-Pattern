@@ -300,31 +300,33 @@ public class ResultTests
 
 
     [Fact]
-    public void Flatten_when_passed_nothing_returns_new_successful_Result()
+    public void Flatten_when_passed_nothing_returns_successful_Result()
     {
         var result = Result.Flatten();
 
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Null(result.ErrorMessage);
+        Assert.Same(Result.Success(), result);
     }
 
 
 
     [Fact]
-    public void Flatten_when_passed_empty_list_returns_new_successful_Result()
+    public void Flatten_when_passed_empty_list_returns_successful_Result()
     {
         var result = Result.Flatten(Array.Empty<Result>());
 
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Null(result.ErrorMessage);
+        Assert.Same(Result.Success(), result);
     }
 
 
 
     [Fact]
-    public void Flatten_when_all_results_succeeded_returns_new_successful_Result()
+    public void Flatten_when_all_results_succeeded_returns_successful_Result()
     {
         var result1 = Result.Success();
         var result2 = Result.Success();
@@ -335,6 +337,7 @@ public class ResultTests
         Assert.True(result.Succeeded);
         Assert.False(result.Failed);
         Assert.Null(result.ErrorMessage);
+        Assert.Same(Result.Success(), result);
     }
 
 
