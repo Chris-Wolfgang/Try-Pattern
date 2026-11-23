@@ -1,10 +1,11 @@
 # ADR index
 
-Most-recent first. See [`README.md`](README.md) for the process and
+[0000](0000-record-architecture-decisions.md) first, then most-recent first. See [`README.md`](README.md) for the process and
 [`TEMPLATE.md`](TEMPLATE.md) for the template.
 
 | # | Title | Status |
 |---|---|---|
+| [0000](0000-record-architecture-decisions.md) | Record architecture decisions | Accepted |
 | [0004](0004-result-success-cached-singleton.md) | `Result.Success()` returns a cached singleton | Accepted |
 | [0003](0003-operationcanceledexception-always-rethrown.md) | `OperationCanceledException` is always rethrown, never captured as a `Result` | Accepted |
 | [0002](0002-per-tfm-publicapi-split.md) | Split `PublicAPI.Shipped.txt` per target framework | Accepted |
