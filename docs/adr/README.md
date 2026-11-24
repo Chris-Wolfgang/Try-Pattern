@@ -4,6 +4,8 @@ This folder captures non-obvious design decisions made in
 `Wolfgang.TryPattern` — the *why* behind choices whose motivation is not
 self-evident from the code six months later.
 
+[ADR 0000](0000-record-architecture-decisions.md) records the practice itself.
+
 ## When to write an ADR
 
 Add an ADR when a design decision:
