@@ -44,7 +44,7 @@ public class TryRunWhitespaceMessageTests
     public async Task RunAsync_Action_when_exception_message_is_whitespace_returns_Failed(string message)
     {
         Action action = () => throw new InvalidOperationException(message);
-        Result r = await Try.RunAsync(action);
+        Result r = await Try.RunAsync(action, TestCancellation.Token);
 
         Assert.True(r.Failed);
         Assert.Equal(nameof(InvalidOperationException), r.ErrorMessage);
@@ -56,7 +56,7 @@ public class TryRunWhitespaceMessageTests
     [InlineData(" ")]
     public async Task RunAsync_Generic_when_exception_message_is_whitespace_returns_Failed(string message)
     {
-        Result<int> r = await Try.RunAsync<int>(() => throw new InvalidOperationException(message));
+        Result<int> r = await Try.RunAsync<int>(() => throw new InvalidOperationException(message), TestCancellation.Token);
 
         Assert.True(r.Failed);
         Assert.Equal(nameof(InvalidOperationException), r.ErrorMessage);
