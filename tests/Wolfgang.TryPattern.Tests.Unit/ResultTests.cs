@@ -4,7 +4,7 @@ namespace Wolfgang.TryPattern.Tests.Unit;
 
 public class ResultTests
 {
-    private class TestResult(bool succeeded, string? errorMessage) : Result(succeeded, errorMessage);
+    private sealed class TestResult(bool succeeded, string? errorMessage) : Result(succeeded, errorMessage);
 
 
 

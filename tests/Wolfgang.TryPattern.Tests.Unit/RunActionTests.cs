@@ -76,7 +76,7 @@ public class RunActionTests
         void Action3()
         {
             callCount++;
-            throw new NullReferenceException();
+            throw new NotSupportedException();
         }
 
         // Act

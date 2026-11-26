@@ -158,7 +158,7 @@ public class RunFuncTests
             () =>
             {
                 callCount++;
-                throw new Exception("Test error");
+                throw new InvalidOperationException("Test error");
             }
         );
 

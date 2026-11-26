@@ -82,7 +82,7 @@ public class RunAsyncActionTests
         void Action3()
         {
             callCount++;
-            throw new NullReferenceException();
+            throw new NotSupportedException();
         }
 
         // Act
@@ -179,7 +179,7 @@ public class RunAsyncActionTests
         void Action3()
         {
             callCount++;
-            throw new NullReferenceException();
+            throw new NotSupportedException();
         }
 
         using var cts = new CancellationTokenSource();
