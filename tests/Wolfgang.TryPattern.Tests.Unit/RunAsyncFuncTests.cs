@@ -13,7 +13,7 @@ public class RunAsyncFuncTests
         Func<Task<int>>? nullFunction = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullFunction!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullFunction!, TestCancellation.Token));
     }
 
 
@@ -31,7 +31,7 @@ public class RunAsyncFuncTests
         }
 
         // Act
-        var result = await Try.RunAsync((Func<Task<int>>)Function);
+        var result = await Try.RunAsync((Func<Task<int>>)Function, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -55,7 +55,7 @@ public class RunAsyncFuncTests
         }
 
         // Act
-        var result = await Try.RunAsync((Func<Task<int?>>)Function);
+        var result = await Try.RunAsync((Func<Task<int?>>)Function, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -79,7 +79,7 @@ public class RunAsyncFuncTests
         }
 
         // Act
-        var result = await Try.RunAsync(Function);
+        var result = await Try.RunAsync(Function, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -101,7 +101,7 @@ public class RunAsyncFuncTests
         }
 
         // Act
-        var result = await Try.RunAsync((Func<Task<int>>)Function);
+        var result = await Try.RunAsync((Func<Task<int>>)Function, TestCancellation.Token);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -124,7 +124,7 @@ public class RunAsyncFuncTests
         }
 
         // Act
-        var result = await Try.RunAsync((Func<Task<int?>>)Function);
+        var result = await Try.RunAsync((Func<Task<int?>>)Function, TestCancellation.Token);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -148,7 +148,7 @@ public class RunAsyncFuncTests
         }
 
         // Act
-        var result = await Try.RunAsync(Function);
+        var result = await Try.RunAsync(Function, TestCancellation.Token);
 
         // Assert
         Assert.False(result.Succeeded);

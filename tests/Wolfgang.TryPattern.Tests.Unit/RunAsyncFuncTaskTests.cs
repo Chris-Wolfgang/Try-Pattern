@@ -13,7 +13,7 @@ public class RunAsyncFuncTaskTests
         Func<Task>? nullFunction = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullFunction!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullFunction!, TestCancellation.Token));
     }
 
 
@@ -31,7 +31,7 @@ public class RunAsyncFuncTaskTests
         }
 
         // Act
-        var result = await Try.RunAsync((Func<Task>)Function);
+        var result = await Try.RunAsync((Func<Task>)Function, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Succeeded);
@@ -52,7 +52,7 @@ public class RunAsyncFuncTaskTests
         }
 
         // Act
-        var result = await Try.RunAsync((Func<Task>)Function);
+        var result = await Try.RunAsync((Func<Task>)Function, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Failed);
@@ -68,7 +68,7 @@ public class RunAsyncFuncTaskTests
         static Task Function() => throw new InvalidOperationException("Test exception");
 
         // Act
-        var result = await Try.RunAsync((Func<Task>)Function);
+        var result = await Try.RunAsync((Func<Task>)Function, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Failed);
@@ -86,7 +86,7 @@ public class RunAsyncFuncTaskTests
         Task Function() => Task.FromException(new InvalidOperationException(message));
 
         // Act
-        var result = await Try.RunAsync((Func<Task>)Function);
+        var result = await Try.RunAsync((Func<Task>)Function, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Failed);
@@ -155,7 +155,7 @@ public class RunAsyncFuncTaskTests
         {
             await Task.Yield();
             throw new InvalidOperationException("Test exception");
-        });
+        }, TestCancellation.Token);
 
         // Assert
         Assert.True(result.Failed);
@@ -169,10 +169,42 @@ public class RunAsyncFuncTaskTests
     {
         // Act: a throw-expression lambda prefers the Task-returning overload over Action;
         // either way the outcome must be a failed Result.
-        var result = await Try.RunAsync(() => throw new InvalidOperationException("Test exception"));
+        var result = await Try.RunAsync(() => throw new InvalidOperationException("Test exception"), TestCancellation.Token);
 
         // Assert
         Assert.True(result.Failed);
         Assert.Equal("Test exception", result.ErrorMessage);
+    }
+
+
+
+    [Fact]
+    public async Task RunAsync_when_passed_non_async_lambda_with_unreachable_end_runs_it_synchronously_on_the_caller()
+    {
+        // Arrange: a worker-loop lambda (no async, end not reachable) binds to RunAsync(Func<Task>),
+        // not RunAsync(Action), so it is invoked on the caller's thread instead of through Task.Run.
+        var callerThread = Environment.CurrentManagedThreadId;
+        var delegateThread = -1;
+        var iterations = 0;
+
+        // Act
+        var task = Try.RunAsync(() =>
+        {
+            delegateThread = Environment.CurrentManagedThreadId;
+            while (true)
+            {
+                if (++iterations == 3)
+                {
+                    throw new InvalidOperationException("Loop ended");
+                }
+            }
+        }, TestCancellation.Token);
+
+        // Assert
+        Assert.True(task.IsCompleted, "the loop must have run to its end before RunAsync returned");
+        Assert.Equal(callerThread, delegateThread);
+        var result = await task;
+        Assert.True(result.Failed);
+        Assert.Equal("Loop ended", result.ErrorMessage);
     }
 }
