@@ -54,6 +54,15 @@ dotnet build
 dotnet test
 ```
 
+`dotnet test` does not run `tests/Wolfgang.TryPattern.Tests.Aot`, which sets `<IsTestProject>false</IsTestProject>`:
+it is the unit suite compiled as a Native AOT executable. CI (`aot-smoke.yaml`) publishes and runs it; to run it
+locally, publish it for your runtime identifier and run the binary (Native AOT needs the platform's C++ build tools):
+
+```bash
+dotnet publish tests/Wolfgang.TryPattern.Tests.Aot -c Release -r linux-x64 -o artifacts/aot
+./artifacts/aot/Wolfgang.TryPattern.Tests.Aot
+```
+
 ### Project Structure
 
 ```
@@ -63,6 +72,7 @@ Try-Pattern/
 ├── tests/
 │   ├── Wolfgang.TryPattern.Tests.Unit/         # Unit, property and doc-example tests
 │   ├── Wolfgang.TryPattern.Tests.Concurrency/  # Concurrency stress tests
+│   ├── Wolfgang.TryPattern.Tests.Aot/          # Unit suite as a Native AOT xUnit v3 binary
 │   └── Wolfgang.TryPattern.AotSmoke/           # Native AOT / trimming smoke app
 ├── examples/
 │   ├── CSharp.DotNet8.Example/     # C# .NET 8 examples
@@ -72,7 +82,8 @@ Try-Pattern/
 │   ├── VB.DotNet8.Example/         # VB.NET .NET 8 examples
 │   └── VB.DotNet462.Example/       # VB.NET .NET Framework examples
 ├── benchmarks/
-│   └── Wolfgang.TryPattern.Benchmarks/  # BenchmarkDotNet benchmarks
+│   ├── Wolfgang.TryPattern.Benchmarks/  # BenchmarkDotNet benchmarks
+│   └── Wolfgang.TryPattern.Soak/        # Long-running soak / leak-check harness
 ├── docfx_project/                   # This documentation site
 └── docs/                            # ADRs and repository documentation
 ```
