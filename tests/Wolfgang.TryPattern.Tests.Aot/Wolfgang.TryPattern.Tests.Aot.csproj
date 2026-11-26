@@ -31,6 +31,9 @@
 		<!-- GlobalizationInvarianceTests run under tr-TR, de-DE and other real cultures, so ICU is
 		     required: InvariantGlobalization must stay OFF for this project. -->
 		<InvariantGlobalization>false</InvariantGlobalization>
+		<!-- The linked Tests.Unit sources check XUNIT_V3 (TestCancellation.cs) to use the
+		     xUnit v3 test cancellation token, which xUnit v2 does not have. -->
+		<DefineConstants>$(DefineConstants);XUNIT_V3</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
