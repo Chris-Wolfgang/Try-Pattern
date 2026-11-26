@@ -161,6 +161,12 @@ public static class Try
     /// Cancellation was observed via <paramref name="token"/> (either before
     /// <paramref name="action"/> started, or because <paramref name="action"/> itself observed
     /// the token and threw).</exception>
+    /// <remarks>
+    /// A non-<c>async</c> lambda whose end cannot be reached (an endless loop, a bare
+    /// <c>throw</c>) binds to <see cref="RunAsync(Func{Task}, CancellationToken)"/> instead,
+    /// which runs it on the caller's thread. Cast such a lambda to <see cref="Action"/> to run it
+    /// here, on the thread pool.
+    /// </remarks>
     /// <example>
     /// <code>
     /// using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
@@ -222,9 +228,26 @@ public static class Try
     /// message is null, empty, or whitespace; see <see cref="Try"/>).
     /// </returns>
     /// <remarks>
+    /// <para>
     /// This is the overload an <c>async</c> lambda with no return value binds to. Without it such a
     /// lambda would bind to <see cref="RunAsync(Action, CancellationToken)"/> as an <c>async void</c>
     /// delegate, which reports success before the work finishes and lets its exception escape.
+    /// </para>
+    /// <para>
+    /// <paramref name="function"/> is invoked on the caller's thread, not through
+    /// <see cref="Task.Run(Func{Task}, CancellationToken)"/>: everything before its first
+    /// <c>await</c> runs synchronously, and this method does not return until then. C# also binds
+    /// a non-<c>async</c> lambda whose end cannot be reached to this overload rather than to the
+    /// <see cref="Action"/> one, for example an endless worker loop
+    /// (<c>() =&gt; { while (true) { token.ThrowIfCancellationRequested(); Work(); } }</c>) or a
+    /// bare <c>() =&gt; throw ...</c>. Such a loop then blocks the caller until it ends. To run it
+    /// on the thread pool, cast it to <see cref="Action"/>:
+    /// <c>Try.RunAsync((Action)(() =&gt; { ... }), token)</c>.
+    /// </para>
+    /// <para>
+    /// Because several overloads take a single delegate, a literal <see langword="null"/> argument is
+    /// ambiguous; cast it, as in <c>Try.RunAsync((Action)null!)</c>.
+    /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="function"/> is null.</exception>
     /// <exception cref="OperationCanceledException">

@@ -175,4 +175,36 @@ public class RunAsyncFuncTaskTests
         Assert.True(result.Failed);
         Assert.Equal("Test exception", result.ErrorMessage);
     }
+
+
+
+    [Fact]
+    public async Task RunAsync_when_passed_non_async_lambda_with_unreachable_end_runs_it_synchronously_on_the_caller()
+    {
+        // Arrange: a worker-loop lambda (no async, end not reachable) binds to RunAsync(Func<Task>),
+        // not RunAsync(Action), so it is invoked on the caller's thread instead of through Task.Run.
+        var callerThread = Environment.CurrentManagedThreadId;
+        var delegateThread = -1;
+        var iterations = 0;
+
+        // Act
+        var task = Try.RunAsync(() =>
+        {
+            delegateThread = Environment.CurrentManagedThreadId;
+            while (true)
+            {
+                if (++iterations == 3)
+                {
+                    throw new InvalidOperationException("Loop ended");
+                }
+            }
+        });
+
+        // Assert
+        Assert.True(task.IsCompleted, "the loop must have run to its end before RunAsync returned");
+        Assert.Equal(callerThread, delegateThread);
+        var result = await task;
+        Assert.True(result.Failed);
+        Assert.Equal("Loop ended", result.ErrorMessage);
+    }
 }
