@@ -19,7 +19,7 @@ internal static class TestCancellation
     /// <see cref="CancellationToken.None"/>.
     /// </summary>
 #if XUNIT_V3
-    internal static CancellationToken Token => Xunit.TestContext.Current.CancellationToken;
+    internal static CancellationToken Token => TestContext.Current.CancellationToken;
 #else
     internal static CancellationToken Token => CancellationToken.None;
 #endif
