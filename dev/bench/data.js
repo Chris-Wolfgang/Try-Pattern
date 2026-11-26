@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1795269454614,
+  "lastUpdate": 1795713438696,
   "repoUrl": "https://github.com/Chris-Wolfgang/Try-Pattern",
   "entries": {
     "BenchmarkDotNet": [
@@ -1236,6 +1236,120 @@ window.BENCHMARK_DATA = {
             "value": 2713383.6790364585,
             "unit": "ns",
             "range": "± 23319.34424658428"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "210299580+Chris-Wolfgang@users.noreply.github.com",
+            "name": "Chris Wolfgang",
+            "username": "Chris-Wolfgang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2b3cb19063ff196825e3e9369662bef159de5e3c",
+          "message": "docs: list Tests.Aot and Soak, and how to run the AOT suite (#567) (#572)\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-26T12:14:10-05:00",
+          "tree_id": "2745b59e6b396419c0fca826ae31cbc3d64e988b",
+          "url": "https://github.com/Chris-Wolfgang/Try-Pattern/commit/2b3cb19063ff196825e3e9369662bef159de5e3c"
+        },
+        "date": 1795713436935,
+        "tool": "benchmarkdotnet",
+        "benches": [
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllSucceeded",
+            "value": 10.02538857360681,
+            "unit": "ns",
+            "range": "± 0.003910580049190338"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_OneFailed",
+            "value": 17.38896444439888,
+            "unit": "ns",
+            "range": "± 0.011897834009320525"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.Flatten_AllFailed",
+            "value": 231.59235445658365,
+            "unit": "ns",
+            "range": "± 3.2647430565355613"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AnyFailed_AllSucceeded",
+            "value": 9.07214866578579,
+            "unit": "ns",
+            "range": "± 0.020931111685480397"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.ResultBenchmarks.AllSucceeded_AllSucceeded",
+            "value": 8.997290387749672,
+            "unit": "ns",
+            "range": "± 0.018054635824173715"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_Success",
+            "value": 1842.9467487335205,
+            "unit": "ns",
+            "range": "± 5.249404921285652"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Action_WithException",
+            "value": 1483837.4534505208,
+            "unit": "ns",
+            "range": "± 8350.870614110827"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_Success",
+            "value": 716760.0066731771,
+            "unit": "ns",
+            "range": "± 28421.322276962885"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Action_WithException",
+            "value": 7738207.458333333,
+            "unit": "ns",
+            "range": "± 292999.9828965032"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_FuncTask_Success",
+            "value": 21559.684824625652,
+            "unit": "ns",
+            "range": "± 126.60903684097951"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_FuncTask_WithException",
+            "value": 3283680.7994791665,
+            "unit": "ns",
+            "range": "± 26370.90662031129"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_Success",
+            "value": 7471.884572347005,
+            "unit": "ns",
+            "range": "± 255.24972752775756"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.Run_Func_WithException",
+            "value": 1470230.1422526042,
+            "unit": "ns",
+            "range": "± 3255.163896307306"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_Success",
+            "value": 34058.21643066406,
+            "unit": "ns",
+            "range": "± 839.9503860894554"
+          },
+          {
+            "name": "Wolfgang.TryPattern.Benchmarks.TryBenchmarks.RunAsync_Func_WithException",
+            "value": 3311743.7845052085,
+            "unit": "ns",
+            "range": "± 25186.81746673486"
           }
         ]
       }
