@@ -13,7 +13,7 @@ public class RunAsyncActionTests
         Action? nullAction = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullAction!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => Try.RunAsync(nullAction!, TestCancellation.Token));
     }
 
 
@@ -30,7 +30,7 @@ public class RunAsyncActionTests
         }
 
         // Act
-        var result = await Try.RunAsync(Action);
+        var result = await Try.RunAsync(Action, TestCancellation.Token);
 
         // Assert
         Assert.True(executed);
@@ -51,7 +51,7 @@ public class RunAsyncActionTests
         }
 
         // Act
-        var result = await Try.RunAsync(Action);
+        var result = await Try.RunAsync(Action, TestCancellation.Token);
 
         // Assert
         Assert.False(result.Succeeded);
@@ -86,9 +86,9 @@ public class RunAsyncActionTests
         }
 
         // Act
-        await Try.RunAsync(Action1);
-        await Try.RunAsync(Action2);
-        await Try.RunAsync(Action3);
+        await Try.RunAsync(Action1, TestCancellation.Token);
+        await Try.RunAsync(Action2, TestCancellation.Token);
+        await Try.RunAsync(Action3, TestCancellation.Token);
 
         // Assert
         Assert.Equal(3, callCount);
