@@ -1934,6 +1934,9 @@ jobs:
               # compile+publish+run executable with no Test.Sdk and no explicit opt-out, and
               # Stages 1-3 here skip such projects, so this stage skips them too (with a notice)
               # rather than failing. aot-smoke.yaml publishes and runs that project.
+              # tests/Wolfgang.TryPattern.Tests.Aot (the unit suite as a Native AOT binary) sets
+              # <IsTestProject>false</IsTestProject> explicitly, so it takes the opt-out branch
+              # above; aot-smoke.yaml publishes and runs it too.
               echo "::notice file=$test_proj::Not a test project (no IsTestProject / Microsoft.NET.Test.Sdk): skipped."
               echo ""
               continue
@@ -2283,6 +2286,9 @@ jobs:
               # compile+publish+run executable with no Test.Sdk and no explicit opt-out, and
               # Stages 1-3 here skip such projects, so this stage skips them too (with a notice)
               # rather than failing. aot-smoke.yaml publishes and runs that project.
+              # tests/Wolfgang.TryPattern.Tests.Aot (the unit suite as a Native AOT binary) sets
+              # <IsTestProject>false</IsTestProject> explicitly, so it takes the opt-out branch
+              # above; aot-smoke.yaml publishes and runs it too.
               echo "::notice file=$test_proj::Not a test project (no IsTestProject / Microsoft.NET.Test.Sdk): skipped."
               echo ""
               continue
