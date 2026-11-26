@@ -54,6 +54,28 @@ public class TryBenchmarks
     }
 
     [Benchmark]
+    public async Task RunAsync_FuncTask_Success()
+    {
+        for (var i = 0; i < OperationCount; i++)
+        {
+            await Try.RunAsync(async () => await Task.CompletedTask);
+        }
+    }
+
+    [Benchmark]
+    public async Task RunAsync_FuncTask_WithException()
+    {
+        for (var i = 0; i < OperationCount; i++)
+        {
+            await Try.RunAsync(async () =>
+            {
+                await Task.CompletedTask;
+                throw new InvalidOperationException();
+            });
+        }
+    }
+
+    [Benchmark]
     public void Run_Func_Success()
     {
         for (var i = 0; i < OperationCount; i++)

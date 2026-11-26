@@ -215,6 +215,47 @@ public sealed class ConcurrencyStressTests
 
 
 
+    [Fact]
+    public async Task RunAsync_FuncTask_when_cancellation_races_the_token_check_a_canceled_call_never_invoked_the_function()
+    {
+        var canceled = 0;
+        for (var round = 0; round < StressIterations; round++)
+        {
+            using var cts = new CancellationTokenSource();
+            var invocations = new StrongBox<int>();
+            var cancel = Task.Run(cts.Cancel);
+
+            var call = Try.RunAsync
+            (
+                (Func<Task>)(() =>
+                {
+                    Interlocked.Increment(ref invocations.Value);
+                    return Task.CompletedTask;
+                }),
+                cts.Token
+            );
+            var thrown = await Record.ExceptionAsync(async () => await call);
+            await cancel;
+            Result? result = thrown is null ? await call : null;
+
+            // Canceled before the token check: OperationCanceledException and the
+            // function was never invoked. Otherwise it was invoked exactly once and
+            // succeeded, even if the token was canceled a moment later.
+            Assert.True
+            (
+                thrown is OperationCanceledException
+                    ? Volatile.Read(ref invocations.Value) == 0
+                    : result is { Succeeded: true } && Volatile.Read(ref invocations.Value) == 1,
+                $"round {round}: thrown={thrown?.GetType().Name ?? "none"}, invocations={Volatile.Read(ref invocations.Value)}"
+            );
+            canceled += thrown is null ? 0 : 1;
+        }
+
+        _output.WriteLine($"{canceled} of {StressIterations} rounds observed the cancellation before the token check.");
+    }
+
+
+
     private static async Task<int> SucceedOrThrowAsync(int id)
     {
         // Yield so the continuation can resume on a different pool thread than
