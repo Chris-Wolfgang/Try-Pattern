@@ -173,6 +173,16 @@ internal static class Workload
             _ = await Try.RunAsync((Action)(static () => throw new InvalidOperationException("soak failure")), CancellationToken.None);
             _ = await Try.RunAsync(() => Task.FromResult(current), CancellationToken.None);
             _ = await Try.RunAsync<long>(static () => throw new FormatException("soak failure"), CancellationToken.None);
+            _ = await Try.RunAsync(static async () => await Task.Yield(), CancellationToken.None);
+            _ = await Try.RunAsync
+            (
+                static async () =>
+                {
+                    await Task.Yield();
+                    throw new InvalidOperationException("soak failure");
+                },
+                CancellationToken.None
+            );
 
             // Cancellation: an already-canceled token propagates OperationCanceledException.
             try
@@ -182,6 +192,15 @@ internal static class Workload
             catch (OperationCanceledException)
             {
                 // Expected: Try.RunAsync rethrows cancellation rather than wrapping it.
+            }
+
+            try
+            {
+                _ = await Try.RunAsync(static async () => await Task.Yield(), canceled.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected: the Func<Task> overload checks the token the same way.
             }
 
             // Result / Result<T> construction and aggregation.
