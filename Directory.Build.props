@@ -20,6 +20,12 @@
     
     <!-- Treat warnings as errors in Release builds -->
     <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+
+    <!-- Microsoft.SourceLink.GitHub 11.x depends on System.IO.Hashing 11.x, whose
+         buildTransitive targets print an "doesn't support net8.0" warning for every
+         target below net10.0. SourceLink runs only at build time (PrivateAssets=all),
+         so nothing from it ships in the package; the warning is noise. -->
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
   <ItemGroup>
