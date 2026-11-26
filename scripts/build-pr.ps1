@@ -141,6 +141,27 @@ if (-not $SkipTests -and $failed.Count -eq 0) {
                 continue
             }
 
+            # Only projects that really run tests, as pr.yaml's test stages do: an AOT
+            # executable under tests/ (the AotSmoke harness, or a *.Tests.Aot project that
+            # sets IsTestProject=false and runs as a native xUnit v3 binary) has nothing
+            # for `dotnet test` to execute, and xUnit v3's Microsoft.Testing.Platform
+            # refuses the VSTest `dotnet test` path on the .NET 10+ SDK. IsTestProject
+            # comes from Microsoft.NET.Test.Sdk's props, imported per TFM after restore,
+            # so check it per framework and fall back to the PackageReference itself
+            # (synced from repo-template's build-pr.ps1).
+            $isTestProject = $false
+            foreach ($fw in $frameworks) {
+                $isTest = (dotnet msbuild $testProj.FullName -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getProperty:IsTestProject 2>$null |
+                    Where-Object { $_ -and "$_".Trim() } | Select-Object -Last 1)
+                if (("$isTest" -replace '^IsTestProject[=:]\s*', '').Trim() -ieq 'true') { $isTestProject = $true; break }
+                $refs = (dotnet msbuild $testProj.FullName -noLogo -p:Configuration=Release "-p:TargetFramework=$fw" -getItem:PackageReference 2>$null | Out-String)
+                if ($refs.Trim() -and ((ConvertFrom-Json $refs).Items.PackageReference | Where-Object { $_.Identity -ieq 'Microsoft.NET.Test.Sdk' })) { $isTestProject = $true; break }
+            }
+            if (-not $isTestProject) {
+                Write-Host "  Not a test project (no IsTestProject / Microsoft.NET.Test.Sdk) — skipping dotnet test" -ForegroundColor Yellow
+                continue
+            }
+
             Write-Host "  Frameworks: $($frameworks -join ', ')"
 
             foreach ($fw in $frameworks) {
