@@ -61,7 +61,9 @@ else
 
 ### Async Operations
 
-`Try.RunAsync` has three overloads: `Action` (run on the thread pool), `Func<Task<T>>` and `Func<Task>`. An async lambda that returns no value (`async () => { await ...; }`) binds to `Try.RunAsync(Func<Task>, CancellationToken)`, which awaits it and returns a `Result`:
+`Try.RunAsync` has three overloads: `Action` (run on the thread pool), `Func<Task<T>>` and `Func<Task>`.
+
+An async lambda that returns a value binds to `Try.RunAsync<T>(Func<Task<T>>, CancellationToken)`, which awaits it and returns a `Result<T>`:
 
 ```csharp
 var result = await Try.RunAsync(
@@ -71,6 +73,20 @@ var result = await Try.RunAsync(
 if (result.Succeeded)
 {
     ProcessResponse(result.Value);
+}
+```
+
+An async lambda that returns no value (`async () => { await ...; }`) binds to `Try.RunAsync(Func<Task>, CancellationToken)`, which awaits it and returns a `Result`:
+
+```csharp
+Result result = await Try.RunAsync(async () =>
+{
+    await File.WriteAllTextAsync("out.txt", "data");
+});
+
+if (!result.Succeeded)
+{
+    Console.WriteLine($"Write failed: {result.ErrorMessage}");
 }
 ```
 
