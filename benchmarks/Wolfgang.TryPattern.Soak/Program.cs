@@ -115,8 +115,8 @@ internal sealed record SoakOptions
                 case "--duration": duration = ParseSpan(value); break;
                 case "--interval": interval = ParseSpan(value); break;
                 case "--warmup": warmup = ParseSpan(value); break;
-                case "--workers": workers = int.Parse(value, CultureInfo.InvariantCulture); break;
-                case "--max-growth-percent": maxGrowth = double.Parse(value, CultureInfo.InvariantCulture); break;
+                case "--workers": workers = ParseInt(value); break;
+                case "--max-growth-percent": maxGrowth = ParseDouble(value); break;
                 case "--output": output = value; break;
                 default: throw new ArgumentException($"Unknown option {args[i]}.", nameof(args));
             }
@@ -146,6 +146,20 @@ internal sealed record SoakOptions
         TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var span)
             ? span
             : throw new ArgumentException($"'{value}' is not a TimeSpan (hh:mm:ss).", nameof(value));
+
+
+
+    private static int ParseInt(string value) =>
+        int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var number)
+            ? number
+            : throw new ArgumentException($"'{value}' is not a whole number.", nameof(value));
+
+
+
+    private static double ParseDouble(string value) =>
+        double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var number)
+            ? number
+            : throw new ArgumentException($"'{value}' is not a number.", nameof(value));
 }
 
 
