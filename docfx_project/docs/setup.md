@@ -128,15 +128,22 @@ Open a pull request on GitHub and wait for review.
 
 ## Building Documentation
 
-The project uses DocFX for documentation generation.
+The project uses DocFX for documentation generation. DocFX is a .NET global tool and is not in the repo's tool manifest, so install it once:
+
+```bash
+dotnet tool update docfx --global
+```
+
+Then generate the API metadata, build the site and serve the built output (the same metadata and build steps `.github/workflows/docfx.yaml` runs):
 
 ```bash
 cd docfx_project
+docfx metadata
 docfx build
-docfx serve
+docfx serve _site
 ```
 
-Visit `http://localhost:8080` to view the documentation.
+`docfx metadata` writes the API reference pages to `docfx_project/api/` (the generated `*.yml` files are git-ignored), and `docfx build` writes the site to `docfx_project/_site/`. Visit `http://localhost:8080` to view the documentation.
 
 ## Running Examples
 
