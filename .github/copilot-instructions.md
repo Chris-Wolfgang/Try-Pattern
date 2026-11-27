@@ -95,7 +95,7 @@ else
 ## Testing Guidelines
 
 ### Unit Test Structure
-- Use xUnit 2.9.3 (the only test framework in this repo)
+- Write tests for xUnit 2.9.3. `Tests.Aot` also compiles the same test sources under xUnit v3 (`xunit.v3.aot`) as a Native AOT binary, so pass `TestCancellation.Token` to every call that takes a `CancellationToken` (xUnit1051)
 - Test both success and failure paths
 - Verify `Succeeded` property is correct
 - Verify `ErrorMessage` is populated on failure

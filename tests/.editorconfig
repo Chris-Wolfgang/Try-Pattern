@@ -46,10 +46,6 @@ dotnet_diagnostic.S2190.severity = none
 # are illustrative, not user-facing.
 dotnet_diagnostic.S3928.severity = none
 
-# MA0012: NullReferenceException reserved — tests intentionally throw
-# NRE to verify Try's exception-handling behavior.
-dotnet_diagnostic.MA0012.severity = none
-
 # MA0015: paramName in ArgumentException — same rationale as S3928;
 # test-side illustration only.
 dotnet_diagnostic.MA0015.severity = none

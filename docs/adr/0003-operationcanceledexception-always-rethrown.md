@@ -105,7 +105,7 @@ BEFORE invoking the function via `token.ThrowIfCancellationRequested()`
   `OperationCanceledException` for unrelated reasons" from "the
   wrapping cancellation fired"** without extra work — but this
   ambiguity exists in *every* async .NET API, not just Try.
-- **The XML doc on both `RunAsync` overloads must document this
+- **The XML doc on every `RunAsync` overload must document this
   explicitly** (and does — see the `<exception cref="OperationCanceledException">`
   block on `Try.cs`). If a contributor rewrites the `RunAsync`
   implementation without preserving the OCE-rethrow, the observable
